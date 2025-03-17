@@ -1,0 +1,29 @@
+{
+  "name": "contextmanager",
+  "version": "1.0.0",
+  "description": "MCP Server implementations for various domains",
+  "private": true,
+  "workspaces": [
+    "main"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "prepare": "npm run build",
+    "start": "node main/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tejpalvirk/contextmanager.git"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "context"
+  ],
+  "author": "tejpalvirk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tejpalvirk/contextmanager/issues"
+  },
+  "homepage": "https://github.com/tejpalvirk/contextmanager#readme"
+} 

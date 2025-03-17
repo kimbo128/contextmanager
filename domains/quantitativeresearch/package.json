@@ -1,0 +1,48 @@
+{
+  "name": "mcp-server-researcher-quantitative",
+  "version": "1.0.0",
+  "description": "An MCP server for quantitative research context management",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "mcp-server-quantitativeresearch": "index.js"
+  },
+  "files": [
+    "index.js",
+    "quantitativeresearch_tools.js",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node index.js",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.1.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.3",
+    "typescript": "^5.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tejpalvirk/contextmanager.git"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "context",
+    "research",
+    "quantitative"
+  ],
+  "author": "Tejpal Virk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tejpalvirk/contextmanager/issues"
+  },
+  "homepage": "https://github.com/tejpalvirk/contextmanager#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 

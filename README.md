@@ -1,15 +1,20 @@
 # MCP Context Manager and Domain Servers
 
-A collection of Model Context Protocol (MCP) servers for enhancing Claude with domain-specific context management capabilities. All domain servers are now managed through a central Context Manager that provides unified access.
+A collection of Model Context Protocol (MCP) servers to enhance AI models with persistent context across work sessions throughout the project lifecycle. Context for each project is stored in a domain-specific knowledge graph handled by the domain's server. All domain servers can be managed through a central Context Manager that provides unified access. 
+
+Each domain server is also a standalone MCP Server that you can use on its own without the Context Manager.
 
 ## Features
 
-- **Domain Management**: Set and switch between different context domains (developer, project, student, etc.)
-- **Session Management**: Create and manage sessions for different domains
-- **Context Operations**: Build, load, and manipulate context for different entity types
+- **Persistent Context**: Easily load the perfect context about your project and store it for future sessions
+- **Efficienct Access**: Instead of loading huge markdown files that clog up the context window, enable AI models to grab the exact context they need when they need it
+- **Session Management**: Create and manage sessions to track what you've been working on
+- **Living Context**: Build, load, and manipulate context for domain-specific entity types, as you progress from idea to production/publication/completion
 - **Cross-Domain Support**: Work with multiple knowledge domains through a single interface, including creating relationships between entities in different domains
-- **Domain Discovery**: Explore available domains and their entity types
-- **Direct Integration**: Communicates directly with domain-specific MCP servers
+
+## Why knowledge graphs?
+
+To free up the context window (performance), and minimize token cost (efficiency).
 
 ## Available Servers
 
@@ -39,7 +44,6 @@ The Context Manager provides:
 - **Unified Interface**: Access all domain servers through a single interface.
 - **Smart Routing**: Automatically routes requests to the appropriate domain server.
 - **Cross-Domain Context**: Maintains references across different domains.
-- **Domain Discovery**: Explore available domains and their entity types.
 
 ## Implementation
 
@@ -52,13 +56,7 @@ The Context Manager uses the MCP Client SDK to communicate with domain-specific 
 
 ## Path Resolution
 
-The Context Manager uses absolute paths constructed at runtime to locate domain servers. This approach:
-
-- Ensures consistent path resolution regardless of the current working directory
-- Makes the code portable and sharable on GitHub
-- Uses Node.js's `path.resolve()` with `import.meta.url` to create absolute paths relative to the context manager's location
-
-If you need to modify paths to domain servers, update the `domains` array in `main/index.ts`.
+The Context Manager uses absolute paths constructed at runtime to locate domain servers. If you need to modify paths to domain servers, update the `domains` array in `main/index.ts`.
 
 ## Installation & Usage
 
@@ -152,7 +150,7 @@ startsession(domain="developer")
 End a session when you're done:
 
 ```
-endsession(sessionId="session_id_here", stage="completed", stageNumber=1, totalStages=1, nextStageNeeded=false)
+endsession(sessionId="session_id_here", stage="assembly", stageNumber=6, totalStages=6, nextStageNeeded=false)
 ```
 
 ### Context Operations
@@ -226,24 +224,6 @@ relateCrossDomain(
   relationType="manages"
 )
 ```
-
-### Exploring Available Entities
-
-List all entity types available in the current domain:
-
-```
-listAllEntities()
-```
-
-## Architecture
-
-The Context Manager is a proxy that:
-
-1. Receives MCP protocol messages from clients
-2. Routes these messages to the appropriate domain server
-3. Returns responses back to the client
-
-Each domain server runs as a separate process, and the Context Manager communicates with them using the MCP protocol.
 
 ## Integration with Claude
 

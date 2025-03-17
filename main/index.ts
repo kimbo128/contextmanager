@@ -619,61 +619,61 @@ server.tool(
   }
 );
 
-// List all entities
-server.tool(
-  "listAllEntities",
-  {
-    random_string: z.string().optional()
-  },
-  async () => {
-    if (!activeDomain) {
-      return {
-        content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain tool first." }],
-        isError: true
-      };
-    }
+// // List all entities
+// server.tool(
+//   "listAllEntities",
+//   {
+//     random_string: z.string().optional()
+//   },
+//   async () => {
+//     if (!activeDomain) {
+//       return {
+//         content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain tool first." }],
+//         isError: true
+//       };
+//     }
 
-    const domainClient = domainClients[activeDomain];
+//     const domainClient = domainClients[activeDomain];
     
-    if (!domainClient || !domainClient.connected) {
-      const connected = await domainClient.connect();
-      if (!connected) {
-        return {
-          content: [{ type: "text", text: `Error: Could not connect to domain server for '${activeDomain}'` }],
-          isError: true
-        };
-      }
-    }
+//     if (!domainClient || !domainClient.connected) {
+//       const connected = await domainClient.connect();
+//       if (!connected) {
+//         return {
+//           content: [{ type: "text", text: `Error: Could not connect to domain server for '${activeDomain}'` }],
+//           isError: true
+//         };
+//       }
+//     }
     
-    // Forward the listAllEntities call to the domain server
-    try {
-      const result = await domainClient.callTool({
-        name: "listAllEntities",
-        arguments: {
-          random_string: `from_context_manager_${Date.now()}`
-        }
-      });
+//     // Forward the listAllEntities call to the domain server
+//     try {
+//       const result = await domainClient.callTool({
+//         name: "listAllEntities",
+//         arguments: {
+//           random_string: `from_context_manager_${Date.now()}`
+//         }
+//       });
       
-      return result;
-    } catch (error) {
-      // If the domain server doesn't support listAllEntities, fall back to our domain registry
-      const domain = domains.find(d => d.name === activeDomain);
-      if (!domain) {
-        return {
-          content: [{ type: "text", text: `Error: Domain '${activeDomain}' not found.` }],
-          isError: true
-        };
-      }
+//       return result;
+//     } catch (error) {
+//       // If the domain server doesn't support listAllEntities, fall back to our domain registry
+//       const domain = domains.find(d => d.name === activeDomain);
+//       if (!domain) {
+//         return {
+//           content: [{ type: "text", text: `Error: Domain '${activeDomain}' not found.` }],
+//           isError: true
+//         };
+//       }
 
-      return {
-        content: [{ 
-          type: "text", 
-          text: `Available entity types in ${activeDomain} domain: ${domain.entityTypes.join(", ")}` 
-        }]
-      };
-    }
-  }
-);
+//       return {
+//         content: [{ 
+//           type: "text", 
+//           text: `Available entity types in ${activeDomain} domain: ${domain.entityTypes.join(", ")}` 
+//         }]
+//       };
+//     }
+//   }
+// );
 
 // Domain discovery resources
 server.resource(

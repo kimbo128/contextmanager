@@ -118,14 +118,6 @@ Create relationships between entities in different domains:
 relateCrossDomain(fromDomain="developer", fromEntity="ProjectX", toDomain="project", toEntity="ProjectX", relationType="manages")
 ```
 
-### Exploring Available Entities
-
-List all entity types available in the current domain:
-
-```
-listAllEntities()
-```
-
 ## Troubleshooting
 
 ### Common Issues

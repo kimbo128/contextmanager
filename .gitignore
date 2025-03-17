@@ -37,6 +37,10 @@ pids
 # Build artifacts
 *.js.map
 *.tsbuildinfo
+**/*.js
+**/*.js.map
+!jest.config.js
+**/*.d.ts
 
 # Tests
 /tests

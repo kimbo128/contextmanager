@@ -6,10 +6,11 @@ Each domain server is also a standalone MCP Server that you can use on its own w
 
 ## Features
 
-- **Persistent Context**: Easily load the perfect context about your project and store it for future sessions
+- **Persistent Context**: Easily build, load, and manipulate context as you progress from idea to production/publication/completion
 - **Efficienct Access**: Instead of loading huge markdown files that clog up the context window, enable AI models to grab the exact context they need when they need it
-- **Session Management**: Create and manage sessions to track what you've been working on
-- **Living Context**: Build, load, and manipulate context for domain-specific entity types, as you progress from idea to production/publication/completion
+- **Session Management**: 
+  1. `startsession` tool to get an overview of what you've been working on in past sessions
+  2. `endsession` tool to analyze the entire session and update knowledge graph for future sessions
 - **Cross-Domain Support**: Work with multiple knowledge domains through a single interface, including creating relationships between entities in different domains
 
 ## Why knowledge graphs?

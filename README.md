@@ -1,13 +1,15 @@
-# MCP Context Manager and Domain Servers
+# MCP Context Manager
 
-A collection of Model Context Protocol (MCP) servers to enhance AI models with persistent context across work sessions throughout the project lifecycle. Context for each project is stored in a domain-specific knowledge graph handled by the domain's server. All domain servers can be managed through a central Context Manager that provides unified access. 
+A collection of Model Context Protocol (MCP) servers to enhance AI models with persistent context across work sessions throughout the project lifecycle. 
+
+Context for each project is stored in a domain-specific knowledge graph handled by the domain's server. All domain servers can be managed through a central Context Manager that provides unified access. 
 
 Each domain server is also a standalone MCP Server that you can use on its own without the Context Manager.
 
 ## Features
 
-- **Persistent Context**: Easily build, load, and manipulate context as you progress from idea to production/publication/completion
-- **Efficienct Access**: Instead of loading huge markdown files that clog up the context window, enable AI models to grab the exact context they need when they need it
+- **Persistent Context**: Easily `buildcontext`, `loadcontext`, and `deletecontext` as you progress from idea to production/publication/completion
+- **Efficienct Access**: Let AI models grab the exact context they need when they need it
 - **Session Management**: 
   1. `startsession` tool to get an overview of what you've been working on in past sessions
   2. `endsession` tool to analyze the entire session and update knowledge graph for future sessions
@@ -21,22 +23,22 @@ To free up the context window (performance), and minimize token cost (efficiency
 
 The contextmanager orchestrates several domain-specific MCP servers:
 
-1. **Developer MCP Server**: Manages software development context with entities like projects, components, and tasks.
+1. **Developer MCP Server**: software development context with entities like projects, components, and tasks.
 
-2. **Project MCP Server**: Manages project management context with entities like projects, tasks, and resources.
+2. **Project MCP Server**: project management context with entities like projects, tasks, and resources.
 
-3. **Student MCP Server**: Manages educational context with entities like courses, assignments, and exams.
+3. **Student MCP Server**: educational context with entities like courses, assignments, and exams.
 
-4. **Qualitative Research MCP Server**: Manages qualitative research context with entities like studies, participants, and interviews.
+4. **Qualitative Research MCP Server**: qualitative research context with entities like studies, participants, and interviews.
 
-5. **Quantitative Research MCP Server**: Manages quantitative research context with entities like datasets, variables, and analyses.
+5. **Quantitative Research MCP Server**: quantitative research context with entities like datasets, variables, and analyses.
 
 For detailed documentation on each domain server, see the README files in their respective directories:
-- [Developer Server](./domains/developer/README.md)
-- [Project Server](./domains/project/README.md)
-- [Student Server](./domains/student/README.md)
-- [Qualitative Research Server](./domains/qualitativeresearch/README.md)
-- [Quantitative Research Server](./domains/quantitativeresearch/README.md)
+- [Developer Server](./developer/README.md)
+- [Project Server](./project/README.md)
+- [Student Server](./student/README.md)
+- [Qualitative Research Server](./qualitativeresearch/README.md)
+- [Quantitative Research Server](./quantitativeresearch/README.md)
 
 ## Context Manager Benefits
 

@@ -1,6 +1,7 @@
 # Directories
 backup/
 backup_built/
+backup_domains/
 docs/
 tests/
 node_modules/
@@ -37,10 +38,7 @@ pids
 # Build artifacts
 *.js.map
 *.tsbuildinfo
-**/*.js
 **/*.js.map
-!jest.config.js
-**/*.d.ts
 
 # Tests
 /tests

@@ -25,7 +25,7 @@ interface DomainInfo {
   args?: string[];
 }
 
-interface SessionInfo {
+interface FlowInfo {
   id: string;
   domain: string;
   entityName?: string;
@@ -178,35 +178,35 @@ const domains: DomainInfo[] = [
     description: "Software development context with entities like projects, components, and tasks",
     entityTypes: ["project", "component", "task", "issue", "commit"],
     command: "node",
-    args: [path.resolve(__dirname, "../domains/developer/index.js")]
+    args: [path.resolve(__dirname, "../developer/index.js")]
   },
   {
     name: "project",
     description: "Project management context with entities like projects, tasks, and resources",
     entityTypes: ["project", "task", "resource", "milestone", "risk"],
     command: "node",
-    args: [path.resolve(__dirname, "../domains/project/index.js")]
+    args: [path.resolve(__dirname, "../project/index.js")]
   },
   {
     name: "student",
     description: "Educational context with entities like courses, assignments, and exams",
     entityTypes: ["course", "assignment", "exam", "note", "grade"],
     command: "node",
-    args: [path.resolve(__dirname, "../domains/student/index.js")]
+    args: [path.resolve(__dirname, "../student/index.js")]
   },
   {
     name: "qualitativeresearch",
     description: "Qualitative research context with entities like studies, participants, and interviews",
     entityTypes: ["study", "participant", "interview", "code", "theme"],
     command: "node",
-    args: [path.resolve(__dirname, "../domains/qualitativeresearch/index.js")]
+    args: [path.resolve(__dirname, "../qualitativeresearch/index.js")]
   },
   {
     name: "quantitativeresearch",
     description: "Quantitative research context with entities like datasets, variables, and analyses",
     entityTypes: ["dataset", "variable", "analysis", "model", "result"],
     command: "node",
-    args: [path.resolve(__dirname, "../domains/quantitativeresearch/index.js")]
+    args: [path.resolve(__dirname, "../quantitativeresearch/index.js")]
   }
 ];
 
@@ -218,10 +218,10 @@ for (const domain of domains) {
   domainClients[domain.name] = new DomainClient(domain);
 }
 
-// In-memory session management
-const sessions: SessionInfo[] = [];
+// In-memory flow management
+const flows: FlowInfo[] = [];
 let activeDomain: string | null = null;
-let sessionCounter = 0;
+let flowCounter = 0;
 
 // Create an MCP server
 const server = new McpServer({
@@ -261,12 +261,11 @@ server.tool(
   }
 );
 
-// Session management tools
+// Flow management tools
 server.tool(
   "startsession",
   { 
-    domain: z.string(),
-    random_string: z.string().optional()
+    domain: z.string()
   },
   async ({ domain }) => {
     const foundDomain = domains.find(d => d.name.toLowerCase() === domain.toLowerCase());
@@ -289,31 +288,30 @@ server.tool(
     }
     
     activeDomain = foundDomain.name;
-    sessionCounter++;
-    
-    // Create a contextmanager session ID
-    const cmSessionId = `cm_session_${activeDomain}_${sessionCounter}_${Date.now()}`;
-    
-    sessions.push({
-      id: cmSessionId,
-      domain: activeDomain,
-      active: true,
-      createdAt: Date.now()
-    });
+    flowCounter++;
 
     // Forward the startsession call to the domain server with a domain-specific session identifier
     try {
-      const domainRandomString = `${activeDomain}_session_from_cm_${Date.now()}`;
       const result = await domainClient.callTool({
         name: "startsession",
-        arguments: {
-          domain: activeDomain,
-          random_string: domainRandomString
-        }
+        arguments: {}
+      });
+
+      const lastWord = result.content[0].text.split(' ').pop();
+      // Create a contextmanager flow ID from domain session ID (last word)
+      const flowId = `flow_${lastWord}`;
+
+      flows.push({
+        id: flowId,
+        domain: activeDomain,
+        active: true,
+        createdAt: Date.now()
       });
       
       return {
-        content: [{ type: "text", text: `${result.content[0].text}\n\nNew Context Manager session started with session ID: ${cmSessionId}` }]
+        content: [
+          { type: "text", text: `${result.content[0].text}`}
+        ],
       };
     } catch (error) {
       console.error(`Error starting session for domain ${activeDomain}:`, error);
@@ -339,16 +337,17 @@ server.tool(
     stageData: z.any().optional()
   },
   async ({ sessionId, stage, stageNumber, totalStages, nextStageNeeded, analysis, isRevision, revisesStage, stageData }) => {
-    const sessionIndex = sessions.findIndex(s => s.id === sessionId);
-    if (sessionIndex === -1) {
+    const flowId = `flow_${sessionId}`;
+    const flowIndex = flows.findIndex(s => s.id === flowId);
+    if (flowIndex === -1) {
       return {
-        content: [{ type: "text", text: `Error: Context Manager session with ID '${sessionId}' not found.` }],
+        content: [{ type: "text", text: `Error: Context Manager flow with ID '${flowId}' not found.` }],
         isError: true
       };
     }
     
-    const session = sessions[sessionIndex];
-    const domainName = session.domain;
+    const flow = flows[flowIndex];
+    const domainName = flow.domain;
     const domainClient = domainClients[domainName];
     
     if (!domainClient || !domainClient.connected) {
@@ -361,15 +360,12 @@ server.tool(
       }
     }
     
-    // Create a domain-specific session ID for ending
-    const domainSessionId = `${domainName}_session_${sessionId}`;
-    
     // Forward the endsession call to the domain server
     try {
       const result = await domainClient.callTool({
         name: "endsession",
         arguments: {
-          sessionId: domainSessionId,
+          sessionId: sessionId,
           stage,
           stageNumber,
           totalStages,
@@ -382,9 +378,9 @@ server.tool(
       });
       
       if (!nextStageNeeded) {
-        sessions[sessionIndex].active = false;
+        flows[flowIndex].active = false;
         return {
-          content: [{ type: "text", text: `${result.content[0].text}\n\nContext Manager session ${sessionId} has been ended.` }]
+          content: [{ type: "text", text: `${result.content[0].text}`}]
         }
       }
       
@@ -511,17 +507,19 @@ server.tool(
       };
     }
 
-    // Find active contextmanager session or use provided sessionId
-    let targetSession: SessionInfo | undefined;
+    const flowId = `flow_${sessionId}`;
+
+    // Find active contextmanager flow or use provided sessionId
+    let targetFlow: FlowInfo | undefined;
     if (sessionId) {
-      targetSession = sessions.find(s => s.id === sessionId);
+      targetFlow = flows.find(s => s.id === flowId);
     } else {
-      targetSession = sessions.find(s => s.domain === activeDomain && s.active);
+      targetFlow = flows.find(s => s.domain === activeDomain && s.active);
     }
 
-    if (!targetSession) {
+    if (!targetFlow) {
       return {
-        content: [{ type: "text", text: "Error: No active Context Manager session found. Start a session first." }],
+        content: [{ type: "text", text: "Error: No active Context Manager flow found. Start a flow first." }],
         isError: true
       };
     }
@@ -538,12 +536,9 @@ server.tool(
       }
     }
     
-    // Update contextmanager session with entity details
-    targetSession.entityName = entityName;
-    targetSession.entityType = entityType || "unknown";
-
-    // Create domain-specific session ID
-    const domainSessionId = `${activeDomain}_session_${targetSession.id}`;
+    // Update contextmanager flow with entity details
+    targetFlow.entityName = entityName;
+    targetFlow.entityType = entityType || "unknown";
 
     // Forward the loadcontext call to the domain server
     try {
@@ -552,7 +547,7 @@ server.tool(
         arguments: {
           entityName,
           entityType,
-          sessionId: domainSessionId
+          sessionId: sessionId
         }
       });
       
@@ -623,7 +618,7 @@ server.tool(
 // server.tool(
 //   "listAllEntities",
 //   {
-//     random_string: z.string().optional()
+//     domain: z.string().optional()
 //   },
 //   async () => {
 //     if (!activeDomain) {
@@ -649,9 +644,7 @@ server.tool(
 //     try {
 //       const result = await domainClient.callTool({
 //         name: "listAllEntities",
-//         arguments: {
-//           random_string: `from_context_manager_${Date.now()}`
-//         }
+//         arguments: {}
 //       });
       
 //       return result;

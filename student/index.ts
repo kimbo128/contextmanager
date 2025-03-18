@@ -2340,10 +2340,7 @@ Would you like me to perform any additional updates to your student knowledge gr
         return {
           content: [{
             type: "text",
-            text: `# Study Session Started: ${date}
-
-## Session ID
-\`${sessionId}\`
+            text: `# Ask user to choose what to focus on in this session. Present the following options:
 
 ## Recent Study Sessions
 ${sessionsText || "No recent sessions found."}
@@ -2357,9 +2354,7 @@ ${deadlinesText || "No upcoming deadlines in the next 14 days."}
 ## Recently Studied Concepts
 ${conceptsText || "No recently studied concepts found."}
 
-To load the context for a specific entity, use the \`loadcontext\` tool.
-For example: loadcontext(entityName: "Calculus 101", entityType: "course", sessionId: "${sessionId}")
-`
+To load the context for a specific entity, use the \`loadcontext\` tool with the entity name and session ID - ${sessionId}`
           }]
         };
       } catch (error) {

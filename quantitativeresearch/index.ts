@@ -1451,7 +1451,7 @@ async function main() {
     });
     
     // Dynamically import the tools registration function to avoid circular dependencies
-    const { registerQuantitativeResearcherTools } = await import("./quantitativeresearch_tools.js");
+    const { registerQuantitativeResearcherTools } = await import("./quantitativeresearch_tools.ts");
     
     // Register the new quantitative researcher tools
     registerQuantitativeResearcherTools(server);
@@ -1709,10 +1709,7 @@ async function main() {
           return {
             content: [{
               type: "text",
-              text: `# Quantitative Research Session Started: ${date}
-
-## Session ID
-\`${sessionId}\`
+              text: `# Ask user to choose what to focus on in this session. Present the following options:
 
 ## Recent Research Sessions
 ${sessionsText || "No recent sessions found."}
@@ -1732,9 +1729,7 @@ ${modelsText || "No models found."}
 ## Recent Visualizations
 ${visualizationsText || "No visualizations found."}
 
-To load specific context, use the \`loadcontext\` tool with the entity name and session ID.
-For example: loadcontext(entityName: "Customer Satisfaction Survey", entityType: "project", sessionId: "${sessionId}")
-`
+To load specific context, use the \`loadcontext\` tool with the entity name and session ID - ${sessionId}`
             }]
           };
         } catch (error) {

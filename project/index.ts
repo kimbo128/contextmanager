@@ -2646,10 +2646,7 @@ ${outgoingText}`;
           return {
             content: [{
               type: "text",
-              text: `# Project Management Session Started: ${date}
-
-## Session ID
-\`${sessionId}\`
+              text: `# Ask user to choose what to focus on in this session. Present the following options:
 
 ## Recent Project Management Sessions
 ${sessionsText || "No recent sessions found."}
@@ -2669,9 +2666,7 @@ ${healthText || "No project health data available."}
 ## Top Project Risks
 ${risksText || "No high severity risks identified."}
 
-To load specific project context, use the \`loadcontext\` tool with the project name and session ID.
-For example: loadcontext(entityName: "Website Redesign", entityType: "project", sessionId: "${sessionId}")
-`
+To load specific project context, use the \`loadcontext\` tool with the project name and session ID - ${sessionId}`
             }]
           };
         } catch (error) {

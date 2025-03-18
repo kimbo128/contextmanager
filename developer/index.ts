@@ -1088,10 +1088,7 @@ async function main() {
           return {
             content: [{
               type: "text",
-              text: `# Development Session Started - ${date}
-
-## Session ID
-\`${sessionId}\`
+              text: `# Ask user to choose what to focus on in this session. Present the following options:
 
 ## Recent Development Sessions
 ${sessionsText}
@@ -1105,7 +1102,7 @@ ${tasksText}
 ## Upcoming Milestones
 ${milestonesText}
 
-To load specific context, use the \`loadcontext\` tool with the entity name and session ID.`
+To load specific context based on the user's choice, use the \`loadcontext\` tool with the entity name and developer session ID - ${sessionId}.`
             }]
           };
         } catch (error) {

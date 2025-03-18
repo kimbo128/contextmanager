@@ -2201,7 +2201,7 @@ Would you like me to perform any additional updates to your qualitative research
           return {
             content: [{
               type: "text",
-              text: `# Qualitative Research Session Started: ${date}
+              text: `# Ask user to choose what to focus on in this session. Present the following options:
 
 ## Session ID
 \`${sessionId}\`
@@ -2221,9 +2221,7 @@ ${codesText || "No codes found."}
 ## Recent Memos
 ${memosText || "No memos found."}
 
-To load specific context, use the \`loadcontext\` tool with the entity name and session ID.
-For example: loadcontext(entityName: "Community Health Study", entityType: "project", sessionId: "${sessionId}")
-`
+To load specific context, use the \`loadcontext\` tool with the entity name and session ID - ${sessionId}`
             }]
           };
         } catch (error) {

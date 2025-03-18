@@ -5,7 +5,6 @@ backup_domains/
 docs/
 tests/
 node_modules/
-dist/
 coverage/
 .vscode/
 .idea/

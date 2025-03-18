@@ -3,7 +3,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { loadSessionStates } from "./index.ts";
+import { loadSessionStates } from "./index.js";
 
 // Define types for entities, relations, and the knowledge graph manager
 interface Entity {
@@ -31,7 +31,7 @@ async function getKnowledgeGraphManager() {
   if (!knowledgeGraphManager) {
     // Dynamically import to avoid circular reference
     try {
-      const module = await import("./index.ts");
+      const module = await import("./index.js");
       const KnowledgeGraphManager = module.KnowledgeGraphManager;
       knowledgeGraphManager = new KnowledgeGraphManager();
     } catch (err) {

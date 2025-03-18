@@ -2,14 +2,21 @@
   "name": "contextmanager",
   "version": "1.0.0",
   "description": "MCP Server implementations for various domains",
-  "private": true,
+  "type": "module",
+  "bin": {
+    "mcp-server-contextmanager": "./dist/main/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "workspaces": [
     "main"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "tsc -p ./main/tsconfig.json && shx chmod +x dist/main/index.js",
     "prepare": "npm run build",
-    "start": "node main/index.js"
+    "start": "node dist/main/index.js"
   },
   "repository": {
     "type": "git",
@@ -25,5 +32,15 @@
   "bugs": {
     "url": "https://github.com/tejpalvirk/contextmanager/issues"
   },
-  "homepage": "https://github.com/tejpalvirk/contextmanager#readme"
-} 
+  "homepage": "https://github.com/tejpalvirk/contextmanager#readme",
+  "devDependencies": {
+    "@types/node": "^18.15.3",
+    "@types/yargs": "^17.0.33",
+    "shx": "^0.3.4",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "yargs": "^17.7.2"
+  }
+}

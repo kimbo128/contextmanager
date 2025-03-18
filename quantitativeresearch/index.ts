@@ -1451,7 +1451,7 @@ async function main() {
     });
     
     // Dynamically import the tools registration function to avoid circular dependencies
-    const { registerQuantitativeResearcherTools } = await import("./quantitativeresearch_tools.ts");
+    const { registerQuantitativeResearcherTools } = await import("./quantitativeresearch_tools.js");
     
     // Register the new quantitative researcher tools
     registerQuantitativeResearcherTools(server);

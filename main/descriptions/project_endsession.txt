@@ -32,7 +32,7 @@ The endsession tool uses a sequential, multi-stage approach with 6 typical stage
 6. Risk Updates Stage: Documents changes to project risks
 7. Assembly Stage: Consolidates all information and finalizes the session record
 
-Parameters:
+Parameters explained:
 1. sessionId: Required - Unique identifier for the project session
   - Obtained from the startsession tool
   - Example: "proj_1234567890_abc123"
@@ -50,13 +50,13 @@ Parameters:
   - Example: "Analyzed progress on the marketing campaign project"
 6. stageData: Optional - Stage-specific structured data
   - Structure varies by stage type:
-    - summary: { summary: "Session summary text", duration: "3 hours", project: "ProjectName" }
-    - achievements: { achievements: ["Decision 1", "Accomplishment 2"] }
-    - taskUpdates: { updates: [{ name: "Task1", status: "in_progress", progress: "50%" }] }
-    - newTasks: { tasks: [{ name: "New Task", description: "Details", priority: "high" }] }
-    - projectStatus: { projectStatus: "in_progress", projectObservation: "Good progress" }
-    - riskUpdates: { risks: [{ name: "Risk1", status: "mitigated", impact: "medium", probability: "low" }] }
-    - assembly: No stageData needed - automatically assembled from previous stages
+    * summary: { summary: "Session summary text", duration: "3 hours", project: "ProjectName" }
+    * achievements: { achievements: ["Decision 1", "Accomplishment 2"] }
+    * taskUpdates: { updates: [{ name: "Task1", status: "in_progress", progress: "50%" }] }
+    * newTasks: { tasks: [{ name: "New Task", description: "Details", priority: "high" }] }
+    * projectStatus: { projectStatus: "in_progress", projectObservation: "Good progress" }
+    * riskUpdates: { risks: [{ name: "Risk1", status: "mitigated", impact: "medium", probability: "low" }] }
+    * assembly: No stageData needed - automatically assembled from previous stages
 7. nextStageNeeded: Required - Whether additional stages are needed after this one
   - Boolean value (true/false)
   - Set to false on the final stage to complete the session
@@ -75,20 +75,20 @@ When the endsession workflow completes (assembly stage with nextStageNeeded: fal
 
 Return information:
 - JSON response with the following structure when stages are in progress:
-  - success: Boolean indicating whether the operation succeeded
-  - stageCompleted: The stage that was just completed
-  - nextStageNeeded: Whether more stages are required
-  - stageResult: The processed result of the current stage
+  * success: Boolean indicating whether the operation succeeded
+  * stageCompleted: The stage that was just completed
+  * nextStageNeeded: Whether more stages are required
+  * stageResult: The processed result of the current stage
 - Formatted markdown text summary when the session is completed, including:
-  - Session date and project name
-  - Decisions documented
-  - Task updates
-  - Project status
-  - New tasks added
-  - Risk updates
-  - Session summary
+  * Session date and project name
+  * Decisions documented
+  * Task updates
+  * Project status
+  * New tasks added
+  * Risk updates
+  * Session summary
 
-Guidelines for users:
+You should:
 - Complete all stages in order for comprehensive session documentation
 - Provide specific details in each stage for accurate project documentation
 - Specify task updates with clear status and progress information

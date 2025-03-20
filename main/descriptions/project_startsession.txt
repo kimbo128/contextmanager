@@ -1,9 +1,8 @@
-# Start Session Tool for Project Management
+Start Session Tool for Project Management
 
 A comprehensive tool for initializing a new project management session, providing structured information about ongoing projects, tasks, deadlines, and overall project health.
 
-## When to use this tool
-
+When to use this tool:
 - Beginning a new project management session
 - Getting oriented to your current project portfolio status
 - Planning which projects or tasks to focus on in the current work session
@@ -15,8 +14,7 @@ A comprehensive tool for initializing a new project management session, providin
 - Establishing context before diving into specific project work
 - Creating a structured record of your project management activity
 
-## Key features
-
+Key features:
 - Generates a unique session identifier for tracking project management activities
 - Retrieves and displays your most recent project management sessions
 - Shows active projects you're currently managing with status information
@@ -28,14 +26,10 @@ A comprehensive tool for initializing a new project management session, providin
 - Integrates with the loadcontext tool for deeper exploration
 - Maintains continuity between project management sessions
 
-## Parameters
-
+Parameters explained:
 No parameters required - the tool automatically retrieves all relevant context.
 
-## Return information
-
-The tool returns a formatted text output containing:
-
+Return information:
 - Session ID: A unique identifier for this project management session
 - Recent Project Management Sessions: Up to 3 most recent sessions with:
   * Date
@@ -67,8 +61,7 @@ The tool returns a formatted text output containing:
   * Severity level
   * Impact assessment
 
-## Session workflow
-
+Session Workflow:
 1. Start a project management session with startsession
 2. Review the provided context to decide what to focus on
 3. Use loadcontext to retrieve detailed information about specific projects
@@ -76,8 +69,7 @@ The tool returns a formatted text output containing:
 5. End the session when work is complete
 6. Record progress, decisions, and next steps
 
-## Guidelines for users
-
+You should:
 - Begin each focused project management period with startsession
 - Review recent sessions to maintain continuity in your work
 - Prioritize work based on high-priority tasks and upcoming milestones

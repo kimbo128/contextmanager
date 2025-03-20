@@ -33,7 +33,7 @@ The endsession tool uses a sequential, multi-stage approach with 7 typical stage
 6. Project Status Stage: Updates the overall project status
 7. Assembly Stage: Consolidates all information and finalizes the session record
 
-Parameters:
+Parameters explained:
 1. sessionId: Required - Unique identifier for the research session
   - Obtained from the startsession tool
   - Example: "qual_1234567890_abc123"
@@ -51,13 +51,13 @@ Parameters:
   - Example: "Analyzed interview transcripts and identified recurring patterns"
 6. stageData: Optional - Stage-specific structured data
   - Structure varies by stage type:
-    - summary: { summary: "Session summary text", duration: "3 hours", project: "ProjectName" }
-    - interviewData: { interviews: [{ participant: "P001", notes: "Interview notes", date: "2023-04-15" }] }
-    - memos: { memos: [{ topic: "Emerging patterns", content: "Detailed memo text" }] }
-    - codingActivity: { codes: [{ code: "coping_strategy", dataItem: "Interview_P001", note: "Applied to discussion of stress management" }] }
-    - themes: { themes: [{ name: "Social Support", codes: ["family_support", "peer_networks"], description: "The role of social connections in coping" }] }
-    - projectStatus: { projectStatus: "data_analysis", projectObservation: "Making good progress on initial coding" }
-    - assembly: No stageData needed - automatically assembled from previous stages
+    * summary: { summary: "Session summary text", duration: "3 hours", project: "ProjectName" }
+    * interviewData: { interviews: [{ participant: "P001", notes: "Interview notes", date: "2023-04-15" }] }
+    * memos: { memos: [{ topic: "Emerging patterns", content: "Detailed memo text" }] }
+    * codingActivity: { codes: [{ code: "coping_strategy", dataItem: "Interview_P001", note: "Applied to discussion of stress management" }] }
+    * themes: { themes: [{ name: "Social Support", codes: ["family_support", "peer_networks"], description: "The role of social connections in coping" }] }
+    * projectStatus: { projectStatus: "data_analysis", projectObservation: "Making good progress on initial coding" }
+    * assembly: No stageData needed - automatically assembled from previous stages
 7. nextStageNeeded: Required - Whether additional stages are needed after this one
   - Boolean value (true/false)
   - Set to false on the final stage to complete the session
@@ -84,7 +84,7 @@ Return information:
   * summaryMessage: (Final stage only) Formatted summary of all recorded information
   * error: (Only on failure) Error message describing the issue
 
-Guidelines for users:
+You should:
 - Complete all stages in order for comprehensive session documentation
 - Provide specific details in each stage for accurate research documentation
 - Document interview data with participant identifiers and key notes

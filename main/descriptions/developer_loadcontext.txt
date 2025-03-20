@@ -1,3 +1,5 @@
+Load Context Tool for Developer
+
 A powerful tool for retrieving rich, contextual information about specific software development entities, providing formatted details based on entity type.
 
 When to use this tool:
@@ -23,7 +25,7 @@ Key features:
 - Supports contextual understanding of complex software architectures
 - Shows relevant status information for project management
 
-Parameters:
+Parameters explained:
 1. entityName: Required - The name of the entity to retrieve context for
   - Example: "AuthService", "UserProfile", "LoginFeature"
 2. entityType: Optional - The type of entity being retrieved
@@ -42,7 +44,7 @@ Each entity type returns specialized context information:
 - Milestone: Shows status, deadline, description, progress percentage, deadline status, and tasks grouped by completion status
 - Other Entity Types: Shows observations and both incoming and outgoing relationships within the knowledge graph
 
-Guidelines for users:
+You should:
 - Specify the exact entity name for accurate retrieval
 - Provide the entity type when possible for optimally formatted results
 - Start with project entities to get a high-level overview

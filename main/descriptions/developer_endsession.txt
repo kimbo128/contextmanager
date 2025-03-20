@@ -1,3 +1,5 @@
+End Session Tool for Developer
+
 A multi-stage tool for documenting development sessions, recording achievements, tracking task progress, and updating project status in the knowledge graph.
 
 When to use this tool:
@@ -23,7 +25,7 @@ The endsession tool uses a sequential, multi-stage approach with 6 typical stage
 5. Project Status Stage: Updates the overall project status
 6. Assembly Stage: Consolidates all information and finalizes the session record
 
-Parameters:
+Parameters explained:
 1. sessionId: Required - Unique identifier for the development session
   - Obtained from the startsession tool
   - Example: "dev_1234567890_abc123"
@@ -64,17 +66,17 @@ When the endsession workflow completes (assembly stage with nextStageNeeded: fal
 4. New Task Creation: Creates new task entities and links them to the project
 5. Session Recording: Marks the session as completed in persistent storage
 
-JSON response with the following structure:
-  - success: Boolean indicating whether the operation succeeded
-  - stageCompleted: The stage that was just completed
-  - nextStageNeeded: Whether more stages are required
-  - stageResult: The processed result of the current stage
-  - endSessionArgs: (Only in assembly stage) Consolidated arguments for the session
-  - sessionRecorded: (Final stage only) Whether the session was recorded
-  - summaryMessage: (Final stage only) Formatted summary of all recorded information
-  - error: (Only on failure) Error message describing the issue
+Return information:
+- success: Boolean indicating whether the operation succeeded
+- stageCompleted: The stage that was just completed
+- nextStageNeeded: Whether more stages are required
+- stageResult: The processed result of the current stage
+- endSessionArgs: (Only in assembly stage) Consolidated arguments for the session
+- sessionRecorded: (Final stage only) Whether the session was recorded
+- summaryMessage: (Final stage only) Formatted summary of all recorded information
+- error: (Only on failure) Error message describing the issue
 
-Guidelines for users:
+You should:
 - Complete all stages in order for comprehensive session documentation
 - Provide specific details in each stage for accurate knowledge graph updates
 - Be precise about task names to ensure they match existing tasks in the knowledge graph

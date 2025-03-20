@@ -34,7 +34,7 @@ The endsession tool uses a sequential, multi-stage approach with 8 typical stage
 7. Project Status Stage: Updates the overall project status
 8. Assembly Stage: Consolidates all information and finalizes the session record
 
-Parameters:
+Parameters explained:
 1. sessionId: Required - Unique identifier for the research session
   - Obtained from the startsession tool
   - Example: "quant_1234567890_abc123"
@@ -52,14 +52,14 @@ Parameters:
   - Example: "Analyzed multiple regression results and identified significant predictors"
 6. stageData: Optional - Stage-specific structured data
   - Structure varies by stage type:
-    - summary: { summary: "Session summary text", duration: "3 hours", project: "ProjectName" }
-    - datasetUpdates: { datasets: [{ name: "Dataset1", size: "500 rows", variables: "10", status: "cleaned", description: "Dataset description" }] }
-    - newAnalyses: { analyses: [{ name: "Analysis1", type: "regression", result: "p<0.05", pValue: "0.03", variables: ["var1", "var2"] }] }
-    - newVisualizations: { visualizations: [{ name: "Viz1", type: "scatter", description: "Correlation visualization", datasetName: "Dataset1" }] }
-    - hypothesisResults: { hypotheses: [{ name: "H1", status: "confirmed", evidence: "Statistical significance in regression model", pValue: "0.02" }] }
-    - modelUpdates: { models: [{ name: "Model1", type: "regression", performance: "R²=0.85", variables: ["var1", "var2"] }] }
-    - projectStatus: { projectStatus: "in_progress", projectObservation: "Data analysis phase complete" }
-    - assembly: No stageData needed - automatically assembled from previous stages
+    * summary: { summary: "Session summary text", duration: "3 hours", project: "ProjectName" }
+    * datasetUpdates: { datasets: [{ name: "Dataset1", size: "500 rows", variables: "10", status: "cleaned", description: "Dataset description" }] }
+    * newAnalyses: { analyses: [{ name: "Analysis1", type: "regression", result: "p<0.05", pValue: "0.03", variables: ["var1", "var2"] }] }
+    * newVisualizations: { visualizations: [{ name: "Viz1", type: "scatter", description: "Correlation visualization", datasetName: "Dataset1" }] }
+    * hypothesisResults: { hypotheses: [{ name: "H1", status: "confirmed", evidence: "Statistical significance in regression model", pValue: "0.02" }] }
+    * modelUpdates: { models: [{ name: "Model1", type: "regression", performance: "R²=0.85", variables: ["var1", "var2"] }] }
+    * projectStatus: { projectStatus: "in_progress", projectObservation: "Data analysis phase complete" }
+    * assembly: No stageData needed - automatically assembled from previous stages
 7. nextStageNeeded: Required - Whether additional stages are needed after this one
   - Boolean value (true/false)
   - Set to false on the final stage to complete the session
@@ -80,22 +80,21 @@ When the endsession workflow completes (assembly stage with nextStageNeeded: fal
 
 Return information:
 - JSON response with the following structure when stages are in progress:
-  - success: Boolean indicating whether the operation succeeded
-  - stageCompleted: The stage that was just completed
-  - nextStageNeeded: Whether more stages are required
-  - stageResult: The processed result of the current stage
-
+  * success: Boolean indicating whether the operation succeeded
+  * stageCompleted: The stage that was just completed
+  * nextStageNeeded: Whether more stages are required
+  * stageResult: The processed result of the current stage
 - Formatted markdown text summary when the session is completed, including:
-  - Session date and project name
-  - Summary of the session
-  - Dataset updates
-  - New statistical analyses
-  - New visualizations
-  - Hypothesis test results
-  - Model updates
-  - Project status update
+  * Session date and project name
+  * Summary of the session
+  * Dataset updates
+  * New statistical analyses
+  * New visualizations
+  * Hypothesis test results
+  * Model updates
+  * Project status update
 
-Guidelines for users:
+You should:
 - Complete all stages in order for comprehensive session documentation
 - Provide specific details in each stage for accurate research documentation
 - Specify dataset updates with clear size, variable count, and status information

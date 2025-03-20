@@ -1,9 +1,8 @@
-# Advanced Context Tool for Project Management
+Advanced Context Tool for Project Management
 
 A sophisticated query tool for exploring, analyzing, and retrieving complex information from the project management knowledge graph.
 
-## When to use this tool
-
+When to use this tool:
 - Retrieving a comprehensive view of your entire project management structure
 - Searching for specific project entities across your initiatives
 - Getting detailed information about particular projects or project elements
@@ -17,8 +16,7 @@ A sophisticated query tool for exploring, analyzing, and retrieving complex info
 - Reviewing decision logs and project governance
 - Evaluating overall project health and status
 
-## Key features
-
+Key features:
 - Offers 13 specialized operations for querying different aspects of project management data
 - Retrieves complete or filtered views of the project knowledge graph
 - Provides flexible search capabilities across all project entities
@@ -34,72 +32,65 @@ A sophisticated query tool for exploring, analyzing, and retrieving complex info
 - Records and retrieves decision logs for governance
 - Assesses project health with key performance indicators
 
-## Parameters
-
-- **type**: The type of query operation to perform
+Parameters explained:
+1. type: The type of query operation to perform
   - Accepts one of 13 specialized operations: "graph", "search", "nodes", "project", "dependencies", "assignments", "milestones", "timeline", "resources", "risks", "related", "decisions", or "health"
   - Determines how the params parameter is interpreted
-
-- **params**: Operation-specific parameters (structure varies by type):
+2. params: Operation-specific parameters (structure varies by type):
   - For "graph": No parameters needed (retrieves the full project knowledge graph)
   - For "search": Object containing:
-    - query: Search string to find entities (supports entity type filters)
+    * query: Search string to find entities (supports entity type filters)
   - For "nodes": Object containing:
-    - names: Array of entity names to retrieve
+    * names: Array of entity names to retrieve
   - For "project": Object containing:
-    - projectName: Name of the project to retrieve details for
+    * projectName: Name of the project to retrieve details for
   - For "dependencies": Object containing:
-    - taskName: Name of the task to analyze dependencies for
-    - depth: (Optional) How many levels of dependencies to retrieve (default: 2)
+    * taskName: Name of the task to analyze dependencies for
+    * depth: (Optional) How many levels of dependencies to retrieve (default: 2)
   - For "assignments": Object containing:
-    - teamMemberName: Name of the team member to retrieve assignments for
+    * teamMemberName: Name of the team member to retrieve assignments for
   - For "milestones": Object containing:
-    - projectName: Project name to retrieve milestones for
-    - milestoneName: (Optional) Specific milestone to retrieve details for
+    * projectName: Project name to retrieve milestones for
+    * milestoneName: (Optional) Specific milestone to retrieve details for
   - For "timeline": Object containing:
-    - projectName: Project name to generate timeline for
+    * projectName: Project name to generate timeline for
   - For "resources": Object containing:
-    - projectName: Project name to analyze resource allocation for
-    - resourceName: (Optional) Specific resource to analyze allocation for
+    * projectName: Project name to analyze resource allocation for
+    * resourceName: (Optional) Specific resource to analyze allocation for
   - For "risks": Object containing:
-    - projectName: Project name to retrieve risks for
+    * projectName: Project name to retrieve risks for
   - For "related": Object containing:
-    - projectName: Project name to find related projects for
-    - depth: (Optional) Depth of project relationships to explore (default: 1)
+    * projectName: Project name to find related projects for
+    * depth: (Optional) Depth of project relationships to explore (default: 1)
   - For "decisions": Object containing:
-    - projectName: Project name to retrieve decision log for
+    * projectName: Project name to retrieve decision log for
   - For "health": Object containing:
-    - projectName: Project name to assess health for
+    * projectName: Project name to assess health for
 
-## Operation details
+Operation details:
+- graph: Returns the complete project knowledge graph with all entities and relationships
+- search: Performs text-based search across entity names and observations
+- nodes: Retrieves detailed information about specific entities by name
+- project: Returns comprehensive project information including tasks, milestones, and team members
+- dependencies: Maps task dependencies to identify critical paths and bottlenecks
+- assignments: Lists all assignments for a specific team member with workload information
+- milestones: Tracks milestone progress with completion status and metrics
+- timeline: Generates a project timeline with key dates, dependencies, and current status
+- resources: Analyzes resource allocation across project activities
+- risks: Identifies and prioritizes project risks with mitigation strategies
+- related: Finds connections between projects for portfolio management
+- decisions: Retrieves decision log for project governance and audit
+- health: Assesses project health with key performance indicators and metrics
 
-- **graph**: Returns the complete project knowledge graph with all entities and relationships
-- **search**: Performs text-based search across entity names and observations
-- **nodes**: Retrieves detailed information about specific entities by name
-- **project**: Returns comprehensive project information including tasks, milestones, and team members
-- **dependencies**: Maps task dependencies to identify critical paths and bottlenecks
-- **assignments**: Lists all assignments for a specific team member with workload information
-- **milestones**: Tracks milestone progress with completion status and metrics
-- **timeline**: Generates a project timeline with key dates, dependencies, and current status
-- **resources**: Analyzes resource allocation across project activities
-- **risks**: Identifies and prioritizes project risks with mitigation strategies
-- **related**: Finds connections between projects for portfolio management
-- **decisions**: Retrieves decision log for project governance and audit
-- **health**: Assesses project health with key performance indicators and metrics
+Return information:
+- success: Boolean indicating whether the operation succeeded
+- Additional fields depend on the operation type:
+  * graph: Complete knowledge graph
+  * results: For search operations
+  * nodes: For specific entity retrieval
+  * project/dependencies/assignments/etc.: For specialized views
 
-## Return information
-
-- JSON response with a consistent structure:
-  - success: Boolean indicating whether the operation succeeded
-  - Additional fields depend on the operation type:
-    - graph: Complete knowledge graph
-    - results: For search operations
-    - nodes: For specific entity retrieval
-    - project/dependencies/assignments/etc.: For specialized views
-- Error information when operations fail
-
-## Guidelines for users
-
+You should:
 - Start with broad queries ("graph", "search") to explore your project portfolio
 - Use specific entity queries ("nodes", "project") for detailed information
 - Map task dependencies to identify critical paths and bottlenecks

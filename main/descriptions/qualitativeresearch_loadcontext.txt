@@ -23,7 +23,7 @@ Key features:
 - Presents supporting quotes and evidence for themes and codes
 - Shows co-occurrence patterns between codes where available
 
-Parameters:
+Parameters explained:
 1. entityName: Required - The name of the entity to retrieve context for
   - Example: "Health Behavior Study", "Participant_P001", "Interview_20230315"
 2. entityType: Optional - The type of entity being retrieved
@@ -50,7 +50,7 @@ Return information:
 - Related entities shown with their descriptions and connections
 - Error messages if the entity doesn't exist or can't be retrieved
 
-Guidelines for users:
+You should:
 - Specify the exact entity name for accurate retrieval
 - Provide the entity type when possible for optimally formatted results
 - Start with project entities to get a high-level overview of research

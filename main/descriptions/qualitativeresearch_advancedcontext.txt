@@ -1,9 +1,8 @@
-# Advanced Context Tool for Qualitative Research
+Advanced Context Tool for Qualitative Research
 
 A sophisticated query tool for exploring, analyzing, and retrieving complex information from the qualitative research knowledge graph.
 
-## When to use this tool
-
+When to use this tool:
 - Retrieving a comprehensive view of your entire research knowledge structure
 - Searching for specific research entities across your qualitative data corpus
 - Getting detailed information about particular research projects, participants, or analytical elements
@@ -16,8 +15,7 @@ A sophisticated query tool for exploring, analyzing, and retrieving complex info
 - Creating research reports or summaries from your data
 - Exploring thematic structures and their evidentiary basis
 
-## Key features
-
+Key features:
 - Offers 12 specialized operations for querying different aspects of qualitative research data
 - Retrieves complete or filtered views of the research knowledge graph
 - Provides flexible search capabilities across all research entities
@@ -29,66 +27,61 @@ A sophisticated query tool for exploring, analyzing, and retrieving complex info
 - Returns consistently structured JSON responses for easy processing
 - Facilitates depth and breadth exploration of qualitative data
 
-## Parameters
-
-- **type**: The type of query operation to perform
+Parameters explained:
+1. type: The type of query operation to perform
   - Accepts one of 12 specialized operations: "graph", "search", "nodes", "project", "participant", "codes", "themes", "transcript", "memo", "analysis", "codebook", or "related"
-  - Determines how the params parameter is interpreted
-
-- **params**: Operation-specific parameters (structure varies by type):
+  - Determines how the params parameter is interpreted 
+2. params: Operation-specific parameters (structure varies by type):
   - For "graph": No parameters needed (retrieves the full research knowledge graph)
   - For "search": Object containing:
-    - query: Search string to find entities (supports entity type filters)
+    * query: Search string to find entities (supports entity type filters)
   - For "nodes": Object containing:
-    - names: Array of entity names to retrieve
+    * names: Array of entity names to retrieve
   - For "project": Object containing:
-    - projectName: Name of the project to retrieve details for
+    * projectName: Name of the project to retrieve details for
   - For "participant": Object containing:
-    - participantName: Name of the participant to retrieve profile for
+    * participantName: Name of the participant to retrieve profile for
   - For "codes": Object containing:
-    - projectName: (Optional) Project name to filter codes by
+    * projectName: (Optional) Project name to filter codes by
   - For "themes": Object containing:
-    - projectName: (Optional) Project name to filter themes by
+    * projectName: (Optional) Project name to filter themes by
   - For "transcript": Object containing:
-    - participantName: Participant associated with the transcript
-    - interviewId: (Optional) Specific interview identifier
+    * participantName: Participant associated with the transcript
+    * interviewId: (Optional) Specific interview identifier
   - For "memo": Object containing:
-    - memoName: Name of the memo to retrieve
+    * memoName: Name of the memo to retrieve
   - For "analysis": Object containing:
-    - projectName: Project name to retrieve analysis artifacts for
+    * projectName: Project name to retrieve analysis artifacts for
   - For "codebook": Object containing:
-    - projectName: Project name to generate codebook for
+    * projectName: Project name to generate codebook for
   - For "related": Object containing:
-    - entityName: Name of the entity to find related entities for
+    * entityName: Name of the entity to find related entities for
 
-## Operation details
+Operation details:
+- graph: Returns the complete research knowledge graph with all entities and relationships
+- search: Performs text-based search across entity names and observations
+- nodes: Retrieves detailed information about specific entities by name
+- project: Returns comprehensive project information including participants, interviews, codes, and findings
+- participant: Generates a participant profile with demographic information and associated data
+- codes: Lists all codes, optionally filtered by project, with reference counts and descriptions
+- themes: Returns all themes, optionally filtered by project, with associated codes and descriptions
+- transcript: Retrieves interview transcript content for specific participant/interview combinations
+- memo: Returns the full content of an analytical memo with metadata
+- analysis: Collects all analysis artifacts (codes, themes, memos) for a specific project
+- codebook: Generates a structured codebook for a project with code definitions and examples
+- related: Identifies all entities directly connected to a specific entity
 
-- **graph**: Returns the complete research knowledge graph with all entities and relationships
-- **search**: Performs text-based search across entity names and observations
-- **nodes**: Retrieves detailed information about specific entities by name
-- **project**: Returns comprehensive project information including participants, interviews, codes, and findings
-- **participant**: Generates a participant profile with demographic information and associated data
-- **codes**: Lists all codes, optionally filtered by project, with reference counts and descriptions
-- **themes**: Returns all themes, optionally filtered by project, with associated codes and descriptions
-- **transcript**: Retrieves interview transcript content for specific participant/interview combinations
-- **memo**: Returns the full content of an analytical memo with metadata
-- **analysis**: Collects all analysis artifacts (codes, themes, memos) for a specific project
-- **codebook**: Generates a structured codebook for a project with code definitions and examples
-- **related**: Identifies all entities directly connected to a specific entity
-
-## Return information
-
+Return information:
 - JSON response with a consistent structure:
   - success: Boolean indicating whether the operation succeeded
   - Additional fields depend on the operation type:
-    - graph: Complete knowledge graph
-    - results: For search operations
-    - nodes: For specific entity retrieval
-    - project/participant/etc.: For specialized views
+    * graph: Complete knowledge graph
+    * results: For search operations
+    * nodes: For specific entity retrieval
+    * project/participant/etc.: For specialized views
 - Error information when operations fail
 
-## Guidelines for users
-
+You should:
 - Start with broad queries ("graph", "search") to explore your research corpus
 - Use specific entity queries ("nodes", "project", "participant") for detailed information
 - Combine search and related queries to discover connections in your data

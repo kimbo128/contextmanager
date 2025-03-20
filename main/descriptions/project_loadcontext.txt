@@ -23,7 +23,7 @@ Key features:
 - Presents critical path information for task dependencies
 - Shows resource utilization metrics and availability
 
-Parameters:
+Parameters explained:
 1. entityName: Required - The name of the entity to retrieve context for
   - Example: "Marketing Campaign Q4", "Design Homepage", "Website Launch"
 2. entityType: Optional - The type of entity being retrieved
@@ -49,7 +49,7 @@ Return information:
 - Progress metrics and completion statistics where applicable
 - Error messages if the entity doesn't exist or can't be retrieved
 
-Guidelines for users:
+You should:
 - Specify the exact entity name for accurate retrieval
 - Provide the entity type when possible for optimally formatted results
 - Start with project entities to get a high-level overview

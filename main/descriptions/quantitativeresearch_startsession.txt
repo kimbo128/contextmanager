@@ -1,9 +1,8 @@
-# Start Session Tool for Quantitative Research
+Start Session Tool for Quantitative Research
 
 A comprehensive tool for initializing a new quantitative research session, providing structured information about ongoing research projects, datasets, statistical models, and recent research activities.
 
-## When to use this tool
-
+When to use this tool:
 - Beginning a new quantitative analysis session
 - Getting oriented to your current research state across multiple projects
 - Planning which research elements to focus on in the current session
@@ -16,8 +15,7 @@ A comprehensive tool for initializing a new quantitative research session, provi
 - Establishing research context before diving into specific analysis tasks
 - Re-engaging with your research after time away
 
-## Key features
-
+Key features:
 - Generates a unique session identifier for tracking research activities
 - Retrieves and displays recent research sessions with summaries
 - Lists active research projects with status information
@@ -30,14 +28,10 @@ A comprehensive tool for initializing a new quantitative research session, provi
 - Maintains continuity between research sessions
 - Tracks research session history for progress review
 
-## Parameters
-
+Parameters explained:
 No parameters required - the tool automatically retrieves all relevant context.
 
-## Return information
-
-The tool returns a formatted text output containing:
-
+Return information:
 - Recent research sessions (up to 3) with:
   - Date
   - Project name
@@ -66,16 +60,14 @@ The tool returns a formatted text output containing:
   - Type (chart, plot, etc.)
   - Associated dataset
 
-## Session workflow
-
+Session Workflow:
 1. Start a research session with startsession
 2. Review the provided context to decide what to focus on
 3. Use loadcontext to retrieve detailed information about specific research elements
 4. Conduct your analysis, adding new elements with buildcontext as needed
 5. End the session with endsession to record your research progress
 
-## Guidelines for users
-
+You should:
 - Begin each focused research period with startsession to establish context
 - Review recent sessions to maintain continuity in your research
 - Identify active projects that require attention

@@ -23,7 +23,7 @@ Key features:
 - Presents performance metrics for statistical models
 - Shows dataset characteristics and variable properties
 
-Parameters:
+Parameters explained:
 1. entityName: Required - The name of the entity to retrieve context for
   - Example: "Customer Satisfaction Study", "Survey_Dataset", "Age_Variable"
 2. entityType: Optional - The type of entity being retrieved
@@ -49,7 +49,7 @@ Return information:
 - Related entities shown with their statistical properties
 - Error messages if the entity doesn't exist or can't be retrieved
 
-Guidelines for users:
+You should:
 - Specify the exact entity name for accurate retrieval
 - Provide the entity type when possible for optimally formatted results
 - Start with project entities to get a high-level overview of research

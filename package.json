@@ -11,12 +11,7 @@
     "README.md"
   ],
   "workspaces": [
-    "main",
-    "developer",
-    "student",
-    "qualitativeresearch",
-    "quantitativeresearch",
-    "project"
+    "main"
   ],
   "scripts": {
     "build": "tsc -p ./tsconfig.json && shx chmod +x dist/main/index.js && cp -r main/descriptions dist/main/",

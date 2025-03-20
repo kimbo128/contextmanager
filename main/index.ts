@@ -221,7 +221,7 @@ for (const domain of domains) {
 
 // In-memory flow management
 const flows: FlowInfo[] = [];
-let activeDomain: string | null = null;
+let activeDomain: string | null = "developer";
 let flowCounter = 0;
 
 // Function to get tool description based on active domain

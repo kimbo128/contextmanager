@@ -1,0 +1,113 @@
+# Build Context Tool for Project Management
+
+A versatile tool for constructing and enhancing your project management knowledge graph by adding new project elements, relationships, and observations.
+
+## When to use this tool
+
+- Creating new project entities (projects, tasks, milestones, team members, etc.)
+- Establishing relationships between project elements (e.g., connecting tasks to projects, assigning team members)
+- Adding observations, properties, or metadata to existing project entities
+- Building the project management structure incrementally as your project evolves
+- Organizing and structuring project data within your management framework
+- Documenting project status, risks, and decisions
+- Tracking project dependencies and assignments
+- Creating comprehensive project timelines with connected elements
+
+## Key features
+
+- Creates three distinct types of knowledge graph elements: entities, relations, and observations
+- Supports various project management entity types (projects, tasks, milestones, team members, etc.)
+- Validates entity and relation types against predefined standards for the project domain
+- Handles batch creation of multiple entities or relations in a single operation
+- Returns confirmation with details of created elements
+- Ensures proper data typing and structure for the project management knowledge graph
+- Enables comprehensive documentation of project structure and progress
+
+## Parameters
+
+- **type**: The type of creation operation to perform
+  - Accepts: "entities", "relations", or "observations"
+  - Determines how the data parameter is interpreted
+  
+- **data**: The content to add to the knowledge graph (structure varies by type):
+  - For "entities": An array of objects, each containing:
+    - name: Unique identifier for the entity
+    - entityType: One of the valid entity types for project management
+    - observations: Array of strings containing properties or metadata about the entity
+    - embedding: (Optional) Vector embedding for enhanced semantic search
+  
+  - For "relations": An array of objects, each containing:
+    - from: Name of the source entity
+    - to: Name of the target entity
+    - relationType: The type of relationship between entities (e.g., "depends_on", "assigned_to")
+    - observations: (Optional) Array of strings with metadata about the relationship
+  
+  - For "observations": Either a single object or an array of objects:
+    - Single object format:
+      - entityName: Name of the entity to add observations to
+      - observations: Array of strings with new observations to add
+    - Array format:
+      - Each object containing:
+        - entityName: Name of the entity to add observations to
+        - contents: Array of strings with new observations to add
+
+## Valid entity types
+
+Common entity types in project management include:
+- project: Overall project container
+- task: Individual action items or work packages
+- milestone: Key project checkpoints
+- teamMember: Project team participants
+- risk: Potential project threats or issues
+- decision: Documented project decisions
+- resource: Project assets or materials
+- issue: Problems requiring resolution
+- dependency: Inter-element relationships
+- meeting: Project-related gatherings
+- document: Project files and documentation
+- stakeholder: Parties with interest in the project
+
+## Valid relation types
+
+Common relation types in project management include:
+- part_of: Entity belongs to another entity
+- depends_on: Task dependency relationship
+- assigned_to: Assignment relationship between tasks and team members
+- responsible_for: Ownership of project elements
+- created_by: Authorship relationship
+- leads_to: Sequential relationship
+- blocks: Impediment relationship
+- reports_to: Organizational hierarchy
+- collaborates_with: Collaborative relationship
+- decides_on: Decision-making relationship
+- impacts: Effect relationship
+
+## Return information
+
+- JSON response indicating success or failure
+- For successful operations:
+  - Success flag set to true
+  - Details of created elements in the "created" field (for entities/relations) or info message for observations
+- For failed operations:
+  - Success flag set to false
+  - Error message describing the issue
+
+## Error handling
+
+- Returns descriptive error messages for invalid inputs
+- Gracefully handles type mismatches and formatting errors
+- Rejects operations with invalid types
+
+## Guidelines for users
+
+- Use consistent naming conventions for entities to facilitate relationships and retrieval
+- Begin by creating projects before more specific project elements
+- Add detailed observations to entities to enhance context and searchability
+- Create relationships to build a comprehensive network of interconnected project data
+- Document project status and progress through entity observations
+- Create clear task hierarchies and dependencies
+- Assign specific team members to tasks using relations
+- Track project risks with detailed observations
+- Document decisions with context and rationale
+- Use relations to establish project timeline and dependencies
+- Update entity observations regularly to reflect current project status 

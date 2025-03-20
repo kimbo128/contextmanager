@@ -1,0 +1,81 @@
+A comprehensive tool for querying and analyzing your educational knowledge graph.
+This tool provides specialized operations to extract meaningful insights and contextual information about your academic journey.
+It enables deep exploration of courses, assignments, exams, concepts, and educational resources.
+
+When to use this tool:
+- Retrieving the complete educational knowledge graph
+- Searching for specific academic entities using keyword matching
+- Fetching details on a precise set of educational entities
+- Getting comprehensive information about a specific course
+- Finding upcoming assignment and exam deadlines
+- Checking detailed status of a specific assignment
+- Preparing for exams with concept retrieval
+- Discovering connections between learning concepts
+- Tracking and reviewing lecture notes
+- Getting an overview of an entire academic term
+
+Key features:
+- Ten specialized query operation types
+- Full educational graph retrieval with entities and relations
+- Keyword-based search across academic entities and their properties
+- Direct entity lookup by exact name
+- Course details including lectures, assignments, exams, and resources
+- Deadline tracking with time-based filtering
+- Assignment status with progress tracking
+- Exam preparation with related concepts and materials
+- Concept relationship mapping
+- Lecture note organization
+- Term-based academic overview
+- JSON-formatted response with query results
+
+Parameters explained:
+- type: The query operation type to perform, which must be one of:
+  * "graph" - Retrieve the entire educational knowledge graph
+  * "search" - Find academic entities by keyword/partial match
+  * "nodes" - Get specific educational entities by exact name
+  * "course" - Get comprehensive details about a specific course
+  * "deadlines" - Get upcoming assignment and exam deadlines
+  * "assignment" - Get detailed status of a specific assignment
+  * "exam" - Get preparation materials for a specific exam
+  * "concepts" - Find related concepts based on a starting concept
+  * "lecture" - Track and organize notes for lectures
+  * "term" - Get overview of an academic term
+- params: Operation-specific parameters structure:
+  * For "graph": No parameters needed
+  * For "search": { query: "search text" }
+  * For "nodes": { names: ["EntityName1", "EntityName2", ...] }
+  * For "course": { courseName: "Course Name" }
+  * For "deadlines": { termName: "Term Name", courseName: "Course Name", daysAhead: 14 }
+  * For "assignment": { assignmentName: "Assignment Name" }
+  * For "exam": { examName: "Exam Name" }
+  * For "concepts": { conceptName: "Concept Name", depth: 1 }
+  * For "lecture": { courseName: "Course Name" }
+  * For "term": { termName: "Term Name" }
+
+Operation details:
+- "graph" returns the complete educational knowledge graph structure
+- "search" performs partial matching on entity names, types, and observations
+- "nodes" retrieves specific entities by exact name matching
+- "course" provides a comprehensive view of a course with its components
+- "deadlines" finds upcoming assignments and exams with due dates
+- "assignment" shows detailed status and related concepts for an assignment
+- "exam" provides study resources and related concepts for exam preparation
+- "concepts" maps relationships between different learning concepts
+- "lecture" organizes and retrieves notes for course lectures
+- "term" gives an overview of courses and work for an academic term
+
+Return structures:
+- All operations return { success: true/false, ... } with operation-specific data
+- Error responses include detailed error messages
+- Complex operations return rich, structured data about academic entities
+- Educational relationships are preserved in all returned data
+
+You should:
+1. Select the most appropriate query type for your educational information need
+2. Provide the required parameters for your chosen operation type
+3. Start with broader queries and refine to more specific ones
+4. Use "search" for exploratory investigation of your academic knowledge
+5. Use "course" to get a comprehensive view of your coursework
+6. Use "deadlines" to stay on top of upcoming academic work
+7. Use "concepts" to understand relationships between learning topics
+8. Combine query results to build comprehensive study plans 

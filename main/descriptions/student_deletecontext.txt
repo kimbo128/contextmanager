@@ -1,0 +1,54 @@
+A precise tool for removing elements from your educational knowledge graph.
+This tool enables targeted deletion of academic entities, relationships between educational components, or specific observations about study materials.
+It helps maintain an accurate and current representation of your academic landscape as your learning journey evolves.
+
+When to use this tool:
+- Removing completed or dropped courses
+- Deleting obsolete relationships between academic entities
+- Pruning outdated notes or observations that are no longer relevant
+- Correcting errors in your academic knowledge graph
+- Cleaning up test or practice entities
+- Maintaining graph accuracy as your educational focus changes
+- Removing duplicate learning materials or resources
+- Archiving completed assignments or exams
+
+Key features:
+- Three distinct deletion operation types (entities, relations, observations)
+- Cascading deletion for entities (automatically removes related relations)
+- Precise deletion of specific observations without removing entire entities
+- Targeted relation removal with exact matching on from/to/type
+- Batch operations for efficient cleanup
+- JSON-formatted response with operation results
+- Secure validation before deletion
+- Clear error messages when operations fail
+
+Parameters explained:
+- type: The deletion operation type to perform, which must be one of:
+  * "entities" - Remove academic entities and their relations
+  * "relations" - Remove specific relationships between entities
+  * "observations" - Remove specific observations from entities
+- data: Operation-specific data structure:
+  * For "entities": Array of entity names to delete
+  * For "relations": Array of objects with { from, to, relationType }
+  * For "observations": Array of objects with { entityName, observations[] }
+
+Deletion behavior by type:
+- "entities": Completely removes the specified entities and any relations where they appear
+- "relations": Removes only the exact relations specified, matching on all three attributes
+- "observations": Removes specific observations from entities while preserving the entities themselves
+
+Safety considerations:
+- Entity deletion cascades to relations, so be careful when deleting key entities
+- There is no "undo" operation, so confirm deletions carefully
+- Partial graph information can lead to inconsistent views of your academic knowledge
+- Relations require entities on both ends to exist
+
+You should:
+1. Identify the specific elements in your academic graph that need to be removed
+2. Choose the appropriate deletion type (entities, relations, or observations)
+3. Structure your data according to the deletion type's requirements
+4. Start with more specific deletions (observations) before broader ones
+5. Verify the entities or relations exist before attempting deletion
+6. Check the operation result to confirm successful deletion
+7. Consider documenting major deletions as observations on related entities
+8. When removing an entire course, first delete its components for cleaner removal 

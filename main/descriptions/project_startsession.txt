@@ -1,0 +1,90 @@
+# Start Session Tool for Project Management
+
+A comprehensive tool for initializing a new project management session, providing structured information about ongoing projects, tasks, deadlines, and overall project health.
+
+## When to use this tool
+
+- Beginning a new project management session
+- Getting oriented to your current project portfolio status
+- Planning which projects or tasks to focus on in the current work session
+- Reviewing recent project activity and progress
+- Checking upcoming deadlines for tasks and milestones
+- Assessing the health of active projects
+- Identifying high-priority tasks requiring attention
+- Reviewing project risks that need mitigation
+- Establishing context before diving into specific project work
+- Creating a structured record of your project management activity
+
+## Key features
+
+- Generates a unique session identifier for tracking project management activities
+- Retrieves and displays your most recent project management sessions
+- Shows active projects you're currently managing with status information
+- Highlights high-priority tasks requiring attention
+- Lists upcoming milestones with progress metrics
+- Provides project health summaries with status indicators
+- Identifies top project risks requiring mitigation
+- Formats information in a structured, easy-to-read format
+- Integrates with the loadcontext tool for deeper exploration
+- Maintains continuity between project management sessions
+
+## Parameters
+
+No parameters required - the tool automatically retrieves all relevant context.
+
+## Return information
+
+The tool returns a formatted text output containing:
+
+- Session ID: A unique identifier for this project management session
+- Recent Project Management Sessions: Up to 3 most recent sessions with:
+  * Date
+  * Project focus
+  * Session summary (truncated for readability)
+- Active Projects: List of current projects with:
+  * Project name
+  * Current status
+  * Deadline information
+- High-Priority Tasks: Up to 10 highest priority tasks with:
+  * Task name
+  * Associated project
+  * Status
+  * Assignee
+- Upcoming Milestones: Up to 8 nearest milestones with:
+  * Milestone name
+  * Associated project
+  * Due date
+  * Completion percentage
+- Project Health Summary: Status of active projects with:
+  * Project name
+  * Health status indicator
+  * Health score
+  * Issue count
+  * Risk count
+- Top Project Risks: Up to 5 highest severity risks with:
+  * Risk name
+  * Associated project
+  * Severity level
+  * Impact assessment
+
+## Session workflow
+
+1. Start a project management session with startsession
+2. Review the provided context to decide what to focus on
+3. Use loadcontext to retrieve detailed information about specific projects
+4. Conduct your project management work, adding new elements with buildcontext as needed
+5. End the session when work is complete
+6. Record progress, decisions, and next steps
+
+## Guidelines for users
+
+- Begin each focused project management period with startsession
+- Review recent sessions to maintain continuity in your work
+- Prioritize work based on high-priority tasks and upcoming milestones
+- Address projects with poor health indicators
+- Mitigate high-severity risks promptly
+- Use the session ID when using other tools to maintain session tracking
+- Establish a regular cadence of project management sessions
+- Use the structured overview to make deliberate choices about where to focus your effort
+- Consider creating or updating project entities after reviewing the current state
+- Follow up on projects with approaching deadlines 

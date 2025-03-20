@@ -1,0 +1,72 @@
+A powerful tool for retrieving detailed contextual information about project entities, providing rich insights tailored to each entity type in the project management domain.
+
+## When to use this tool
+
+- Retrieving comprehensive information about projects, tasks, milestones, and team members
+- Exploring task dependencies and critical path information
+- Examining milestone progress and completion status
+- Reviewing team member assignments and workload
+- Analyzing resource allocation and availability
+- Inspecting project risks and issues
+- Preparing for project status updates and planning meetings
+- Examining project timelines and progress metrics
+- Getting a holistic view of project status and health
+- Understanding relationships between project entities
+
+## Key features
+
+- Provides richly formatted, context-aware information about project management entities
+- Adapts output format based on entity type (project, task, milestone, teamMember, resource)
+- Presents both direct entity information and related elements
+- Shows project metrics, task completion rates, and milestone progress
+- Tracks entity views within the current project session
+- Formats information in a structured, readable markdown format
+- Highlights relationships between tasks, milestones, and team members
+- Presents critical path information for task dependencies
+- Shows resource utilization metrics and availability
+
+## Parameters
+
+- **entityName**: Required - The name of the entity to retrieve context for
+  - Example: "Marketing Campaign Q4", "Design Homepage", "Website Launch"
+  
+- **entityType**: Optional - The type of entity being retrieved
+  - Default: "project"
+  - Helps the system format the output appropriately
+  - Common types include: "project", "task", "milestone", "teamMember", "resource"
+  
+- **sessionId**: Optional - The current session identifier
+  - Typically provided by startsession
+  - Used for tracking entity views within the session
+
+## Context format by entity type
+
+Each entity type returns specialized context information:
+
+- **Project**: Shows project status, description, timeline, budget, goal, tasks, milestones, issues, team members, risks, and task completion rate
+- **Task**: Displays project affiliation, status, due date, priority, assignee, description, critical path status, and task dependencies
+- **Milestone**: Shows project affiliation, status, date, completion criteria, description, progress percentage, days remaining, required tasks, and blocking tasks
+- **Team Member**: Displays role, skills, availability, workload, assigned tasks, projects, upcoming deadlines, and overdue tasks
+- **Resource**: Shows type, project affiliation, availability, capacity, cost, usage percentage, assigned tasks, and team members using the resource
+- **Other Entity Types**: Shows basic entity information, observations, incoming relations, and outgoing relations
+
+## Return information
+
+- Formatted markdown text with hierarchical structure
+- Sections adapted to the specific entity type
+- Related entities shown with their relationships
+- Progress metrics and completion statistics where applicable
+- Error messages if the entity doesn't exist or can't be retrieved
+
+## Guidelines for users
+
+- Specify the exact entity name for accurate retrieval
+- Provide the entity type when possible for optimally formatted results
+- Start with project entities to get a high-level overview
+- Examine task context to understand dependencies and critical path
+- Review milestone context to assess progress towards key deliverables
+- Use team member context to evaluate workload and assignments
+- Explore resource context to understand allocation and availability
+- After retrieving context, follow up on specific entities of interest
+- Use in conjunction with startsession to maintain session tracking
+- Remember that this tool only retrieves existing information; use buildcontext to add new entities 

@@ -7,6 +7,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { z } from "zod";
 import path from "path";
 import { fileURLToPath } from "url";
+import { readFileSync, existsSync } from "fs";
 // Get the directory where the contextmanager is located
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -184,13 +185,52 @@ for (const domain of domains) {
 const flows = [];
 let activeDomain = null;
 let flowCounter = 0;
+// Function to get tool description based on active domain
+function getToolDescription(toolName, domain) {
+    if (!domain) {
+        return `${toolName} tool - No active domain set`;
+    }
+    const descriptionFilePath = path.resolve(__dirname, "descriptions", `${domain}_${toolName}.txt`);
+    try {
+        if (existsSync(descriptionFilePath)) {
+            return readFileSync(descriptionFilePath, "utf8");
+        }
+        else {
+            console.warn(`Description file not found: ${descriptionFilePath}`);
+            return `${toolName} tool for ${domain} domain`;
+        }
+    }
+    catch (error) {
+        console.error(`Error reading description file for ${domain}_${toolName}:`, error);
+        return `${toolName} tool for ${domain} domain`;
+    }
+}
 // Create an MCP server
 const server = new McpServer({
     name: "Context Manager",
     version: "1.0.0"
 });
+// Store tool schemas and callbacks for re-registration when domain changes
+const toolDefinitions = {};
+// Function to register or update a tool with domain-specific description
+function registerDomainTool(name, schema, callback) {
+    // Store the tool definition for later re-registration
+    toolDefinitions[name] = {
+        schema,
+        callback
+    };
+    // Register the tool with the current domain description
+    server.tool(name, getToolDescription(name, activeDomain), schema, callback);
+}
+// Function to update all tool descriptions when domain changes
+function updateDomainToolDescriptions() {
+    // Re-register all stored tools with new descriptions
+    for (const [name, definition] of Object.entries(toolDefinitions)) {
+        server.tool(name, getToolDescription(name, activeDomain), definition.schema, definition.callback);
+    }
+}
 // Domain management tools
-server.tool("setActiveDomain", { domain: z.string() }, async ({ domain }) => {
+server.tool("setActiveDomain", "Change the active domain for subsequent tool calls", { domain: z.string() }, async ({ domain }) => {
     const foundDomain = domains.find(d => d.name.toLowerCase() === domain.toLowerCase());
     if (!foundDomain) {
         return {
@@ -208,12 +248,14 @@ server.tool("setActiveDomain", { domain: z.string() }, async ({ domain }) => {
         };
     }
     activeDomain = foundDomain.name;
+    // Update tool descriptions for the new active domain
+    updateDomainToolDescriptions();
     return {
         content: [{ type: "text", text: `Active domain set to: ${activeDomain}` }]
     };
 });
 // Flow management tools
-server.tool("startsession", {
+registerDomainTool("startsession", {
     domain: z.string()
 }, async ({ domain }) => {
     const foundDomain = domains.find(d => d.name.toLowerCase() === domain.toLowerCase());
@@ -234,6 +276,8 @@ server.tool("startsession", {
     }
     activeDomain = foundDomain.name;
     flowCounter++;
+    // Update tool descriptions for the new active domain since activeDomain changed
+    updateDomainToolDescriptions();
     // Forward the startsession call to the domain server with a domain-specific session identifier
     try {
         const result = await domainClient.callTool({
@@ -263,7 +307,7 @@ server.tool("startsession", {
         };
     }
 });
-server.tool("endsession", {
+registerDomainTool("endsession", {
     sessionId: z.string(),
     stage: z.string(),
     stageNumber: z.number(),
@@ -329,13 +373,13 @@ server.tool("endsession", {
     }
 });
 // Context management tools
-server.tool("buildcontext", {
+registerDomainTool("buildcontext", {
     type: z.enum(["entities", "relations", "observations"]),
     data: z.any().optional()
 }, async ({ type, data }) => {
     if (!activeDomain) {
         return {
-            content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain tool first." }],
+            content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain or startsession tool first." }],
             isError: true
         };
     }
@@ -368,13 +412,13 @@ server.tool("buildcontext", {
         };
     }
 });
-server.tool("deletecontext", {
+registerDomainTool("deletecontext", {
     type: z.enum(["entities", "relations", "observations"]),
     data: z.any().optional()
 }, async ({ type, data }) => {
     if (!activeDomain) {
         return {
-            content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain tool first." }],
+            content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain or startsession tool first." }],
             isError: true
         };
     }
@@ -407,14 +451,14 @@ server.tool("deletecontext", {
         };
     }
 });
-server.tool("loadcontext", {
+registerDomainTool("loadcontext", {
     entityName: z.string(),
     entityType: z.string().optional(),
     sessionId: z.string().optional()
 }, async ({ entityName, entityType, sessionId }) => {
     if (!activeDomain) {
         return {
-            content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain tool first." }],
+            content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain or startsession tool first." }],
             isError: true
         };
     }
@@ -471,13 +515,13 @@ server.tool("loadcontext", {
         };
     }
 });
-server.tool("advancedcontext", {
+registerDomainTool("advancedcontext", {
     type: z.enum(["graph", "search", "nodes", "related", "decisions", "milestone"]),
     params: z.any().optional()
 }, async ({ type, params }) => {
     if (!activeDomain) {
         return {
-            content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain tool first." }],
+            content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain or startsession tool first." }],
             isError: true
         };
     }
@@ -519,7 +563,7 @@ server.tool("advancedcontext", {
 //   async () => {
 //     if (!activeDomain) {
 //       return {
-//         content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain tool first." }],
+//         content: [{ type: "text", text: "Error: No active domain set. Use setActiveDomain or startsession tool first." }],
 //         isError: true
 //       };
 //     }
@@ -566,7 +610,7 @@ server.resource("domains", "domains://list", async (uri) => ({
         }]
 }));
 // Cross-domain functionality
-server.tool("relateCrossDomain", {
+server.tool("relateCrossDomain", "Create connections between entities across different domains", {
     fromDomain: z.string(),
     fromEntity: z.string(),
     toDomain: z.string(),

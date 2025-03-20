@@ -183,7 +183,7 @@ for (const domain of domains) {
 }
 // In-memory flow management
 const flows = [];
-let activeDomain = null;
+let activeDomain = "developer";
 let flowCounter = 0;
 // Function to get tool description based on active domain
 function getToolDescription(toolName, domain) {

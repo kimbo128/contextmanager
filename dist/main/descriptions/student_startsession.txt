@@ -1,0 +1,59 @@
+Start Session Tool for Student
+
+A powerful tool for initializing a new academic study session.
+This tool starts a new study session and provides a comprehensive overview of your current educational landscape.
+It retrieves recent study sessions, active courses, upcoming deadlines, and recently studied concepts to help focus your learning effectively.
+
+When to use this tool:
+- Beginning a new study session or learning period
+- Getting oriented in your current academic state
+- Planning which courses or assignments to focus on
+- Reviewing recent study activity and progress
+- Checking upcoming deadlines for assignments and exams
+- Deciding which concepts need attention
+- Establishing context before diving into specific study work
+- Creating a structured record of your study activity
+
+Key features:
+- Generates a unique study session identifier for tracking activity
+- Retrieves and displays your most recent study sessions
+- Shows active courses you're currently taking
+- Highlights upcoming assignment and exam deadlines
+- Lists recently studied concepts for review
+- Formats information in a structured, easy-to-read format
+- Provides seamless integration with loadcontext tool
+- Stores study session data for historical record keeping
+
+Parameters explained:
+- No parameters required - the tool automatically retrieves all relevant context
+
+Return information:
+- Session ID: A unique identifier for this study session (format: stud_timestamp_randomstring)
+- Recent Study Sessions: Up to 3 most recent sessions with:
+  * Date
+  * Course focus
+  * Study session summary (truncated for readability)
+- Active Courses: List of courses currently being taken
+- Upcoming Deadlines: Assignment and exam deadlines in the next 14 days, including:
+  * Assignment/exam name
+  * Course it belongs to
+  * Due date
+  * Days remaining until due
+- Recently Studied Concepts: List of concepts you've recently studied
+
+Session workflow:
+1. Starting a session creates a session identifier in the student domain
+2. This session can be referenced when loading course context with loadcontext
+3. Session activities are tracked for later recording
+4. Sessions should be ended with endsession to record learning progress
+5. Session history becomes available for future startsession calls
+
+You should:
+1. Begin each focused study period with startsession
+2. Review the provided context to determine your study focus
+3. Choose a specific course, assignment, or concept to work on
+4. Use the generated session ID with the loadcontext tool to load specific entities
+5. Complete your study work on your selected focus area
+6. End the session with endsession when work is complete
+7. Record concepts learned, assignment progress, and study accomplishments
+8. Use the session history to maintain continuity between study periods 

@@ -9,7 +9,6 @@
   },
   "files": [
     "index.js",
-    "qualitativeresearch_tools.js",
     "README.md"
   ],
   "scripts": {

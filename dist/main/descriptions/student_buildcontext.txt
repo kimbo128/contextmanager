@@ -1,0 +1,69 @@
+Build Context Tool for Student
+
+A flexible tool for constructing and enhancing your educational knowledge graph.
+This tool allows you to add new academic entities, create relationships between educational components, or add observations to existing study materials.
+Each operation type serves a specific purpose in building a comprehensive representation of your academic journey.
+
+When to use this tool:
+- Creating new educational entities like courses, assignments, and exams
+- Establishing relationships between academic entities (e.g., assignment is part of a course)
+- Documenting observations about your academic materials
+- Building a connected graph of your educational experience
+- Organizing your study resources and materials
+- Tracking relationships between concepts and learning materials
+- Recording course-specific details like schedules and due dates
+- Creating structured representations of your academic knowledge
+
+Key features:
+- Three distinct operation types (entities, relations, observations)
+- Type validation against academic domain standards
+- Automatic rejection of invalid entity or relation types
+- Safe addition of new observations to existing academic entities
+- JSON-formatted response with operation results
+- Clear error messages when operations fail
+- Handles both single and batch operations
+
+Parameters explained:
+- type: The operation type to perform, which must be one of:
+  * "entities" - Create new academic entities
+  * "relations" - Create relationships between existing entities
+  * "observations" - Add observations to existing entities
+- data: Operation-specific data structure:
+  * For "entities": Array of objects with { name, entityType, observations[] }
+  * For "relations": Array of objects with { from, to, relationType }
+  * For "observations": Array of objects with { entityName, contents[] }
+
+Entity Types:
+- course - Academic courses you're taking
+- assignment - Homework, projects, and other submitted work
+- exam - Tests, quizzes, and other assessments
+- concept - Knowledge topics and learning objectives
+- resource - Textbooks, articles, videos, and other learning materials
+- note - Personal study notes and observations
+- lecture - Individual class sessions
+- project - Larger educational projects
+- question - Specific questions for study or review
+- term - Academic terms or semesters
+- goal - Learning objectives and targets
+- professor - Course instructors and teachers
+
+Relation Types include:
+- enrolled_in - Student is taking a course
+- assigned_in - Assignment is part of a course
+- due_on - Assignment/exam has specific due date
+- covers - Lecture/resource covers concept
+- references - Note references concept
+- prerequisite_for - Concept is foundation for another
+- taught_by - Course taught by professor
+- scheduled_for - Lecture/exam scheduled for specific time
+- contains - Course contains lectures/assignments
+
+You should:
+1. Specify the operation type based on what you need to create (entities, relations, or observations)
+2. Structure your data according to the operation type's requirements
+3. Use valid entity types and relation types from the academic domain
+4. Ensure entities exist before creating relations between them
+5. Provide meaningful names and descriptions for new entities
+6. Use observations to add metadata like status, deadlines, or difficulty levels
+7. Create complete structures rather than adding entities/relations piecemeal
+8. Check the operation result to confirm successful creation 

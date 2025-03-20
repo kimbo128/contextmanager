@@ -1,0 +1,75 @@
+Delete Context Tool for Project Management
+
+A precise tool for removing elements from the project management knowledge graph, enabling project managers to maintain data accuracy and refine their project structure as needs evolve.
+
+When to use this tool:
+- Removing completed or canceled projects or tasks
+- Deleting erroneous relationships between project elements
+- Clearing outdated observations from project entities
+- Restructuring your project organization as the project evolves
+- Removing team members who are no longer part of the project
+- Correcting relationships between tasks, milestones, and resources
+- Cleaning up the knowledge graph during project phase transitions
+- Eliminating deprecated risks or issues that are no longer relevant
+- Removing preliminary project elements that have been superseded
+- Reorganizing your project structure by removing and recreating elements
+
+Key features:
+- Provides targeted deletion capabilities for three distinct types of knowledge graph elements: entities, relations, and observations
+- Maintains knowledge graph integrity during deletion operations
+- Supports batch deletion of multiple items in a single operation
+- Returns clear confirmation of deletion results
+- Preserves the overall structure of the project knowledge graph while removing specific elements
+- Performs validation to ensure deletion requests are properly formatted
+
+Parameters explained:
+1. type: The type of deletion operation to perform
+  - Accepts: "entities", "relations", or "observations"
+  - Determines how the data parameter is interpreted
+2. data: The elements to remove from the knowledge graph (structure varies by type):
+  - For "entities": Array of entity names to delete
+    * Example: ["Task_A", "Milestone_1", "Risk_Supply_Chain"]
+  - For "relations": Array of relation objects, each containing:
+    * from: Name of the source entity
+    * to: Name of the target entity
+    * relationType: Type of relationship to remove
+    * Example: [{ "from": "Task_A", "to": "Milestone_1", "relationType": "part_of" }]
+  - For "observations": Array of objects, each containing:
+    * entityName: Name of the entity to remove observations from
+    * observations: Array of specific observations to remove
+    * Example: [{ "entityName": "Project_X", "observations": ["status:on_hold", "priority:medium"] }]
+
+Deletion behavior by type:
+- Entities: Removes the specified entities and all their associated relations from the knowledge graph
+- Relations: Removes only the specified relationships, leaving the connected entities intact
+- Observations: Removes specific observations from entities while preserving the entities themselves
+
+Safety considerations:
+- Entity deletion is permanent and will also remove all relationships involving those entities
+- Consider exporting or backing up your project knowledge graph before performing large-scale deletions
+- For sensitive operations, consider removing specific observations rather than entire entities
+- When removing key project elements, consider the impact on your overall project structure
+
+Return information:
+- JSON response indicating success or failure
+- For successful operations:
+  - Success flag set to true
+  - Confirmation message with count of deleted items
+    * For entities: "Deleted X entities"
+    * For relations: "Deleted X relations"
+    * For observations: "Deleted observations from X entities"
+- For failed operations:
+  - Success flag set to false
+  - Error message describing the issue
+
+You should:
+- Be specific in your deletion requests to avoid unintended data loss
+- Use relations deletion when you want to disconnect entities without removing them
+- For observations, provide the exact observations to ensure only the intended content is removed
+- When restructuring your project, consider how deletions will affect related elements
+- Use deletecontext in conjunction with buildcontext to refine and evolve your project structure
+- Regularly review your knowledge graph for elements that may need to be removed or updated
+- Consider the cascading effects of entity deletion on your overall project structure
+- Delete completed tasks and milestones systematically when closing project phases
+- Remove resolved risks and issues to keep your project status current
+- Update entities by deleting specific observations and adding new ones 

@@ -11,10 +11,15 @@
     "README.md"
   ],
   "workspaces": [
-    "main"
+    "main",
+    "developer",
+    "student",
+    "qualitativeresearch",
+    "quantitativeresearch",
+    "project"
   ],
   "scripts": {
-    "build": "tsc -p ./main/tsconfig.json && shx chmod +x dist/main/index.js",
+    "build": "tsc -p ./tsconfig.json && shx chmod +x dist/main/index.js && cp -r main/descriptions dist/main/",
     "prepare": "npm run build",
     "start": "node dist/main/index.js"
   },

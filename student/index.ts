@@ -9,12 +9,26 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
-// Environment variable for memory file path with fallback
-const MEMORY_FILE_PATH = process.env.MEMORY_FILE_PATH || path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-  'student_memory.json'
-);
+// // Environment variable for memory file path with fallback
+// const MEMORY_FILE_PATH = process.env.MEMORY_FILE_PATH || path.join(
+//   path.dirname(fileURLToPath(import.meta.url)),
+//   '..',
+//   'student_memory.json'
+// );
+
+// // Define sessions file path in the same directory as memory file
+// const SESSIONS_FILE_PATH = process.env.SESSIONS_FILE_PATH || 
+//   path.join(path.dirname(MEMORY_FILE_PATH), 'student_sessions.json');
+
+// Define memory file path using environment variable with fallback
+const defaultMemoryPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'student_memory.json');
+
+// If MEMORY_FILE_PATH is just a filename, put it in the same directory as the script
+const MEMORY_FILE_PATH = process.env.MEMORY_FILE_PATH
+  ? path.isAbsolute(process.env.MEMORY_FILE_PATH)
+    ? process.env.MEMORY_FILE_PATH
+    : path.join(path.dirname(fileURLToPath(import.meta.url)), process.env.MEMORY_FILE_PATH)
+  : defaultMemoryPath;
 
 // Define sessions file path in the same directory as memory file
 const SESSIONS_FILE_PATH = process.env.SESSIONS_FILE_PATH || 
@@ -2325,9 +2339,9 @@ Would you like me to perform any additional updates to your student knowledge gr
           return `- ${s.date}: ${s.course} - ${s.summary.substring(0, 100)}${s.summary.length > 100 ? '...' : ''}`;
         }).join("\n");
         
-        const deadlinesText = deadlines.upcoming.map((d: any) => {
-          const daysUntil = d.daysUntil;
-          return `- **${d.entity.name}** (${d.course}): Due in ${daysUntil} day${daysUntil !== 1 ? 's' : ''} on ${d.dueDate}`;
+        const deadlinesText = deadlines.deadlines.map((d: any) => {
+          const daysUntil = d.daysRemaining;
+          return `- **${d.entity.name}** (${d.course.name}): Due in ${daysUntil} day${daysUntil !== 1 ? 's' : ''} on ${d.dueDate.toISOString().split('T')[0]}`;
         }).join("\n");
         
         const conceptsText = recentConcepts.map(c => {

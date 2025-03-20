@@ -1,3 +1,5 @@
+End Session Tool for Project Management
+
 A multi-stage tool for documenting project management sessions, recording achievements, tracking task updates, and creating a structured record of project evolution.
 
 When to use this tool:

@@ -1,3 +1,5 @@
+Start Session Tool for Student
+
 A powerful tool for initializing a new academic study session.
 This tool starts a new study session and provides a comprehensive overview of your current educational landscape.
 It retrieves recent study sessions, active courses, upcoming deadlines, and recently studied concepts to help focus your learning effectively.

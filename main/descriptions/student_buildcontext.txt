@@ -1,3 +1,5 @@
+Build Context Tool for Student
+
 A flexible tool for constructing and enhancing your educational knowledge graph.
 This tool allows you to add new academic entities, create relationships between educational components, or add observations to existing study materials.
 Each operation type serves a specific purpose in building a comprehensive representation of your academic journey.

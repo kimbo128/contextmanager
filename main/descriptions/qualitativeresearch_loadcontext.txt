@@ -1,7 +1,6 @@
 A sophisticated tool for retrieving rich, contextual information about qualitative research entities, providing structured insights tailored to different research components.
 
-## When to use this tool
-
+When to use this tool:
 - Retrieving detailed information about research projects, participants, interviews, and analytical elements
 - Exploring thematic analyses and research findings
 - Reviewing participant profiles and interview transcripts
@@ -13,8 +12,7 @@ A sophisticated tool for retrieving rich, contextual information about qualitati
 - Exploring relationships between codes, themes, and concepts
 - Getting a comprehensive overview of project progress and insights
 
-## Key features
-
+Key features:
 - Provides richly formatted, context-aware information about research entities
 - Adapts output format based on entity type (project, participant, interview, code, theme, memo, researchQuestion)
 - Presents both direct entity information and related research elements
@@ -25,42 +23,34 @@ A sophisticated tool for retrieving rich, contextual information about qualitati
 - Presents supporting quotes and evidence for themes and codes
 - Shows co-occurrence patterns between codes where available
 
-## Parameters
-
-- **entityName**: Required - The name of the entity to retrieve context for
+Parameters:
+1. entityName: Required - The name of the entity to retrieve context for
   - Example: "Health Behavior Study", "Participant_P001", "Interview_20230315"
-  
-- **entityType**: Optional - The type of entity being retrieved
+2. entityType: Optional - The type of entity being retrieved
   - Default: "project"
   - Helps the system format the output appropriately
   - Common types include: "project", "participant", "interview", "code", "theme", "memo", "researchQuestion"
-  
-- **sessionId**: Optional - The current session identifier
+3. sessionId: Optional - The current session identifier
   - Typically provided by startsession
   - Used for tracking entity views within the session
 
-## Context format by entity type
-
 Each entity type returns specialized context information:
+- Project: Shows project status, description, research design, research questions, data collection stats, recent interviews, analysis progress (themes), and findings
+- Participant: Displays demographic information, interview history, observation records, notable quotes, and research memos
+- Interview: Shows project affiliation, participant, date, transcript content, applied codes, and notable quotes
+- Code: Displays definition, status, creation date, code group affiliations, supporting quotes, sources, associated themes, and code co-occurrence data
+- Theme: Shows description, status, creation date, project affiliation, supporting codes, example quotes, and analytical memos
+- Memo: Displays topic, date, project affiliation, content, and related entities
+- Research Question: Shows the question text, project affiliation, related findings, themes, and supporting quotes
+- Other Entity Types: Shows observations and relationship information for other entity types
 
-- **Project**: Shows project status, description, research design, research questions, data collection stats, recent interviews, analysis progress (themes), and findings
-- **Participant**: Displays demographic information, interview history, observation records, notable quotes, and research memos
-- **Interview**: Shows project affiliation, participant, date, transcript content, applied codes, and notable quotes
-- **Code**: Displays definition, status, creation date, code group affiliations, supporting quotes, sources, associated themes, and code co-occurrence data
-- **Theme**: Shows description, status, creation date, project affiliation, supporting codes, example quotes, and analytical memos
-- **Memo**: Displays topic, date, project affiliation, content, and related entities
-- **Research Question**: Shows the question text, project affiliation, related findings, themes, and supporting quotes
-- **Other Entity Types**: Shows observations and relationship information for other entity types
-
-## Return information
-
+Return information:
 - Formatted markdown text with hierarchical structure
 - Sections adapted to the specific entity type
 - Related entities shown with their descriptions and connections
 - Error messages if the entity doesn't exist or can't be retrieved
 
-## Guidelines for users
-
+Guidelines for users:
 - Specify the exact entity name for accurate retrieval
 - Provide the entity type when possible for optimally formatted results
 - Start with project entities to get a high-level overview of research

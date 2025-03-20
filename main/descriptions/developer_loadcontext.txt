@@ -1,7 +1,6 @@
 A powerful tool for retrieving rich, contextual information about specific software development entities, providing formatted details based on entity type.
 
-## When to use this tool
-
+When to use this tool:
 - Retrieving detailed information about a specific project, component, feature, or other development entity
 - Exploring relationships between software development entities
 - Examining project status, components, features, tasks, and issues
@@ -13,8 +12,7 @@ A powerful tool for retrieving rich, contextual information about specific softw
 - Preparing for work on a specific entity by establishing context
 - Getting information about team members, technologies, and documentation
 
-## Key features
-
+Key features:
 - Provides contextually rich, formatted information about software development entities
 - Adapts output format based on entity type (project, component, feature, task, etc.)
 - Presents both direct entity information and related elements
@@ -25,40 +23,26 @@ A powerful tool for retrieving rich, contextual information about specific softw
 - Supports contextual understanding of complex software architectures
 - Shows relevant status information for project management
 
-## Parameters
-
-- **entityName**: Required - The name of the entity to retrieve context for
+Parameters:
+1. entityName: Required - The name of the entity to retrieve context for
   - Example: "AuthService", "UserProfile", "LoginFeature"
-  
-- **entityType**: Optional - The type of entity being retrieved
+2. entityType: Optional - The type of entity being retrieved
   - Default: "project"
   - Accepted values: "project", "component", "task", "issue", "milestone", "decision", "feature", "technology", "documentation", "dependency", "developer"
   - Helps the system format the output appropriately
-  
-- **sessionId**: Optional - The current session identifier
+3. sessionId: Optional - The current session identifier
   - Typically provided by startsession
   - Used for tracking entity views within the session
 
-## Context format by entity type
-
 Each entity type returns specialized context information:
+- Project: Shows status, components, active features, active tasks, active issues, upcoming milestones, team members, and recent decisions
+- Component: Displays parent projects, implemented features, technologies used, active issues, documentation, team members, and dependencies
+- Feature: Shows status, priority, description, requirements, implementing components, and related tasks
+- Task: Displays project, status, priority, due date, description, assigned developers, related issues, and blocking items
+- Milestone: Shows status, deadline, description, progress percentage, deadline status, and tasks grouped by completion status
+- Other Entity Types: Shows observations and both incoming and outgoing relationships within the knowledge graph
 
-- **Project**: Shows status, components, active features, active tasks, active issues, upcoming milestones, team members, and recent decisions
-- **Component**: Displays parent projects, implemented features, technologies used, active issues, documentation, team members, and dependencies
-- **Feature**: Shows status, priority, description, requirements, implementing components, and related tasks
-- **Task**: Displays project, status, priority, due date, description, assigned developers, related issues, and blocking items
-- **Milestone**: Shows status, deadline, description, progress percentage, deadline status, and tasks grouped by completion status
-- **Other Entity Types**: Shows observations and both incoming and outgoing relationships within the knowledge graph
-
-## Return information
-
-- Formatted markdown text with hierarchical structure
-- Sections adapted to the specific entity type
-- Related entities shown with their status and descriptions
-- Error messages if the entity doesn't exist or can't be retrieved
-
-## Guidelines for users
-
+Guidelines for users:
 - Specify the exact entity name for accurate retrieval
 - Provide the entity type when possible for optimally formatted results
 - Start with project entities to get a high-level overview

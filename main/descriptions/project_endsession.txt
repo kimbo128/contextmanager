@@ -1,7 +1,6 @@
 A multi-stage tool for documenting project management sessions, recording achievements, tracking task updates, and creating a structured record of project evolution.
 
-## When to use this tool
-
+When to use this tool:
 - Concluding a project planning or review session
 - Documenting decisions made during team meetings
 - Recording updates to tasks and their status
@@ -13,8 +12,7 @@ A multi-stage tool for documenting project management sessions, recording achiev
 - Building a historical record of project development
 - Preserving context for future team members or sessions
 
-## Key features
-
+Key features:
 - Provides a structured, multi-stage workflow for project session documentation
 - Records project decisions and achievements in the knowledge graph
 - Captures task status updates and progress information
@@ -25,79 +23,62 @@ A multi-stage tool for documenting project management sessions, recording achiev
 - Supports revision of previous stages when needed
 - Offers a comprehensive assembly stage that consolidates all session information
 
-## Session workflow stages
-
 The endsession tool uses a sequential, multi-stage approach with 6 typical stages:
+1. Summary Stage: Records basic session information
+2. Achievements Stage: Documents decisions and accomplishments
+3. Task Updates Stage: Records changes to existing tasks
+4. New Tasks Stage: Documents newly created tasks
+5. Project Status Stage: Updates the overall project status
+6. Risk Updates Stage: Documents changes to project risks
+7. Assembly Stage: Consolidates all information and finalizes the session record
 
-1. **Summary Stage**: Records basic session information
-2. **Achievements Stage**: Documents decisions and accomplishments
-3. **Task Updates Stage**: Records changes to existing tasks
-4. **New Tasks Stage**: Documents newly created tasks
-5. **Project Status Stage**: Updates the overall project status
-6. **Risk Updates Stage**: Documents changes to project risks
-7. **Assembly Stage**: Consolidates all information and finalizes the session record
-
-## Parameters
-
-- **sessionId**: Required - Unique identifier for the project session
+Parameters:
+1. sessionId: Required - Unique identifier for the project session
   - Obtained from the startsession tool
   - Example: "proj_1234567890_abc123"
-
-- **stage**: Required - Current stage of the endsession workflow
+2. stage: Required - Current stage of the endsession workflow
   - Accepts: "summary", "achievements", "taskUpdates", "newTasks", "projectStatus", "riskUpdates", or "assembly"
   - Each stage has specific data requirements and processing logic
-
-- **stageNumber**: Required - The sequence number of the current stage
+3. stageNumber: Required - The sequence number of the current stage
   - Starts at 1 and typically progresses through the stages
   - Used to track progress through the session documentation workflow
-
-- **totalStages**: Required - Total number of stages planned for this workflow
+4. totalStages: Required - Total number of stages planned for this workflow
   - Typically 6-7 for the complete workflow
   - Provides context for the progress within the overall process
-
-- **analysis**: Optional - Text analysis or observations for the current stage
+5. analysis: Optional - Text analysis or observations for the current stage
   - Descriptive text explaining the work done in this stage
   - Example: "Analyzed progress on the marketing campaign project"
-
-- **stageData**: Optional - Stage-specific structured data
+6. stageData: Optional - Stage-specific structured data
   - Structure varies by stage type:
-    - **summary**: { summary: "Session summary text", duration: "3 hours", project: "ProjectName" }
-    - **achievements**: { achievements: ["Decision 1", "Accomplishment 2"] }
-    - **taskUpdates**: { updates: [{ name: "Task1", status: "in_progress", progress: "50%" }] }
-    - **newTasks**: { tasks: [{ name: "New Task", description: "Details", priority: "high" }] }
-    - **projectStatus**: { projectStatus: "in_progress", projectObservation: "Good progress" }
-    - **riskUpdates**: { risks: [{ name: "Risk1", status: "mitigated", impact: "medium", probability: "low" }] }
-    - **assembly**: No stageData needed - automatically assembled from previous stages
-
-- **nextStageNeeded**: Required - Whether additional stages are needed after this one
+    - summary: { summary: "Session summary text", duration: "3 hours", project: "ProjectName" }
+    - achievements: { achievements: ["Decision 1", "Accomplishment 2"] }
+    - taskUpdates: { updates: [{ name: "Task1", status: "in_progress", progress: "50%" }] }
+    - newTasks: { tasks: [{ name: "New Task", description: "Details", priority: "high" }] }
+    - projectStatus: { projectStatus: "in_progress", projectObservation: "Good progress" }
+    - riskUpdates: { risks: [{ name: "Risk1", status: "mitigated", impact: "medium", probability: "low" }] }
+    - assembly: No stageData needed - automatically assembled from previous stages
+7. nextStageNeeded: Required - Whether additional stages are needed after this one
   - Boolean value (true/false)
   - Set to false on the final stage to complete the session
-
-- **isRevision**: Optional - Whether this is revising a previous stage
+8. isRevision: Optional - Whether this is revising a previous stage
   - Boolean value (true/false)
   - Default: false
-
-- **revisesStage**: Optional - If revising, which stage number is being revised
+9. revisesStage: Optional - If revising, which stage number is being revised
   - Required when isRevision is true
   - Indicates which previous stage is being updated
 
-## Session recording
-
 When the endsession workflow completes (assembly stage with nextStageNeeded: false), the tool performs these actions:
-
 1. Records the session completion in persistent storage
 2. Creates a summary of all documented information
 3. Updates the project status in the knowledge graph
 4. Links all achievements, task updates, and risk information
 
-## Return information
-
+Return information:
 - JSON response with the following structure when stages are in progress:
-  - **success**: Boolean indicating whether the operation succeeded
-  - **stageCompleted**: The stage that was just completed
-  - **nextStageNeeded**: Whether more stages are required
-  - **stageResult**: The processed result of the current stage
-
+  - success: Boolean indicating whether the operation succeeded
+  - stageCompleted: The stage that was just completed
+  - nextStageNeeded: Whether more stages are required
+  - stageResult: The processed result of the current stage
 - Formatted markdown text summary when the session is completed, including:
   - Session date and project name
   - Decisions documented
@@ -107,8 +88,7 @@ When the endsession workflow completes (assembly stage with nextStageNeeded: fal
   - Risk updates
   - Session summary
 
-## Guidelines for users
-
+Guidelines for users:
 - Complete all stages in order for comprehensive session documentation
 - Provide specific details in each stage for accurate project documentation
 - Specify task updates with clear status and progress information

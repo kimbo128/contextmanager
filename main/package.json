@@ -9,10 +9,11 @@
   },
   "files": [
     "index.js",
-    "README.md"
+    "README.md",
+    "descriptions/**/*"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r descriptions ../dist/main/",
     "start": "node index.js",
     "prepare": "npm run build"
   },

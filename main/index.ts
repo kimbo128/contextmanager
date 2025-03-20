@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "./mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
@@ -288,6 +288,7 @@ function registerDomainTool(
 function updateDomainToolDescriptions(): void {
   // Re-register all stored tools with new descriptions
   for (const [name, definition] of Object.entries(toolDefinitions)) {
+    server.removeTool(name);
     server.tool(
       name,
       getToolDescription(name, activeDomain),

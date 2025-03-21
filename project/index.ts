@@ -9,7 +9,7 @@ import { z } from "zod";
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-
+import { readFileSync, existsSync } from "fs";
 // Environment variable for memory file path with fallback
 const MEMORY_FILE_PATH = process.env.MEMORY_FILE_PATH || path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -50,6 +50,22 @@ function isValidEntityType(type: string): type is EntityType {
 function validateEntityType(type: string): void {
   if (!isValidEntityType(type)) {
     throw new Error(`Invalid entity type: ${type}. Valid types are: ${validEntityTypes.join(', ')}`);
+  }
+}
+
+// Collect tool descriptions from text files in the main/descriptions directory
+const toolDescriptions: Record<string, string> = {
+  'startsession': '',
+  'loadcontext': '',
+  'deletecontext': '',
+  'buildcontext': '',
+  'advancedcontext': '',
+  'endsession': '',
+};
+for (const tool of Object.keys(toolDescriptions)) {
+  const descriptionFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'main', 'descriptions', `project_${tool}.txt`);
+  if (existsSync(descriptionFilePath)) {
+    toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
   }
 }
 
@@ -1990,6 +2006,7 @@ async function main() {
      */
     server.tool(
       "startsession",
+      toolDescriptions["startsession"],
       {},
       async () => {
         try {
@@ -2154,6 +2171,7 @@ To load specific project context, use the \`loadcontext\` tool with the project 
      */
     server.tool(
       "loadcontext",
+      toolDescriptions["loadcontext"],
       {
         entityName: z.string(),
         entityType: z.string().optional(),
@@ -2734,6 +2752,7 @@ ${outgoingText}`;
      */
     server.tool(
       "endsession",
+      toolDescriptions["endsession"],
       {
         sessionId: z.string().describe("The unique session identifier obtained from startsession"),
         stage: z.string().describe("Current stage of analysis: 'summary', 'milestones', 'risks', 'tasks', 'teamUpdates', or 'assembly'"),
@@ -2936,6 +2955,7 @@ Would you like me to perform any additional updates to your project knowledge gr
      */
     server.tool(
       "buildcontext",
+      toolDescriptions["buildcontext"],
       {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
         data: z.any().describe("Data for the creation operation, structure varies by type")
@@ -3027,6 +3047,7 @@ Would you like me to perform any additional updates to your project knowledge gr
      */
     server.tool(
       "deletecontext",
+      toolDescriptions["deletecontext"],
       {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
         data: z.any().describe("Data for the deletion operation, structure varies by type")
@@ -3094,6 +3115,7 @@ Would you like me to perform any additional updates to your project knowledge gr
      */
     server.tool(
       "advancedcontext",
+      toolDescriptions["advancedcontext"],
       {
         type: z.enum([
           "graph", 

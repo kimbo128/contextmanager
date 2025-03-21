@@ -5,6 +5,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { z } from "zod";
+import { readFileSync, existsSync } from "fs";
 // Define memory file path using environment variable with fallback
 const defaultMemoryPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'qualitative_research_memory.json');
 // If MEMORY_FILE_PATH is just a filename, put it in the same directory as the script
@@ -68,6 +69,21 @@ function validateEntityType(entityType) {
 }
 function validateRelationType(relationType) {
     return VALID_RELATION_TYPES.includes(relationType);
+}
+// Collect tool descriptions from text files in the main/descriptions directory
+const toolDescriptions = {
+    'startsession': '',
+    'loadcontext': '',
+    'deletecontext': '',
+    'buildcontext': '',
+    'advancedcontext': '',
+    'endsession': '',
+};
+for (const tool of Object.keys(toolDescriptions)) {
+    const descriptionFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'main', 'descriptions', `qualitativeresearch_${tool}.txt`);
+    if (existsSync(descriptionFilePath)) {
+        toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
+    }
 }
 // Session management functions
 async function loadSessionStates() {
@@ -923,7 +939,7 @@ async function main() {
         /**
          * Load context for a specific entity
          */
-        server.tool("loadcontext", {
+        server.tool("loadcontext", toolDescriptions["loadcontext"], {
             entityName: z.string(),
             entityType: z.string().optional(),
             sessionId: z.string().optional() // Optional to maintain backward compatibility
@@ -1628,7 +1644,7 @@ ${relatedText}`;
          *   "isRevision": false
          * }
          */
-        server.tool("endsession", {
+        server.tool("endsession", toolDescriptions["endsession"], {
             sessionId: z.string().describe("The unique session identifier obtained from startsession"),
             stage: z.string().describe("Current stage of analysis: 'summary', 'themes', 'codes', 'memos', 'participantInsights', or 'assembly'"),
             stageNumber: z.number().int().positive().describe("The sequence number of the current stage (starts at 1)"),
@@ -1806,7 +1822,7 @@ Would you like me to perform any additional updates to your qualitative research
          * Start a new session for qualitative research. Returns session ID, recent sessions, active projects, sample participants, top codes, and recent memos.
          * The output allows the user to easily choose what to focus on and which specific context to load.
          */
-        server.tool("startsession", {}, async () => {
+        server.tool("startsession", toolDescriptions["startsession"], {}, async () => {
             try {
                 // Generate a unique session ID
                 const sessionId = generateSessionId();
@@ -1877,7 +1893,7 @@ Would you like me to perform any additional updates to your qualitative research
                 return {
                     content: [{
                             type: "text",
-                            text: `# Qualitative Research Session Started: ${date}
+                            text: `# Ask user to choose what to focus on in this session. Present the following options:
 
 ## Session ID
 \`${sessionId}\`
@@ -1897,9 +1913,7 @@ ${codesText || "No codes found."}
 ## Recent Memos
 ${memosText || "No memos found."}
 
-To load specific context, use the \`loadcontext\` tool with the entity name and session ID.
-For example: loadcontext(entityName: "Community Health Study", entityType: "project", sessionId: "${sessionId}")
-`
+To load specific context, use the \`loadcontext\` tool with the entity name and session ID - ${sessionId}`
                         }]
                 };
             }
@@ -1918,7 +1932,7 @@ For example: loadcontext(entityName: "Community Health Study", entityType: "proj
         /**
          * Create new entities, relations, and observations.
          */
-        server.tool("buildcontext", {
+        server.tool("buildcontext", toolDescriptions["buildcontext"], {
             type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
             data: z.any().describe("Data for the creation operation, structure varies by type")
         }, async ({ type, data }) => {
@@ -1999,7 +2013,7 @@ For example: loadcontext(entityName: "Community Health Study", entityType: "proj
         /**
          * Delete entities, relations, or observations.
          */
-        server.tool("deletecontext", {
+        server.tool("deletecontext", toolDescriptions["deletecontext"], {
             type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
             data: z.any().describe("Data for the deletion operation, structure varies by type")
         }, async ({ type, data }) => {
@@ -2059,7 +2073,7 @@ For example: loadcontext(entityName: "Community Health Study", entityType: "proj
         /**
          * Get information about the graph, search for nodes, open nodes, get project overview, get participant profile, get codes, get themes, get transcript, get memo, get analysis, get codebook, or get related entities.
          */
-        server.tool("advancedcontext", {
+        server.tool("advancedcontext", toolDescriptions["advancedcontext"], {
             type: z.enum([
                 "graph",
                 "search",

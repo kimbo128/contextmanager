@@ -10,6 +10,7 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { z } from "zod";
+import { readFileSync, existsSync } from "fs";
 
 // Define memory file path using environment variable with fallback
 const defaultMemoryPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'memory.json');
@@ -72,6 +73,22 @@ const STATUS_VALUES = {
   feature: ['planned', 'in_development', 'testing', 'released'],
   milestone: ['planned', 'in_progress', 'reached', 'delayed']
 };
+
+// Collect tool descriptions from text files in the main/descriptions directory
+const toolDescriptions: Record<string, string> = {
+  'startsession': '',
+  'loadcontext': '',
+  'deletecontext': '',
+  'buildcontext': '',
+  'advancedcontext': '',
+  'endsession': '',
+};
+for (const tool of Object.keys(toolDescriptions)) {
+  const descriptionFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'main', 'descriptions', `developer_${tool}.txt`);
+  if (existsSync(descriptionFilePath)) {
+    toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
+  }
+}
 
 // Session management functions
 async function loadSessionStates(): Promise<Map<string, any[]>> {
@@ -786,6 +803,7 @@ async function main() {
      */
     server.tool(
       "buildcontext",
+      toolDescriptions["buildcontext"],
       {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
         data: z.any().describe("Data for the creation operation, structure varies by type")
@@ -861,6 +879,7 @@ async function main() {
      */
     server.tool(
       "deletecontext",
+      toolDescriptions["deletecontext"],
       {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
         data: z.any().describe("Data for the deletion operation, structure varies by type")
@@ -928,6 +947,7 @@ async function main() {
      */
     server.tool(
       "advancedcontext",
+      toolDescriptions["advancedcontext"],
       {
         type: z.enum(["graph", "search", "nodes", "related", "decisions", "milestone"]).describe("Type of get operation: 'graph', 'search', 'nodes', 'related', 'decisions', or 'milestone'"),
         params: z.any().describe("Parameters for the operation, structure varies by type")
@@ -1014,6 +1034,7 @@ async function main() {
      */
     server.tool(
       "startsession",
+      toolDescriptions["startsession"],
       {},
       async () => {
         try {
@@ -1125,6 +1146,7 @@ To load specific context based on the user's choice, use the \`loadcontext\` too
      */
     server.tool(
       "loadcontext",
+      toolDescriptions["loadcontext"],
       {
         entityName: z.string(),
         entityType: z.string().optional(),
@@ -1698,6 +1720,7 @@ ${outgoingText}`;
      */
     server.tool(
       "endsession",
+      toolDescriptions["endsession"],
       {
         sessionId: z.string().describe("The unique session identifier obtained from startsession"),
         stage: z.string().describe("Current stage of analysis: 'summary', 'achievements', 'taskUpdates', 'newTasks', 'projectStatus', or 'assembly'"),

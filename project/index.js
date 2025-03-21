@@ -7,6 +7,7 @@ import { z } from "zod";
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync, existsSync } from "fs";
 // Environment variable for memory file path with fallback
 const MEMORY_FILE_PATH = process.env.MEMORY_FILE_PATH || path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'project_memory.json');
 // Define sessions file path in the same directory as memory file
@@ -36,6 +37,21 @@ function isValidEntityType(type) {
 function validateEntityType(type) {
     if (!isValidEntityType(type)) {
         throw new Error(`Invalid entity type: ${type}. Valid types are: ${validEntityTypes.join(', ')}`);
+    }
+}
+// Collect tool descriptions from text files in the main/descriptions directory
+const toolDescriptions = {
+    'startsession': '',
+    'loadcontext': '',
+    'deletecontext': '',
+    'buildcontext': '',
+    'advancedcontext': '',
+    'endsession': '',
+};
+for (const tool of Object.keys(toolDescriptions)) {
+    const descriptionFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'main', 'descriptions', `project_${tool}.txt`);
+    if (existsSync(descriptionFilePath)) {
+        toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
     }
 }
 // Session management functions
@@ -1616,9 +1632,149 @@ async function main() {
                 }]
         }));
         /**
+         * Start a new work session. Returns session ID, recent sessions, active projects, high-priority tasks, upcoming milestones, and project health summary.
+         */
+        server.tool("startsession", toolDescriptions["startsession"], {}, async () => {
+            try {
+                // Generate a unique session ID
+                const sessionId = generateSessionId();
+                // Get recent sessions from persistent storage instead of entities
+                const allSessionStates = await loadSessionStates();
+                // Convert sessions map to array, sort by date, and take most recent ones
+                const recentSessions = Array.from(allSessionStates.entries())
+                    .map(([id, stages]) => {
+                    // Extract summary data from the first stage (if it exists)
+                    const summaryStage = stages.find(s => s.stage === "summary");
+                    return {
+                        id,
+                        date: summaryStage?.stageData?.date || "Unknown date",
+                        project: summaryStage?.stageData?.project || "Unknown project",
+                        summary: summaryStage?.stageData?.summary || "No summary available"
+                    };
+                })
+                    .sort((a, b) => b.date.localeCompare(a.date))
+                    .slice(0, 3); // Default to 3 recent sessions
+                // Get active projects
+                const projectsQuery = await knowledgeGraphManager.searchNodes("entityType:project status:active");
+                const projects = projectsQuery.entities;
+                // Get high priority tasks
+                let highPriorityTasks = [];
+                let projectHealthData = [];
+                let projectMilestones = [];
+                let projectRisks = [];
+                // For each project, get more detailed information
+                for (const project of projects) {
+                    const projectName = project.name;
+                    // Get high priority tasks for this project
+                    const taskQuery = await knowledgeGraphManager.searchNodes(`entityType:task project:${projectName} priority:high status:active`);
+                    highPriorityTasks = [...highPriorityTasks, ...taskQuery.entities];
+                    // Get project health metrics
+                    try {
+                        const healthData = await knowledgeGraphManager.getProjectHealth(projectName);
+                        projectHealthData.push({
+                            project: projectName,
+                            health: healthData.overall.status,
+                            score: healthData.overall.score,
+                            issues: healthData.metrics.issueMetrics.count,
+                            risksCount: healthData.metrics.riskMetrics.count
+                        });
+                    }
+                    catch (error) {
+                        console.error(`Error getting health for ${projectName}:`, error);
+                    }
+                    // Get upcoming milestones
+                    try {
+                        const milestoneData = await knowledgeGraphManager.getMilestoneProgress(projectName);
+                        projectMilestones = [...projectMilestones, ...milestoneData.upcoming.map((m) => ({
+                                project: projectName,
+                                milestone: m.milestone.name,
+                                dueDate: m.dueDate,
+                                progress: m.progress
+                            }))];
+                    }
+                    catch (error) {
+                        console.error(`Error getting milestones for ${projectName}:`, error);
+                    }
+                    // Get project risks
+                    try {
+                        const riskData = await knowledgeGraphManager.getProjectRisks(projectName);
+                        projectRisks = [...projectRisks, ...riskData.risks
+                                .filter((r) => r.severity === "high")
+                                .map((r) => ({
+                                project: projectName,
+                                risk: r.risk.name,
+                                severity: r.severity,
+                                likelihood: r.likelihood,
+                                impact: r.impact
+                            }))
+                        ];
+                    }
+                    catch (error) {
+                        console.error(`Error getting risks for ${projectName}:`, error);
+                    }
+                }
+                // Prepare display text for the context
+                const projectsText = projects.map(p => {
+                    const status = p.observations.find(o => o.startsWith("status:"))?.substring(7) || "Unknown";
+                    const deadline = p.observations.find(o => o.startsWith("deadline:"))?.substring(9) || "No deadline";
+                    return `- **${p.name}** (${status}): Due ${deadline}`;
+                }).join("\n");
+                const tasksText = highPriorityTasks.slice(0, 10).map(t => {
+                    const status = t.observations.find(o => o.startsWith("status:"))?.substring(7) || "Unknown";
+                    const assignee = t.observations.find(o => o.startsWith("assignee:"))?.substring(9) || "Unassigned";
+                    const project = t.observations.find(o => o.startsWith("project:"))?.substring(8) || "Unknown project";
+                    return `- **${t.name}** (${project}, ${status}, Assignee: ${assignee})`;
+                }).join("\n");
+                const milestonesText = projectMilestones.slice(0, 8).map(m => `- **${m.milestone}** (${m.project}): Due on ${m.dueDate}, ${m.progress}% complete`).join("\n");
+                const risksText = projectRisks.slice(0, 5).map(r => `- **${r.risk}** (${r.project}): Severity: ${r.severity}, Impact: ${r.impact}`).join("\n");
+                const healthText = projectHealthData.map(h => `- **${h.project}**: Health: ${h.health} (Score: ${h.score}/100), Issues: ${h.issues}, Risks: ${h.risksCount}`).join("\n");
+                const date = new Date().toISOString().split('T')[0];
+                const sessionsText = recentSessions.map(s => {
+                    return `- ${s.date}: ${s.project} - ${s.summary.substring(0, 100)}${s.summary.length > 100 ? '...' : ''}`;
+                }).join("\n");
+                return {
+                    content: [{
+                            type: "text",
+                            text: `# Ask user to choose what to focus on in this session. Present the following options:
+
+## Recent Project Management Sessions
+${sessionsText || "No recent sessions found."}
+
+## Active Projects
+${projectsText || "No active projects found."}
+
+## High-Priority Tasks
+${tasksText || "No high-priority tasks found."}
+
+## Upcoming Milestones
+${milestonesText || "No upcoming milestones found."}
+
+## Project Health Summary
+${healthText || "No project health data available."}
+
+## Top Project Risks
+${risksText || "No high severity risks identified."}
+
+To load specific project context, use the \`loadcontext\` tool with the project name and session ID - ${sessionId}`
+                        }]
+                };
+            }
+            catch (error) {
+                return {
+                    content: [{
+                            type: "text",
+                            text: JSON.stringify({
+                                success: false,
+                                error: error instanceof Error ? error.message : String(error)
+                            }, null, 2)
+                        }]
+                };
+            }
+        });
+        /**
          * Load context for a specific entity
          */
-        server.tool("loadcontext", {
+        server.tool("loadcontext", toolDescriptions["loadcontext"], {
             entityName: z.string(),
             entityType: z.string().optional(),
             sessionId: z.string().optional() // Optional to maintain backward compatibility
@@ -2078,151 +2234,6 @@ ${outgoingText}`;
             };
         }
         /**
-         * Start a new work session. Returns session ID, recent sessions, active projects, high-priority tasks, upcoming milestones, and project health summary.
-         */
-        server.tool("startsession", {}, async () => {
-            try {
-                // Generate a unique session ID
-                const sessionId = generateSessionId();
-                // Get recent sessions from persistent storage instead of entities
-                const allSessionStates = await loadSessionStates();
-                // Convert sessions map to array, sort by date, and take most recent ones
-                const recentSessions = Array.from(allSessionStates.entries())
-                    .map(([id, stages]) => {
-                    // Extract summary data from the first stage (if it exists)
-                    const summaryStage = stages.find(s => s.stage === "summary");
-                    return {
-                        id,
-                        date: summaryStage?.stageData?.date || "Unknown date",
-                        project: summaryStage?.stageData?.project || "Unknown project",
-                        summary: summaryStage?.stageData?.summary || "No summary available"
-                    };
-                })
-                    .sort((a, b) => b.date.localeCompare(a.date))
-                    .slice(0, 3); // Default to 3 recent sessions
-                // Get active projects
-                const projectsQuery = await knowledgeGraphManager.searchNodes("entityType:project status:active");
-                const projects = projectsQuery.entities;
-                // Get high priority tasks
-                let highPriorityTasks = [];
-                let projectHealthData = [];
-                let projectMilestones = [];
-                let projectRisks = [];
-                // For each project, get more detailed information
-                for (const project of projects) {
-                    const projectName = project.name;
-                    // Get high priority tasks for this project
-                    const taskQuery = await knowledgeGraphManager.searchNodes(`entityType:task project:${projectName} priority:high status:active`);
-                    highPriorityTasks = [...highPriorityTasks, ...taskQuery.entities];
-                    // Get project health metrics
-                    try {
-                        const healthData = await knowledgeGraphManager.getProjectHealth(projectName);
-                        projectHealthData.push({
-                            project: projectName,
-                            health: healthData.overall.status,
-                            score: healthData.overall.score,
-                            issues: healthData.metrics.issueMetrics.count,
-                            risksCount: healthData.metrics.riskMetrics.count
-                        });
-                    }
-                    catch (error) {
-                        console.error(`Error getting health for ${projectName}:`, error);
-                    }
-                    // Get upcoming milestones
-                    try {
-                        const milestoneData = await knowledgeGraphManager.getMilestoneProgress(projectName);
-                        projectMilestones = [...projectMilestones, ...milestoneData.upcoming.map((m) => ({
-                                project: projectName,
-                                milestone: m.milestone.name,
-                                dueDate: m.dueDate,
-                                progress: m.progress
-                            }))];
-                    }
-                    catch (error) {
-                        console.error(`Error getting milestones for ${projectName}:`, error);
-                    }
-                    // Get project risks
-                    try {
-                        const riskData = await knowledgeGraphManager.getProjectRisks(projectName);
-                        projectRisks = [...projectRisks, ...riskData.risks
-                                .filter((r) => r.severity === "high")
-                                .map((r) => ({
-                                project: projectName,
-                                risk: r.risk.name,
-                                severity: r.severity,
-                                likelihood: r.likelihood,
-                                impact: r.impact
-                            }))
-                        ];
-                    }
-                    catch (error) {
-                        console.error(`Error getting risks for ${projectName}:`, error);
-                    }
-                }
-                // Prepare display text for the context
-                const projectsText = projects.map(p => {
-                    const status = p.observations.find(o => o.startsWith("status:"))?.substring(7) || "Unknown";
-                    const deadline = p.observations.find(o => o.startsWith("deadline:"))?.substring(9) || "No deadline";
-                    return `- **${p.name}** (${status}): Due ${deadline}`;
-                }).join("\n");
-                const tasksText = highPriorityTasks.slice(0, 10).map(t => {
-                    const status = t.observations.find(o => o.startsWith("status:"))?.substring(7) || "Unknown";
-                    const assignee = t.observations.find(o => o.startsWith("assignee:"))?.substring(9) || "Unassigned";
-                    const project = t.observations.find(o => o.startsWith("project:"))?.substring(8) || "Unknown project";
-                    return `- **${t.name}** (${project}, ${status}, Assignee: ${assignee})`;
-                }).join("\n");
-                const milestonesText = projectMilestones.slice(0, 8).map(m => `- **${m.milestone}** (${m.project}): Due on ${m.dueDate}, ${m.progress}% complete`).join("\n");
-                const risksText = projectRisks.slice(0, 5).map(r => `- **${r.risk}** (${r.project}): Severity: ${r.severity}, Impact: ${r.impact}`).join("\n");
-                const healthText = projectHealthData.map(h => `- **${h.project}**: Health: ${h.health} (Score: ${h.score}/100), Issues: ${h.issues}, Risks: ${h.risksCount}`).join("\n");
-                const date = new Date().toISOString().split('T')[0];
-                const sessionsText = recentSessions.map(s => {
-                    return `- ${s.date}: ${s.project} - ${s.summary.substring(0, 100)}${s.summary.length > 100 ? '...' : ''}`;
-                }).join("\n");
-                return {
-                    content: [{
-                            type: "text",
-                            text: `# Project Management Session Started: ${date}
-
-## Session ID
-\`${sessionId}\`
-
-## Recent Project Management Sessions
-${sessionsText || "No recent sessions found."}
-
-## Active Projects
-${projectsText || "No active projects found."}
-
-## High-Priority Tasks
-${tasksText || "No high-priority tasks found."}
-
-## Upcoming Milestones
-${milestonesText || "No upcoming milestones found."}
-
-## Project Health Summary
-${healthText || "No project health data available."}
-
-## Top Project Risks
-${risksText || "No high severity risks identified."}
-
-To load specific project context, use the \`loadcontext\` tool with the project name and session ID.
-For example: loadcontext(entityName: "Website Redesign", entityType: "project", sessionId: "${sessionId}")
-`
-                        }]
-                };
-            }
-            catch (error) {
-                return {
-                    content: [{
-                            type: "text",
-                            text: JSON.stringify({
-                                success: false,
-                                error: error instanceof Error ? error.message : String(error)
-                            }, null, 2)
-                        }]
-                };
-            }
-        });
-        /**
          * End session by processing all stages and recording the final results.
          * Only use this tool if the user asks for it.
          *
@@ -2271,7 +2282,7 @@ For example: loadcontext(entityName: "Website Redesign", entityType: "project", 
          *   "isRevision": false
          * }
          */
-        server.tool("endsession", {
+        server.tool("endsession", toolDescriptions["endsession"], {
             sessionId: z.string().describe("The unique session identifier obtained from startsession"),
             stage: z.string().describe("Current stage of analysis: 'summary', 'milestones', 'risks', 'tasks', 'teamUpdates', or 'assembly'"),
             stageNumber: z.number().int().positive().describe("The sequence number of the current stage (starts at 1)"),
@@ -2451,7 +2462,7 @@ Would you like me to perform any additional updates to your project knowledge gr
         /**
          * Create entities, relations, and observations.
          */
-        server.tool("buildcontext", {
+        server.tool("buildcontext", toolDescriptions["buildcontext"], {
             type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
             data: z.any().describe("Data for the creation operation, structure varies by type")
         }, async ({ type, data }) => {
@@ -2536,7 +2547,7 @@ Would you like me to perform any additional updates to your project knowledge gr
         /**
          * Delete entities, relations, and observations.
          */
-        server.tool("deletecontext", {
+        server.tool("deletecontext", toolDescriptions["deletecontext"], {
             type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
             data: z.any().describe("Data for the deletion operation, structure varies by type")
         }, async ({ type, data }) => {
@@ -2596,7 +2607,7 @@ Would you like me to perform any additional updates to your project knowledge gr
         /**
          * Read the graph, search nodes, open nodes, get project overview, get task dependencies, get team member assignments, get milestone progress, get project timeline, get resource allocation, get project risks, find related projects, get decision log, and get project health.
          */
-        server.tool("advancedcontext", {
+        server.tool("advancedcontext", toolDescriptions["advancedcontext"], {
             type: z.enum([
                 "graph",
                 "search",

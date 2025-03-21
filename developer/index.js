@@ -5,6 +5,7 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { z } from "zod";
+import { readFileSync, existsSync } from "fs";
 // Define memory file path using environment variable with fallback
 const defaultMemoryPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'memory.json');
 // If MEMORY_FILE_PATH is just a filename, put it in the same directory as the script
@@ -61,6 +62,21 @@ const STATUS_VALUES = {
     feature: ['planned', 'in_development', 'testing', 'released'],
     milestone: ['planned', 'in_progress', 'reached', 'delayed']
 };
+// Collect tool descriptions from text files in the main/descriptions directory
+const toolDescriptions = {
+    'startsession': '',
+    'loadcontext': '',
+    'deletecontext': '',
+    'buildcontext': '',
+    'advancedcontext': '',
+    'endsession': '',
+};
+for (const tool of Object.keys(toolDescriptions)) {
+    const descriptionFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'main', 'descriptions', `developer_${tool}.txt`);
+    if (existsSync(descriptionFilePath)) {
+        toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
+    }
+}
 // Session management functions
 async function loadSessionStates() {
     try {
@@ -642,7 +658,7 @@ async function main() {
         /**
          * Create new entities, relations, and observations.
          */
-        server.tool("buildcontext", {
+        server.tool("buildcontext", toolDescriptions["buildcontext"], {
             type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
             data: z.any().describe("Data for the creation operation, structure varies by type")
         }, async ({ type, data }) => {
@@ -709,7 +725,7 @@ async function main() {
         /**
          * Delete entities, relations, and observations.
          */
-        server.tool("deletecontext", {
+        server.tool("deletecontext", toolDescriptions["deletecontext"], {
             type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
             data: z.any().describe("Data for the deletion operation, structure varies by type")
         }, async ({ type, data }) => {
@@ -769,7 +785,7 @@ async function main() {
         /**
          * Get information about the graph, search for nodes, open nodes, get related entities, get decision history, and get milestone progress.
          */
-        server.tool("advancedcontext", {
+        server.tool("advancedcontext", toolDescriptions["advancedcontext"], {
             type: z.enum(["graph", "search", "nodes", "related", "decisions", "milestone"]).describe("Type of get operation: 'graph', 'search', 'nodes', 'related', 'decisions', or 'milestone'"),
             params: z.any().describe("Parameters for the operation, structure varies by type")
         }, async ({ type, params }) => {
@@ -844,7 +860,7 @@ async function main() {
          * Start a new development session. Returns session ID, recent development sessions, active projects, high-priority tasks, and upcoming milestones.
          * The output allows the user to easily choose what to focus on and which specific context to load.
          */
-        server.tool("startsession", {}, async () => {
+        server.tool("startsession", toolDescriptions["startsession"], {}, async () => {
             try {
                 // Generate a unique session ID
                 const sessionId = generateSessionId();
@@ -904,10 +920,7 @@ async function main() {
                 return {
                     content: [{
                             type: "text",
-                            text: `# Development Session Started - ${date}
-
-## Session ID
-\`${sessionId}\`
+                            text: `# Ask user to choose what to focus on in this session. Present the following options:
 
 ## Recent Development Sessions
 ${sessionsText}
@@ -921,7 +934,7 @@ ${tasksText}
 ## Upcoming Milestones
 ${milestonesText}
 
-To load specific context, use the \`loadcontext\` tool with the entity name and session ID.`
+To load specific context based on the user's choice, use the \`loadcontext\` tool with the entity name and developer session ID - ${sessionId}.`
                         }]
                 };
             }
@@ -941,7 +954,7 @@ To load specific context, use the \`loadcontext\` tool with the entity name and 
          * Load the context for a specific entity.
          * Valid entity types are: project, component, task, issue, milestone, decision, feature, technology, documentation, dependency, developer.
          */
-        server.tool("loadcontext", {
+        server.tool("loadcontext", toolDescriptions["loadcontext"], {
             entityName: z.string(),
             entityType: z.string().optional(),
             sessionId: z.string().optional() // Optional to maintain backward compatibility
@@ -1438,7 +1451,7 @@ ${outgoingText}`;
          *   "isRevision": false
          * }
          */
-        server.tool("endsession", {
+        server.tool("endsession", toolDescriptions["endsession"], {
             sessionId: z.string().describe("The unique session identifier obtained from startsession"),
             stage: z.string().describe("Current stage of analysis: 'summary', 'achievements', 'taskUpdates', 'newTasks', 'projectStatus', or 'assembly'"),
             stageNumber: z.number().int().positive().describe("The sequence number of the current stage (starts at 1)"),

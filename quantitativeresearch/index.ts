@@ -10,7 +10,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { z } from "zod";
-
+import { readFileSync, existsSync } from "fs";
 // Define memory file path using environment variable with fallback
 const defaultMemoryPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'quantitative_research_memory.json');
 
@@ -84,6 +84,22 @@ function validateEntityType(entityType: string): boolean {
 
 function validateRelationType(relationType: string): boolean {
   return VALID_RELATION_TYPES.includes(relationType);
+}
+
+// Collect tool descriptions from text files in the main/descriptions directory
+const toolDescriptions: Record<string, string> = {
+  'startsession': '',
+  'loadcontext': '',
+  'deletecontext': '',
+  'buildcontext': '',
+  'advancedcontext': '',
+  'endsession': '',
+};
+for (const tool of Object.keys(toolDescriptions)) {
+  const descriptionFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'main', 'descriptions', `quantitativeresearch_${tool}.txt`);
+  if (existsSync(descriptionFilePath)) {
+    toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
+  }
 }
 
 // Session management functions
@@ -1469,6 +1485,7 @@ async function main() {
      */
     server.tool(
       "startsession",
+      toolDescriptions["startsession"],
       {},
       async () => {
         try {
@@ -1606,6 +1623,7 @@ To load specific context, use the \`loadcontext\` tool with the entity name and 
      */
     server.tool(
       "buildcontext",
+      toolDescriptions["buildcontext"],
       {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
         data: z.any().describe("Data for the creation operation, structure varies by type")
@@ -1699,6 +1717,7 @@ To load specific context, use the \`loadcontext\` tool with the entity name and 
      */
     server.tool(
       "deletecontext",
+      toolDescriptions["deletecontext"],
       {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
         data: z.any().describe("Data for the deletion operation, structure varies by type")
@@ -1766,6 +1785,7 @@ To load specific context, use the \`loadcontext\` tool with the entity name and 
      */
     server.tool(
       "advancedcontext",
+      toolDescriptions["advancedcontext"],
       {
         type: z.enum([
           "graph", 
@@ -1972,6 +1992,7 @@ To load specific context, use the \`loadcontext\` tool with the entity name and 
 
     server.tool(
       "loadcontext",
+      toolDescriptions["loadcontext"],
       {
         entityName: z.string().describe("Name of the entity to load context for"),
         entityType: z.string().optional().describe("Type of entity to load (project, dataset, variable, etc.), defaults to 'project'"),
@@ -2615,6 +2636,7 @@ ${entity.entityType}
      */
     server.tool(
       "endsession",
+      toolDescriptions["endsession"],
       {
         sessionId: z.string().describe("The unique session identifier obtained from startsession"),
         stage: z.string().describe("Current stage of analysis: 'summary', 'datasetUpdates', 'newAnalyses', 'newVisualizations', 'hypothesisResults', 'modelUpdates', 'projectStatus', or 'assembly'"),

@@ -8,6 +8,7 @@ import { z } from "zod";
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync, existsSync } from "fs";
 
 // // Environment variable for memory file path with fallback
 // const MEMORY_FILE_PATH = process.env.MEMORY_FILE_PATH || path.join(
@@ -97,6 +98,22 @@ const STATUS_VALUES = {
   project: ['planning', 'in_progress', 'reviewing', 'completed'],
   goal: ['active', 'completed', 'revised', 'dropped']
 };
+
+// Collect tool descriptions from text files in the main/descriptions directory
+const toolDescriptions: Record<string, string> = {
+  'startsession': '',
+  'loadcontext': '',
+  'deletecontext': '',
+  'buildcontext': '',
+  'advancedcontext': '',
+  'endsession': '',
+};
+for (const tool of Object.keys(toolDescriptions)) {
+  const descriptionFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'main', 'descriptions', `student_${tool}.txt`);
+  if (existsSync(descriptionFilePath)) {
+    toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
+  }
+}
 
 // We are storing our memory using entities, relations, and observations in a graph structure
 interface Entity {
@@ -1450,6 +1467,7 @@ async function main() {
    */
   server.tool(
     "loadcontext",
+    toolDescriptions["loadcontext"],
     {
       entityName: z.string(),
       entityType: z.enum(validEntityTypes).optional().describe("Type of entity to load, defaults to 'course'"),
@@ -1999,6 +2017,7 @@ ${outgoingText}`;
    */
   server.tool(
     "endsession",
+    toolDescriptions["endsession"],
     {
       sessionId: z.string().describe("The unique session identifier obtained from startsession"),
       stage: z.string().describe("Current stage of analysis: 'summary', 'conceptsLearned', 'assignmentProgress', 'questions', 'nextSteps', or 'assembly'"),
@@ -2279,6 +2298,7 @@ Would you like me to perform any additional updates to your student knowledge gr
    */
   server.tool(
     "startsession",
+    toolDescriptions["startsession"],
     {},
     async () => {
       try {
@@ -2390,6 +2410,7 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
    */
   server.tool(
     "buildcontext",
+    toolDescriptions["buildcontext"],
     {
       type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
       data: z.any().describe("Data for the creation operation, structure varies by type")
@@ -2484,6 +2505,7 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
    */
   server.tool(
     "deletecontext",
+    toolDescriptions["deletecontext"],
     {
       type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
       data: z.any().describe("Data for the deletion operation, structure varies by type")
@@ -2551,6 +2573,7 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
    */
   server.tool(
     "advancedcontext",
+    toolDescriptions["advancedcontext"],
     {
       type: z.enum(["graph", "search", "nodes", "course", "deadlines", "assignment", "exam", "concepts", "lecture", "term"]).describe("Type of get operation: 'graph', 'search', 'nodes', 'course', 'deadlines', 'assignment', 'exam', 'concepts', 'lecture', or 'term'"),
       params: z.any().describe("Parameters for the operation, structure varies by type")

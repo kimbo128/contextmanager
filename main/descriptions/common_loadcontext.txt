@@ -1,0 +1,97 @@
+Load Context Tool
+
+A powerful tool for retrieving rich, contextual information about domain-specific entities, providing formatted details tailored to each entity type.
+
+When to use this tool:
+- Retrieving detailed information about specific entities in your domain
+- Exploring relationships between connected entities
+- Examining status information and progress metrics
+- Understanding the structure and elements of complex entities
+- Reviewing progress, completion, and deadline information
+- Examining entity details, dependencies, and assignments
+- Preparing for work on a specific entity by establishing context
+- Analyzing knowledge graph connections to understand entity relationships
+- Getting a holistic view of status, progress, and upcoming work
+- Establishing context for effective planning and decision-making
+
+Key features:
+- Provides contextually rich, formatted information about domain-specific entities
+- Adapts output format based on entity type
+- Presents both direct entity information and related elements
+- Organizes information in a clear, hierarchical structure
+- Automatically identifies entity relationships and presents them systematically
+- Tracks loaded entities within the current session for continuity
+- Presents information in readable markdown format
+- Shows relevant status information and progress metrics
+- Highlights time-sensitive information like deadlines and schedules
+
+Parameters explained:
+1. entityName: Required - The name of the entity to retrieve context for
+2. entityType: Optional - The type of entity being retrieved (varies by domain)
+  - Developer: project, component, task, issue, milestone, decision, feature, technology, documentation, dependency, developer
+  - Student: course, assignment, exam, concept, term, resource, note, lecture, project, question, goal, professor
+  - Qualitative Research: project, participant, interview, code, theme, memo, researchQuestion, observation, document, codeGroup, quote, literature, finding
+  - Quantitative Research: project, dataset, variable, model, hypothesis, statisticalTest, result, analysisScript, visualization, literature, researchQuestion, finding, participant
+  - Project Management: project, task, milestone, teamMember, resource, risk, decision, issue, dependency, meeting, document, stakeholder
+3. sessionId: Optional - The current session identifier provided by startsession
+
+Domain-specific information returned:
+- Developer:
+  * Project: Status, components, active features, active tasks, active issues, upcoming milestones, team members, and recent decisions
+  * Component: Parent projects, implemented features, technologies used, active issues, documentation, team members, and dependencies
+  * Feature: Status, priority, description, requirements, implementing components, and related tasks
+  * Task: Project, status, priority, due date, description, assigned developers, related issues, and blocking items
+  * Milestone: Status, deadline, description, progress percentage, deadline status, and tasks grouped by completion status
+  * Other Entity Types: Observations and relationships within the knowledge graph
+  
+- Student:
+  * Course: Code, status, schedule, location, description, professor information, lectures, assignments, exams, key concepts, and resources
+  * Assignment: Course, status, due date, points, time remaining, instructions, related concepts, helpful resources, and notes
+  * Exam: Course, date, time remaining, location, format, duration, concepts to study, key lectures, and study resources
+  * Concept: Difficulty level, description, related concepts, courses covering this concept, and learning resources
+  * Term: Start date, end date, status, courses for the term, and upcoming deadlines
+  * Other Entity Types: Observations and relationships within the knowledge graph
+  
+- Qualitative Research:
+  * Project: Status, description, research design, research questions, data collection stats, recent interviews, analysis progress (themes), and findings
+  * Participant: Demographic information, interview history, observation records, notable quotes, and research memos
+  * Interview: Project affiliation, participant, date, transcript content, applied codes, and notable quotes
+  * Code: Definition, status, creation date, code group affiliations, supporting quotes, sources, associated themes, and code co-occurrence data
+  * Theme: Description, status, creation date, project affiliation, supporting codes, example quotes, and analytical memos
+  * Memo: Topic, date, project affiliation, content, and related entities
+  * Research Question: Question text, project affiliation, related findings, themes, and supporting quotes
+  * Other Entity Types: Observations and relationships within the knowledge graph
+  
+- Quantitative Research:
+  * Project: Status, description, datasets, hypotheses, statistical tests, models, and key visualizations
+  * Dataset: Project affiliation, size, variable count, descriptive statistics, visualizations, and models trained on it
+  * Variable: Data type, role, scale, descriptive statistics, normality tests, and correlations with other variables
+  * Model: Type, training dataset, creation date, performance metrics, and model parameters
+  * Hypothesis: Status, p-value, creation date, associated tests, and project affiliation
+  * Statistical Test: Test type, result, p-value, date, variables analyzed, and hypotheses tested
+  * Other Entity Types: Basic information and observations
+  
+- Project Management:
+  * Project: Status, description, timeline, budget, goal, tasks, milestones, issues, team members, risks, and task completion rate
+  * Task: Project affiliation, status, due date, priority, assignee, description, critical path status, and task dependencies
+  * Milestone: Project affiliation, status, date, completion criteria, description, progress percentage, days remaining, required tasks, and blocking tasks
+  * Team Member: Role, skills, availability, workload, assigned tasks, projects, upcoming deadlines, and overdue tasks
+  * Resource: Type, project affiliation, availability, capacity, cost, usage percentage, assigned tasks, and team members using the resource
+  * Other Entity Types: Basic entity information, observations, incoming relations, and outgoing relations
+
+Return information:
+- Formatted markdown text with hierarchical structure
+- Sections adapted to the specific entity type within each domain
+- Related entities shown with their relationships and status information
+- Progress metrics and completion statistics where applicable
+- Error messages if the entity doesn't exist or can't be retrieved
+
+You should:
+- Specify the exact entity name for accurate retrieval
+- Provide the entity type when possible for optimally formatted results
+- Start with high-level entities (projects, courses) to get a broad overview
+- Explore specific entities to understand details and relationships
+- Use entity context to track progress toward goals and deadlines
+- After retrieving context, follow up on specific entities of interest
+- Use in conjunction with startsession to maintain session tracking
+- Remember that this tool only retrieves existing information; use buildcontext to add new entities 

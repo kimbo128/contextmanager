@@ -1,0 +1,78 @@
+Start Session Tool
+
+A powerful session initialization tool for establishing context in domain-specific work.
+This tool starts a new session and provides a comprehensive overview of the current landscape.
+It retrieves recent sessions, active work items, high-priority elements, and upcoming deadlines to help focus work effectively.
+
+When to use this tool:
+- Beginning a new work session in your domain
+- Getting oriented to your current state across multiple projects/courses/research
+- Planning which elements to focus on in the current session
+- Reviewing recent activity and progress
+- Checking high-priority items that need attention
+- Monitoring upcoming deadlines
+- Establishing context before diving into specific work
+- Creating a structured record of activity
+- Re-engaging with your work after time away
+
+Key features:
+- Generates a unique session identifier for tracking activities
+- Retrieves and displays recent sessions with summaries
+- Shows active projects/courses/research with status information
+- Highlights high-priority items requiring attention
+- Lists upcoming deadlines with relevant details
+- Formats information in a structured, easy-to-read format
+- Provides seamless integration with loadcontext tool
+- Stores session data for historical record keeping
+- Maintains continuity between work sessions
+
+Parameters explained:
+- No parameters required - the tool automatically retrieves all relevant context
+
+Return information:
+- Session ID: A unique identifier for this session
+- Recent Sessions: Up to 3 most recent sessions with date, focus area, and session summary (truncated for readability)
+- Domain-Specific Elements:
+  * Developer: 
+    - Active Projects: Software projects with status
+    - High-Priority Tasks: Task name, status, assigned developer
+    - Upcoming Milestones: Milestone name, due date
+  * Student:
+    - Active Courses: Currently enrolled courses
+    - Upcoming Deadlines: Assignment/exam name, course, due date, days remaining
+    - Recently Studied Concepts: List of recently studied topics
+  * Qualitative Research:
+    - Active Research Projects: Project name, status, research phase
+    - Sample Participants: Participant name, demographic information, participation status
+    - Top Codes: Code name, reference count, code group
+    - Recent Memos: Memo name, creation date, memo type, brief summary
+  * Quantitative Research:
+    - Active Research Projects: Project name, status
+    - Available Datasets: Dataset name, type of data, associated project
+    - Research Questions: Question text, associated project 
+    - Recent Statistical Models: Model name, model type, performance metrics
+    - Recent Visualizations: Name, type (chart, plot, etc.), associated dataset
+  * Project Management:
+    - Active Projects: Project name, status, deadline information
+    - High-Priority Tasks: Task name, associated project, status, assignee
+    - Upcoming Milestones: Name, associated project, due date, completion percentage
+    - Project Health Summary: Project name, health status, health score, issue count, risk count
+    - Top Project Risks: Risk name, associated project, severity level, impact assessment
+
+Session workflow:
+1. Starting a session creates a session identifier in the appropriate domain
+2. This session can be referenced when loading context with loadcontext
+3. Session activities are tracked for later recording
+4. Sessions should be ended with endsession to record progress and accomplishments
+5. Session history becomes available for future startsession calls
+
+You should:
+1. Begin each focused work period with startsession
+2. Review the provided context to determine your focus
+3. Choose specific elements to work on
+4. Use the generated session ID with the loadcontext tool to load specific entities
+5. Work on your selected focus area
+6. End the session with endsession when work is complete
+7. Record accomplishments, progress, and status changes
+8. Use the session history to maintain continuity between work periods
+9. Establish a regular cadence of sessions to maintain momentum 

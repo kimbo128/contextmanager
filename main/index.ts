@@ -221,13 +221,13 @@ for (const domain of domains) {
 
 // In-memory flow management
 const flows: FlowInfo[] = [];
-let activeDomain: string | null = "developer";
+let activeDomain: string | null = null;
 let flowCounter = 0;
 
 // Function to get tool description based on active domain
 function getToolDescription(toolName: string, domain: string | null): string {
   if (!domain) {
-    return `${toolName} tool - No active domain set`;
+    domain = "common";
   }
   
   const descriptionFilePath = path.resolve(

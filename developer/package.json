@@ -10,7 +10,8 @@
   "files": [
     "index.js",
     "index.d.ts",
-    "README.md"
+    "README.md",
+    "descriptions/"
   ],
   "workspaces": [
     "main"
@@ -19,7 +20,7 @@
     "build": "tsc && shx chmod +x index.js",
     "prepare": "npm run build",
     "start": "node index.js",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build || true"
   },
   "repository": {
     "type": "git",

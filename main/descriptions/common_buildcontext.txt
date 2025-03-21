@@ -11,7 +11,6 @@ When to use this tool:
 - Building a connected graph of domain-specific elements
 - Recording new information as it becomes available
 - Tracking structure, dependencies, and status information
-- Documenting roles, assignments, and responsibilities
 
 Key features:
 - Three distinct operation types (entities, relations, observations)
@@ -77,6 +76,5 @@ You should:
 3. Use valid entity types and relation types from your specific domain
 4. Ensure entities exist before creating relations between them
 5. Provide meaningful names and descriptions for new entities
-6. Use observations to add metadata like status, priority, or other contextual information
-7. Create complete structures rather than adding entities/relations piecemeal
-8. Check the operation result to confirm successful creation 
+6. Create complete structures rather than adding entities/relations piecemeal
+7. Check the operation result to confirm successful creation 

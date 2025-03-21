@@ -1,5 +1,3 @@
-Start Session Tool
-
 A powerful session initialization tool for establishing context in domain-specific work.
 This tool starts a new session and provides a comprehensive overview of the current landscape.
 It retrieves recent sessions, active work items, high-priority elements, and upcoming deadlines to help focus work effectively.
@@ -8,23 +6,11 @@ When to use this tool:
 - Beginning a new work session in your domain
 - Getting oriented to your current state across multiple projects/courses/research
 - Planning which elements to focus on in the current session
-- Reviewing recent activity and progress
-- Checking high-priority items that need attention
-- Monitoring upcoming deadlines
-- Establishing context before diving into specific work
-- Creating a structured record of activity
-- Re-engaging with your work after time away
 
 Key features:
 - Generates a unique session identifier for tracking activities
 - Retrieves and displays recent sessions with summaries
-- Shows active projects/courses/research with status information
-- Highlights high-priority items requiring attention
-- Lists upcoming deadlines with relevant details
-- Formats information in a structured, easy-to-read format
-- Provides seamless integration with loadcontext tool
-- Stores session data for historical record keeping
-- Maintains continuity between work sessions
+- Formats domain-specific information in a structured, easy-to-read format
 
 Parameters explained:
 - No parameters required - the tool automatically retrieves all relevant context
@@ -71,8 +57,4 @@ You should:
 2. Review the provided context to determine your focus
 3. Choose specific elements to work on
 4. Use the generated session ID with the loadcontext tool to load specific entities
-5. Work on your selected focus area
-6. End the session with endsession when work is complete
-7. Record accomplishments, progress, and status changes
-8. Use the session history to maintain continuity between work periods
-9. Establish a regular cadence of sessions to maintain momentum 
+5. End the session with endsession when work is complete

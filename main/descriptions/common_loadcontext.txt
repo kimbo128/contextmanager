@@ -1,9 +1,7 @@
-Load Context Tool
-
 A powerful tool for retrieving rich, contextual information about domain-specific entities, providing formatted details tailored to each entity type.
 
 When to use this tool:
-- Retrieving detailed information about specific entities in your domain
+- Retrieving detailed information about domain-specific entities
 - Exploring relationships between connected entities
 - Examining status information and progress metrics
 - Understanding the structure and elements of complex entities
@@ -22,8 +20,6 @@ Key features:
 - Automatically identifies entity relationships and presents them systematically
 - Tracks loaded entities within the current session for continuity
 - Presents information in readable markdown format
-- Shows relevant status information and progress metrics
-- Highlights time-sensitive information like deadlines and schedules
 
 Parameters explained:
 1. entityName: Required - The name of the entity to retrieve context for
@@ -91,7 +87,6 @@ You should:
 - Provide the entity type when possible for optimally formatted results
 - Start with high-level entities (projects, courses) to get a broad overview
 - Explore specific entities to understand details and relationships
-- Use entity context to track progress toward goals and deadlines
 - After retrieving context, follow up on specific entities of interest
 - Use in conjunction with startsession to maintain session tracking
 - Remember that this tool only retrieves existing information; use buildcontext to add new entities 

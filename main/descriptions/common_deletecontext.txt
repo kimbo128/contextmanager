@@ -1,5 +1,3 @@
-Delete Context Tool
-
 A precise tool for removing elements from domain-specific knowledge graphs.
 This tool allows targeted deletion of entities, relationships between entities, or specific observations from existing entities.
 It helps maintain an accurate and current representation of the context as work evolves.
@@ -10,8 +8,6 @@ When to use this tool:
 - Pruning outdated observations that no longer apply
 - Correcting errors in the knowledge graph
 - Cleaning up test or prototype elements
-- Maintaining graph accuracy as work scope changes
-- Removing sensitive or confidential information
 - Reorganizing your domain structure by removing and recreating elements
 
 Key features:
@@ -63,9 +59,5 @@ You should:
 2. Choose the appropriate deletion type (entities, relations, or observations)
 3. Structure your data according to the deletion type's requirements
 4. Start with the most specific deletions (observations) before broader ones
-5. Verify the entities or relations exist before attempting deletion
-6. Check the operation result to confirm successful deletion
-7. Consider documenting major deletions as observations on related entities
-8. When removing an entire project/course/research component, first delete its sub-elements for cleaner removal
-9. Use deletecontext in conjunction with buildcontext to refine and evolve your knowledge structure
-10. Regularly review your knowledge graph for elements that may need to be removed or updated 
+5. Consider documenting major deletions as observations on related entities
+6. When removing an entire project/course/research component, first delete its sub-elements for cleaner removal

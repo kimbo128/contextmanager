@@ -1,5 +1,3 @@
-End Session Tool
-
 A multi-stage tool for documenting domain-specific sessions, recording progress, tracking updates, and creating a structured record of work in the knowledge graph.
 
 When to use this tool:
@@ -12,7 +10,6 @@ Key features:
 - Creates connections between related entities
 - Updates overall project/course/research status and metadata
 - Creates new elements for future work
-- Maintains session continuity with unique session IDs
 - Supports revision of previous stages when needed
 - Offers a comprehensive assembly stage that consolidates all session information
 - Organizes activity into a coherent history

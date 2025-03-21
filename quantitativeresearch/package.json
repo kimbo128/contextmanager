@@ -9,6 +9,7 @@
   },
   "files": [
     "index.js",
+    "descriptions",
     "README.md"
   ],
   "scripts": {

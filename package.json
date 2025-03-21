@@ -14,7 +14,7 @@
     "main"
   ],
   "scripts": {
-    "build": "tsc -p ./tsconfig.json && shx chmod +x dist/main/index.js && cp -r main/descriptions dist/main/",
+    "build": "tsc && shx chmod +x dist/main/index.js && cp -r main/descriptions dist/main/",
     "prepare": "npm run build",
     "start": "node dist/main/index.js"
   },

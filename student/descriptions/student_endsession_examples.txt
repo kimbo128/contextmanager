@@ -1,0 +1,51 @@
+## Usage examples
+
+### Stage 1: Summary Stage
+```json
+{
+  "sessionId": "stu_1234567890_abc123",
+  "stage": "summary",
+  "stageNumber": 1,
+  "totalStages": 6,
+  "analysis": "Analyzed progress on studying for the final exam",
+  "stageData": {
+    "summary": "Reviewed course materials and completed practice problems",
+    "duration": "2 hours",
+    "course": "Data Structures"
+  },
+  "nextStageNeeded": true,
+  "isRevision": false
+}
+```
+
+### Stage 2: Concepts Learned Stage
+```json
+{
+  "sessionId": "stu_1234567890_abc123",
+  "stage": "conceptsLearned",
+  "stageNumber": 2,
+  "totalStages": 6,
+  "analysis": "Listed key concepts studied",
+  "stageData": {
+    "concepts": [
+      "Balanced binary trees",
+      "Red-black trees",
+      "Tree traversal algorithms"
+    ]
+  },
+  "nextStageNeeded": true,
+  "isRevision": false
+}
+```
+
+### Final Stage: Assembly
+```json
+{
+  "sessionId": "stu_1234567890_abc123",
+  "stage": "assembly",
+  "stageNumber": 6,
+  "totalStages": 6,
+  "nextStageNeeded": false,
+  "isRevision": false
+}
+```

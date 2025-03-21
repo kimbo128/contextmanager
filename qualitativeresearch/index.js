@@ -70,7 +70,9 @@ function validateEntityType(entityType) {
 function validateRelationType(relationType) {
     return VALID_RELATION_TYPES.includes(relationType);
 }
-// Collect tool descriptions from text files in the main/descriptions directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Collect tool descriptions from text files
 const toolDescriptions = {
     'startsession': '',
     'loadcontext': '',
@@ -80,7 +82,7 @@ const toolDescriptions = {
     'endsession': '',
 };
 for (const tool of Object.keys(toolDescriptions)) {
-    const descriptionFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'main', 'descriptions', `qualitativeresearch_${tool}.txt`);
+    const descriptionFilePath = path.resolve(__dirname, "descriptions", `qualitativeresearch_${tool}.txt`);
     if (existsSync(descriptionFilePath)) {
         toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
     }

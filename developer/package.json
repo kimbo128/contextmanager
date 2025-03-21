@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "MCP Server implementations for various domains",
   "type": "module",
+  "main": "./index.js",
   "bin": {
     "contextmanager-developer": "./index.js"
   },
   "files": [
     "index.js",
+    "index.d.ts",
     "README.md"
   ],
   "workspaces": [
@@ -16,7 +18,8 @@
   "scripts": {
     "build": "tsc && shx chmod +x index.js",
     "prepare": "npm run build",
-    "start": "node index.js"
+    "start": "node index.js",
+    "postinstall": "npm run build"
   },
   "repository": {
     "type": "git",

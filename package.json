@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "MCP Server implementations for various domains",
   "type": "module",
+  "private": true,
   "bin": {
     "mcp-server-contextmanager": "./dist/main/index.js"
   },

@@ -63,13 +63,13 @@ Entities can be connected through the following relationship types:
 
 The Quantitative Researcher MCP Server provides these tools for interacting with research knowledge:
 
-### start_session
+### startsession
 Starts a new quantitative research session, generating a unique session ID and displaying current research projects, datasets, models, visualizations, and previous sessions.
 
-### load_context
+### loadcontext
 Loads detailed context for a specific entity (project, dataset, variable, etc.), displaying relevant information based on entity type.
 
-### end_session
+### endsession
 Records the results of a research session through a structured, multi-stage process:
 1. **summary**: Records session summary, duration, and project focus
 2. **datasetUpdates**: Documents updates to datasets during the session
@@ -80,19 +80,19 @@ Records the results of a research session through a structured, multi-stage proc
 7. **projectStatus**: Updates overall project status and observations
 8. **assembly**: Final assembly of all session data
 
-### create
+### buildcontext
 Creates new entities, relations, or observations in the knowledge graph:
 - **entities**: Add new research entities (projects, datasets, variables, etc.)
 - **relations**: Create relationships between entities
 - **observations**: Add observations to existing entities
 
-### delete
+### deletecontext
 Removes entities, relations, or observations from the knowledge graph:
 - **entities**: Remove research entities
 - **relations**: Remove relationships between entities
 - **observations**: Remove specific observations from entities
 
-### get
+### advancedcontext
 Retrieves information from the knowledge graph:
 - **graph**: Get the entire knowledge graph
 - **search**: Search for nodes based on query criteria
@@ -204,7 +204,7 @@ Then configure Claude Desktop:
         "run",
         "--rm",
         "-i",
-        "mcp/researcher-quantitative"
+        "mcp/quantitativeresearch"
       ]
     }
   }
@@ -234,7 +234,7 @@ node quantitativeresearch_index.js
 ### Docker:
 
 ```bash
-docker build -t mcp/researcher-quantitative -f quantitativeresearch/Dockerfile .
+docker build -t mcp/quantitativeresearch -f quantitativeresearch/Dockerfile .
 ```
 
 ## License

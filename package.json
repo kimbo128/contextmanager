@@ -11,7 +11,8 @@
     "README.md"
   ],
   "workspaces": [
-    "main"
+    "main",
+    "developer"
   ],
   "scripts": {
     "build": "tsc && shx chmod +x dist/main/index.js && cp -r main/descriptions dist/main/",

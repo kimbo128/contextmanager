@@ -1,5 +1,3 @@
-Start Session Tool for Project Management
-
 A comprehensive tool for initializing a new project management session, providing structured information about ongoing projects, tasks, deadlines, and overall project health.
 
 When to use this tool:

@@ -478,7 +478,7 @@ registerDomainTool(
   "buildcontext",
   {
     type: z.enum(["entities", "relations", "observations"]),
-    data: z.any().optional()
+    data: z.array(z.any())
   },
   async ({ type, data }) => {
     if (!activeDomain) {
@@ -525,7 +525,7 @@ registerDomainTool(
   "deletecontext",
   {
     type: z.enum(["entities", "relations", "observations"]),
-    data: z.any().optional()
+    data: z.array(z.any())
   },
   async ({ type, data }) => {
     if (!activeDomain) {
@@ -646,8 +646,8 @@ registerDomainTool(
 registerDomainTool(
   "advancedcontext",
   {
-    type: z.enum(["graph", "search", "nodes", "related", "decisions", "milestone"]),
-    params: z.any().optional()
+    type: z.string(),
+    params: z.any()
   },
   async ({ type, params }) => {
     if (!activeDomain) {

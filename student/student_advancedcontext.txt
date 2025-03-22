@@ -1,5 +1,3 @@
-Advanced Context Tool for Student
-
 A comprehensive tool for querying and analyzing your educational knowledge graph.
 This tool provides specialized operations to extract meaningful insights and contextual information about your academic journey.
 It enables deep exploration of courses, assignments, exams, concepts, and educational resources.

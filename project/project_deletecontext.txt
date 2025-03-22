@@ -1,5 +1,3 @@
-Delete Context Tool for Project Management
-
 A precise tool for removing elements from the project management knowledge graph, enabling project managers to maintain data accuracy and refine their project structure as needs evolve.
 
 When to use this tool:

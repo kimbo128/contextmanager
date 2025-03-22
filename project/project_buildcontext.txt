@@ -1,5 +1,3 @@
-Build Context Tool for Project Management
-
 A versatile tool for constructing and enhancing your project management knowledge graph by adding new project elements, relationships, and observations.
 
 When to use this tool:

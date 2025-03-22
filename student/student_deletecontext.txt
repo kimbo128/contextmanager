@@ -1,5 +1,3 @@
-Delete Context Tool for Student
-
 A precise tool for removing elements from your educational knowledge graph.
 This tool enables targeted deletion of academic entities, relationships between educational components, or specific observations about study materials.
 It helps maintain an accurate and current representation of your academic landscape as your learning journey evolves.

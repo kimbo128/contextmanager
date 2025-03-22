@@ -2419,7 +2419,7 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
     toolDescriptions["buildcontext"],
     {
       type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
-      data: z.any().describe("Data for the creation operation, structure varies by type")
+      data: z.array(z.any()).describe("Data for the creation operation, structure varies by type but must be an array")
     },
     async ({ type, data }) => {
       try {
@@ -2462,32 +2462,17 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
             };
             
           case "observations":
-            // For student domain, addObservations takes entity name and observations
-            if (Array.isArray(data)) {
-              // Handle array format like developer domain
-              for (const item of data) {
-                if (item.entityName && Array.isArray(item.contents)) {
-                  await knowledgeGraphManager.addObservations(item.entityName, item.contents);
-                }
+            for (const item of data) {
+              if (item.entityName && Array.isArray(item.contents)) {
+                await knowledgeGraphManager.addObservations(item.entityName, item.contents);
               }
-              return {
-                content: [{
-                  type: "text",
-                  text: JSON.stringify({ success: true, message: "Added observations to entities" }, null, 2)
-                }]
-              };
-            } else if (typeof data === 'object' && data.entityName && Array.isArray(data.observations)) {
-              // Handle legacy format
-              result = await knowledgeGraphManager.addObservations(data.entityName, data.observations);
-              return {
-                content: [{
-                  type: "text",
-                  text: JSON.stringify({ success: true, added: result }, null, 2)
-                }]
-              };
-            } else {
-              throw new Error("Invalid observations format. Expected { entityName, observations } or array of { entityName, contents }");
             }
+            return {
+              content: [{
+                type: "text",
+                text: JSON.stringify({ success: true, message: "Added observations to entities" }, null, 2)
+              }]
+            };
             
           default:
             throw new Error(`Invalid type: ${type}. Must be 'entities', 'relations', or 'observations'.`);
@@ -2514,7 +2499,7 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
     toolDescriptions["deletecontext"],
     {
       type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
-      data: z.any().describe("Data for the deletion operation, structure varies by type")
+      data: z.array(z.any()).describe("Data for the deletion operation, structure varies by type but must be an array")
     },
     async ({ type, data }) => {
       try {

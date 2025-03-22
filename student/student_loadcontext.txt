@@ -1,5 +1,3 @@
-Load Context Tool for Student
-
 A powerful tool for retrieving comprehensive, structured information about specific educational entities, providing context-rich details tailored to academic needs.
 
 When to use this tool:

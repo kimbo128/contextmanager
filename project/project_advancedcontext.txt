@@ -1,5 +1,3 @@
-Advanced Context Tool for Project Management
-
 A sophisticated query tool for exploring, analyzing, and retrieving complex information from the project management knowledge graph.
 
 When to use this tool:

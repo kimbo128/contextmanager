@@ -2271,7 +2271,7 @@ To load specific context, use the \`loadcontext\` tool with the entity name and 
       toolDescriptions["buildcontext"],
       {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
-        data: z.any().describe("Data for the creation operation, structure varies by type")
+        data: z.array(z.any()).describe("Data for the creation operation, structure varies by type but must be an array")
       },
       async ({ type, data }) => {
         try {
@@ -2365,7 +2365,7 @@ To load specific context, use the \`loadcontext\` tool with the entity name and 
       toolDescriptions["deletecontext"],
       {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
-        data: z.any().describe("Data for the deletion operation, structure varies by type")
+        data: z.array(z.any()).describe("Data for the deletion operation, structure varies by type but must be an array")
       },
       async ({ type, data }) => {
         try {

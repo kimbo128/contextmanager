@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "MCP Server implementations for various domains",
   "type": "module",
-  "private": true,
   "bin": {
     "mcp-server-contextmanager": "./dist/main/index.js"
   },
@@ -12,8 +11,7 @@
     "README.md"
   ],
   "workspaces": [
-    "main",
-    "developer"
+    "main"
   ],
   "scripts": {
     "build": "tsc && shx chmod +x dist/main/index.js && cp -r main/descriptions dist/main/",

@@ -5,6 +5,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { z } from "zod";
+import { readFileSync, existsSync } from "fs";
 // Define memory file path using environment variable with fallback
 const defaultMemoryPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'quantitative_research_memory.json');
 // If MEMORY_FILE_PATH is just a filename, put it in the same directory as the script
@@ -71,6 +72,23 @@ function validateEntityType(entityType) {
 }
 function validateRelationType(relationType) {
     return VALID_RELATION_TYPES.includes(relationType);
+}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Collect tool descriptions from text files
+const toolDescriptions = {
+    'startsession': '',
+    'loadcontext': '',
+    'deletecontext': '',
+    'buildcontext': '',
+    'advancedcontext': '',
+    'endsession': '',
+};
+for (const tool of Object.keys(toolDescriptions)) {
+    const descriptionFilePath = path.resolve(__dirname, `quantitativeresearch_${tool}.txt`);
+    if (existsSync(descriptionFilePath)) {
+        toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
+    }
 }
 // Session management functions
 async function loadSessionStates() {
@@ -1199,7 +1217,7 @@ async function main() {
         /**
          * Start a new session for quantitative research. Returns session ID, recent sessions, active projects, datasets, research questions, statistical models, and visualizations.
          */
-        server.tool("startsession", {}, async () => {
+        server.tool("startsession", toolDescriptions["startsession"], {}, async () => {
             try {
                 // Generate a unique session ID
                 const sessionId = generateSessionId();
@@ -1317,7 +1335,7 @@ To load specific context, use the \`loadcontext\` tool with the entity name and 
         /**
          * Create entities, relations, and observations.
          */
-        server.tool("buildcontext", {
+        server.tool("buildcontext", toolDescriptions["buildcontext"], {
             type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
             data: z.any().describe("Data for the creation operation, structure varies by type")
         }, async ({ type, data }) => {
@@ -1398,7 +1416,7 @@ To load specific context, use the \`loadcontext\` tool with the entity name and 
         /**
          * Delete entities, relations, and observations.
          */
-        server.tool("deletecontext", {
+        server.tool("deletecontext", toolDescriptions["deletecontext"], {
             type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
             data: z.any().describe("Data for the deletion operation, structure varies by type")
         }, async ({ type, data }) => {
@@ -1458,7 +1476,7 @@ To load specific context, use the \`loadcontext\` tool with the entity name and 
         /**
          * Read the graph, search nodes, open nodes, get project overview, get dataset analysis, get hypothesis tests, get variable relationships, get statistical results, get visualization gallery, get model performance, get research question results, get variable distribution, and get related entities.
          */
-        server.tool("advancedcontext", {
+        server.tool("advancedcontext", toolDescriptions["advancedcontext"], {
             type: z.enum([
                 "graph",
                 "search",
@@ -1624,7 +1642,7 @@ To load specific context, use the \`loadcontext\` tool with the entity name and 
                 };
             }
         });
-        server.tool("loadcontext", {
+        server.tool("loadcontext", toolDescriptions["loadcontext"], {
             entityName: z.string().describe("Name of the entity to load context for"),
             entityType: z.string().optional().describe("Type of entity to load (project, dataset, variable, etc.), defaults to 'project'"),
             sessionId: z.string().optional().describe("Session ID from startsession to track context loading")
@@ -2188,7 +2206,7 @@ ${entity.entityType}
          *   "isRevision": false
          * }
          */
-        server.tool("endsession", {
+        server.tool("endsession", toolDescriptions["endsession"], {
             sessionId: z.string().describe("The unique session identifier obtained from startsession"),
             stage: z.string().describe("Current stage of analysis: 'summary', 'datasetUpdates', 'newAnalyses', 'newVisualizations', 'hypothesisResults', 'modelUpdates', 'projectStatus', or 'assembly'"),
             stageNumber: z.number().int().positive().describe("The sequence number of the current stage (starts at 1)"),

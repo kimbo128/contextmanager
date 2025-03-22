@@ -7,6 +7,7 @@ import { z } from "zod";
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync, existsSync } from "fs";
 // Environment variable for memory file path with fallback
 const MEMORY_FILE_PATH = process.env.MEMORY_FILE_PATH || path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'project_memory.json');
 // Define sessions file path in the same directory as memory file
@@ -36,6 +37,23 @@ function isValidEntityType(type) {
 function validateEntityType(type) {
     if (!isValidEntityType(type)) {
         throw new Error(`Invalid entity type: ${type}. Valid types are: ${validEntityTypes.join(', ')}`);
+    }
+}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Collect tool descriptions from text files
+const toolDescriptions = {
+    'startsession': '',
+    'loadcontext': '',
+    'deletecontext': '',
+    'buildcontext': '',
+    'advancedcontext': '',
+    'endsession': '',
+};
+for (const tool of Object.keys(toolDescriptions)) {
+    const descriptionFilePath = path.resolve(__dirname, `project_${tool}.txt`);
+    if (existsSync(descriptionFilePath)) {
+        toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
     }
 }
 // Session management functions
@@ -1618,7 +1636,7 @@ async function main() {
         /**
          * Start a new work session. Returns session ID, recent sessions, active projects, high-priority tasks, upcoming milestones, and project health summary.
          */
-        server.tool("startsession", {}, async () => {
+        server.tool("startsession", toolDescriptions["startsession"], {}, async () => {
             try {
                 // Generate a unique session ID
                 const sessionId = generateSessionId();
@@ -1758,7 +1776,7 @@ To load specific project context, use the \`loadcontext\` tool with the project 
         /**
          * Load context for a specific entity
          */
-        server.tool("loadcontext", {
+        server.tool("loadcontext", toolDescriptions["loadcontext"], {
             entityName: z.string(),
             entityType: z.string().optional(),
             sessionId: z.string().optional() // Optional to maintain backward compatibility
@@ -2266,7 +2284,7 @@ ${outgoingText}`;
          *   "isRevision": false
          * }
          */
-        server.tool("endsession", {
+        server.tool("endsession", toolDescriptions["endsession"], {
             sessionId: z.string().describe("The unique session identifier obtained from startsession"),
             stage: z.string().describe("Current stage of analysis: 'summary', 'milestones', 'risks', 'tasks', 'teamUpdates', or 'assembly'"),
             stageNumber: z.number().int().positive().describe("The sequence number of the current stage (starts at 1)"),
@@ -2446,7 +2464,7 @@ Would you like me to perform any additional updates to your project knowledge gr
         /**
          * Create entities, relations, and observations.
          */
-        server.tool("buildcontext", {
+        server.tool("buildcontext", toolDescriptions["buildcontext"], {
             type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
             data: z.any().describe("Data for the creation operation, structure varies by type")
         }, async ({ type, data }) => {
@@ -2531,7 +2549,7 @@ Would you like me to perform any additional updates to your project knowledge gr
         /**
          * Delete entities, relations, and observations.
          */
-        server.tool("deletecontext", {
+        server.tool("deletecontext", toolDescriptions["deletecontext"], {
             type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
             data: z.any().describe("Data for the deletion operation, structure varies by type")
         }, async ({ type, data }) => {
@@ -2591,7 +2609,7 @@ Would you like me to perform any additional updates to your project knowledge gr
         /**
          * Read the graph, search nodes, open nodes, get project overview, get task dependencies, get team member assignments, get milestone progress, get project timeline, get resource allocation, get project risks, find related projects, get decision log, and get project health.
          */
-        server.tool("advancedcontext", {
+        server.tool("advancedcontext", toolDescriptions["advancedcontext"], {
             type: z.enum([
                 "graph",
                 "search",

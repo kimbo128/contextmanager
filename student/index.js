@@ -2277,7 +2277,6 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
     try {
         const transport = new StdioServerTransport();
         await server.connect(transport);
-        console.error("Student Education Knowledge Graph MCP Server running on stdio");
     }
     catch (error) {
         console.error("Error starting server:", error);

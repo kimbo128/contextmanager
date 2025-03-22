@@ -183,12 +183,12 @@ for (const domain of domains) {
 }
 // In-memory flow management
 const flows = [];
-let activeDomain = "developer";
+let activeDomain = null;
 let flowCounter = 0;
 // Function to get tool description based on active domain
 function getToolDescription(toolName, domain) {
     if (!domain) {
-        return `${toolName} tool - No active domain set`;
+        domain = "common";
     }
     const descriptionFilePath = path.resolve(__dirname, "descriptions", `${domain}_${toolName}.txt`);
     try {

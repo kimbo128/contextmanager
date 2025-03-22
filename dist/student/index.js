@@ -7,6 +7,7 @@ import { z } from "zod";
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync, existsSync } from "fs";
 // // Environment variable for memory file path with fallback
 // const MEMORY_FILE_PATH = process.env.MEMORY_FILE_PATH || path.join(
 //   path.dirname(fileURLToPath(import.meta.url)),
@@ -83,6 +84,23 @@ const STATUS_VALUES = {
     project: ['planning', 'in_progress', 'reviewing', 'completed'],
     goal: ['active', 'completed', 'revised', 'dropped']
 };
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Collect tool descriptions from text files
+const toolDescriptions = {
+    'startsession': '',
+    'loadcontext': '',
+    'deletecontext': '',
+    'buildcontext': '',
+    'advancedcontext': '',
+    'endsession': '',
+};
+for (const tool of Object.keys(toolDescriptions)) {
+    const descriptionFilePath = path.resolve(__dirname, `student_${tool}.txt`);
+    if (existsSync(descriptionFilePath)) {
+        toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
+    }
+}
 // The KnowledgeGraphManager class contains all operations to interact with the knowledge graph
 class KnowledgeGraphManager {
     async loadGraph() {
@@ -1190,7 +1208,7 @@ async function main() {
     /**
      * Load context for a specific entity
      */
-    server.tool("loadcontext", {
+    server.tool("loadcontext", toolDescriptions["loadcontext"], {
         entityName: z.string(),
         entityType: z.enum(validEntityTypes).optional().describe("Type of entity to load, defaults to 'course'"),
         sessionId: z.string().optional().describe("Session ID from startsession to track context loading")
@@ -1661,7 +1679,7 @@ ${outgoingText}`;
      *   "isRevision": false
      * }
      */
-    server.tool("endsession", {
+    server.tool("endsession", toolDescriptions["endsession"], {
         sessionId: z.string().describe("The unique session identifier obtained from startsession"),
         stage: z.string().describe("Current stage of analysis: 'summary', 'conceptsLearned', 'assignmentProgress', 'questions', 'nextSteps', or 'assembly'"),
         stageNumber: z.number().int().positive().describe("The sequence number of the current stage (starts at 1)"),
@@ -1914,7 +1932,7 @@ Would you like me to perform any additional updates to your student knowledge gr
      * Start a new study session. Returns session ID, recent study sessions, active courses, and upcoming deadlines.
      * The output allows the user to easily choose what to focus on and which specific context to load.
      */
-    server.tool("startsession", {}, async () => {
+    server.tool("startsession", toolDescriptions["startsession"], {}, async () => {
         try {
             // Generate a unique session ID
             const sessionId = generateSessionId();
@@ -2005,7 +2023,7 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
     /**
      * Create new entities, relations, and observations.
      */
-    server.tool("buildcontext", {
+    server.tool("buildcontext", toolDescriptions["buildcontext"], {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
         data: z.any().describe("Data for the creation operation, structure varies by type")
     }, async ({ type, data }) => {
@@ -2092,7 +2110,7 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
     /**
      * Delete entities, relations, or observations.
      */
-    server.tool("deletecontext", {
+    server.tool("deletecontext", toolDescriptions["deletecontext"], {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
         data: z.any().describe("Data for the deletion operation, structure varies by type")
     }, async ({ type, data }) => {
@@ -2152,7 +2170,7 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
     /**
      * Get information about the knowledge graph, search for nodes, get course overview, get upcoming deadlines, get assignment status, get exam prep, find related concepts, track lecture notes, or get term overview.
      */
-    server.tool("advancedcontext", {
+    server.tool("advancedcontext", toolDescriptions["advancedcontext"], {
         type: z.enum(["graph", "search", "nodes", "course", "deadlines", "assignment", "exam", "concepts", "lecture", "term"]).describe("Type of get operation: 'graph', 'search', 'nodes', 'course', 'deadlines', 'assignment', 'exam', 'concepts', 'lecture', or 'term'"),
         params: z.any().describe("Parameters for the operation, structure varies by type")
     }, async ({ type, params }) => {
@@ -2259,7 +2277,6 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
     try {
         const transport = new StdioServerTransport();
         await server.connect(transport);
-        console.error("Student Education Knowledge Graph MCP Server running on stdio");
     }
     catch (error) {
         console.error("Error starting server:", error);

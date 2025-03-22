@@ -1,0 +1,80 @@
+Build Context Tool
+
+A versatile tool for constructing and enhancing domain-specific knowledge graphs through creation operations.
+This tool allows you to add new entities, create relationships between entities, or add observations to existing entities.
+Each operation type serves a specific purpose in building a comprehensive contextual model.
+
+When to use this tool:
+- Creating new entities specific to your domain (projects, tasks, courses, datasets, etc.)
+- Establishing relationships between entities (e.g., dependencies, assignments, hierarchies)
+- Adding observations, properties, or metadata to existing entities
+- Building a connected graph of domain-specific elements
+- Recording new information as it becomes available
+- Tracking structure, dependencies, and status information
+
+Key features:
+- Three distinct operation types (entities, relations, observations)
+- Type validation against domain-specific standards
+- Automatic rejection of invalid entity or relation types
+- Safe addition of new observations to existing entities
+- JSON-formatted response with operation results
+- Clear error messages when operations fail
+- Handles both single and batch operations
+
+Parameters explained:
+- type: The operation type to perform, which must be one of:
+  * "entities" - Create new domain-specific entities
+  * "relations" - Create relationships between existing entities
+  * "observations" - Add observations to existing entities
+- data: Operation-specific data structure:
+  * For "entities": Array of objects with { name, entityType, observations[] }
+  * For "relations": Array of objects with { from, to, relationType }
+  * For "observations": Array of objects with { entityName, contents[] }
+
+Valid entity types by domain:
+- Developer:
+  * project, component, feature, issue, task, developer, technology, decision, milestone, environment, documentation, requirement
+- Student:
+  * course, assignment, exam, concept, resource, note, lecture, project, question, term, goal, professor
+- Qualitative Research:
+  * project, participant, interview, observation, document, code, codeGroup, memo, theme, quote, literature, researchQuestion, finding
+- Quantitative Research:
+  * project, dataset, variable, hypothesis, statisticalTest, result, analysisScript, visualization, model, literature, researchQuestion, finding, participant
+- Project Management:
+  * project, task, milestone, teamMember, risk, decision, resource, issue, dependency, meeting, document, stakeholder
+
+Valid relation types by domain:
+- Developer:
+  * depends_on, implements, assigned_to, blocked_by, uses, part_of, contains, works_on
+- Student:
+  * enrolled_in, assigned_in, due_on, covers, references, prerequisite_for, taught_by, scheduled_for, contains
+- Qualitative Research:
+  * part_of, contains, participates_in, codes, groups, references, supports, contradicts, emerges_from, relates_to, precedes, follows, associated_with
+- Quantitative Research:
+  * correlates_with, predicts, tests, analyzes, produces, visualizes, contains, part_of, depends_on, supports, contradicts, derived_from, controls_for, moderates, mediates, implements, compares, includes, validates, cites
+- Project Management:
+  * part_of, depends_on, assigned_to, responsible_for, created_by, leads_to, blocks, reports_to, collaborates_with, decides_on, impacts
+
+Return information:
+- JSON response indicating success or failure
+- For successful operations:
+  * Success flag set to true
+  * Details of created elements in the "created" field (for entities/relations) or "added" field (for observations)
+- For failed operations:
+  * Success flag set to false
+  * Error message describing the issue
+
+Error handling:
+- Validates entity types against the predefined list for the specific domain
+- Validates relation types against domain-specific standards
+- Returns descriptive error messages for invalid inputs
+- Gracefully handles type mismatches and formatting errors
+
+You should:
+1. Specify the operation type based on what you need to create (entities, relations, or observations)
+2. Structure your data according to the operation type's requirements
+3. Use valid entity types and relation types from your specific domain
+4. Ensure entities exist before creating relations between them
+5. Provide meaningful names and descriptions for new entities
+6. Create complete structures rather than adding entities/relations piecemeal
+7. Check the operation result to confirm successful creation 

@@ -1,0 +1,104 @@
+Advanced Context Tool
+
+A sophisticated tool for advanced querying and analysis of domain-specific knowledge graphs.
+This tool provides specialized operations to extract meaningful insights and contextual information from the graph structure.
+It enables deep exploration of entities, relationships, and contextual information relevant to each domain.
+
+When to use this tool:
+- Retrieving the complete knowledge graph structure
+- Searching for specific entities using keyword or partial matching
+- Fetching details on a precise set of entities
+- Exploring all relationships for a specific entity
+- Examining domain-specific data structures and hierarchies
+- Tracking progress on domain-specific elements
+- Investigating dependencies and connections between entities
+- Analyzing the evolution of projects, courses, or research
+- Understanding the context surrounding specific entities
+- Creating reports or summaries from your knowledge graph
+
+Key features:
+- Multiple specialized query operation types tailored to each domain
+- Full graph retrieval with entities and relations
+- Keyword-based search across entities and their properties
+- Direct entity lookup by exact name
+- Relationship exploration with filtering options
+- Domain-specific operations for specialized analysis
+- JSON-formatted response with query results
+- Detailed error reporting when operations fail
+
+Parameters explained:
+- type: The query operation type to perform, which must be one of the domain-specific operation types:
+  * Common operations across domains:
+    - "graph" - Retrieve the entire knowledge graph (all entities and relations)
+    - "search" - Find entities by keyword/partial match in name, type, or observations
+    - "nodes" - Get specific entities by exact name
+    - "related" - Get all entities related to a specific entity
+  * Developer-specific operations:
+    - "decisions" - Get the decision history for a project
+    - "milestone" - Get progress tracking for a specific milestone
+  * Student-specific operations:
+    - "course" - Get comprehensive details about a specific course
+    - "deadlines" - Get upcoming assignment and exam deadlines
+    - "assignment" - Get detailed status of a specific assignment
+    - "exam" - Get preparation materials for a specific exam
+    - "concepts" - Find related concepts based on a starting concept
+    - "lecture" - Track and organize notes for lectures
+    - "term" - Get overview of an academic term
+  * Qualitative Research-specific operations:
+    - "project" - Get comprehensive project information
+    - "participant" - Get participant profile with demographic information
+    - "codes" - Get coding information filtered by project
+    - "themes" - Get theme information with associated codes
+    - "transcript" - Get interview transcript content
+    - "memo" - Get memo content with metadata
+    - "analysis" - Get analysis artifacts for a project
+    - "codebook" - Generate a structured codebook for a project
+  * Quantitative Research-specific operations:
+    - "project" - Get comprehensive project information
+    - "dataset" - Get dataset analysis with variables and statistics
+    - "hypothesis" - Get hypothesis tests and results
+    - "variables" - Get variable relationships and dependencies
+    - "statistics" - Get statistical test results
+    - "visualizations" - Get visualization metadata
+    - "model" - Get model performance metrics
+    - "question" - Get research question details
+    - "distribution" - Get variable distribution analysis
+  * Project Management-specific operations:
+    - "project" - Get comprehensive project information
+    - "dependencies" - Map task dependencies and critical paths
+    - "assignments" - Get team member assignments and workload
+    - "milestones" - Track milestone progress and completion
+    - "timeline" - Generate project timeline with dependencies
+    - "resources" - Analyze resource allocation
+    - "risks" - Identify and prioritize project risks
+    - "decisions" - Get decision log for governance
+    - "health" - Assess project health with KPIs
+
+- params: Operation-specific parameters structure (varies by type):
+  * For common operations:
+    - "graph": No parameters needed
+    - "search": { query: "search text" }
+    - "nodes": { names: ["EntityName1", "EntityName2", ...] }
+    - "related": { entityName: "EntityName", relationTypes: ["type1", "type2", ...] }
+  * For domain-specific operations: Refer to domain documentation for parameter details
+
+Operation details:
+- "graph" returns the complete knowledge graph structure for the active domain
+- "search" performs partial matching on entity names, types, and observations
+- "nodes" retrieves specific entities by exact name matching
+- "related" finds all incoming and outgoing relationships for an entity
+- Domain-specific operations provide specialized views and analytics tailored to that domain
+
+Return structures:
+- All operations return { success: true/false, ... } with operation-specific data
+- Error responses include detailed error messages
+- Domain-specific operations return structured data relevant to the operation type
+
+You should:
+1. Select the most appropriate query type for your information need
+2. Provide the required parameters for your chosen operation type
+3. Start with broader queries and refine to more specific ones
+4. Use "search" for exploratory investigation when entity names are unknown
+5. Use "related" to explore the neighborhood of a known entity
+6. Use domain-specific operations for specialized analysis
+7. Combine query results to build comprehensive understanding 

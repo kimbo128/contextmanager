@@ -238,3 +238,28 @@ docker build -t mcp/qualitativeresearch -f qualitativeresearch/Dockerfile .
 ## License
 
 This MCP server is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.
+
+## Environment Variables
+
+The Qualitative Research MCP Server supports the following environment variables to customize where data is stored:
+
+- **MEMORY_FILE_PATH**: Path where the knowledge graph data will be stored
+  - Can be absolute or relative (relative paths use current working directory)
+  - Default: `./qualitativeresearch/memory.json`
+
+- **SESSIONS_FILE_PATH**: Path where session data will be stored
+  - Can be absolute or relative (relative paths use current working directory)
+  - Default: `./qualitativeresearch/sessions.json`
+
+Example usage:
+
+```bash
+# Store data in the current directory
+MEMORY_FILE_PATH="./qualitative-memory.json" SESSIONS_FILE_PATH="./qualitative-sessions.json" npx github:tejpalvirk/contextmanager-qualitativeresearch
+
+# Store data in a specific location (absolute path)
+MEMORY_FILE_PATH="/path/to/data/qualitative-memory.json" npx github:tejpalvirk/contextmanager-qualitativeresearch
+
+# Store data in user's home directory
+MEMORY_FILE_PATH="$HOME/contextmanager/qualitative-memory.json" npx github:tejpalvirk/contextmanager-qualitativeresearch
+```

@@ -239,4 +239,29 @@ docker build -t mcp/student -f student/Dockerfile .
 
 ## License
 
-This MCP server is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository. 
+This MCP server is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.
+
+## Environment Variables
+
+The Student MCP Server supports the following environment variables to customize where data is stored:
+
+- **MEMORY_FILE_PATH**: Path where the knowledge graph data will be stored
+  - Can be absolute or relative (relative paths use current working directory)
+  - Default: `./student/memory.json`
+
+- **SESSIONS_FILE_PATH**: Path where session data will be stored
+  - Can be absolute or relative (relative paths use current working directory)
+  - Default: `./student/sessions.json`
+
+Example usage:
+
+```bash
+# Store data in the current directory
+MEMORY_FILE_PATH="./student-memory.json" SESSIONS_FILE_PATH="./student-sessions.json" npx github:tejpalvirk/contextmanager-student
+
+# Store data in a specific location (absolute path)
+MEMORY_FILE_PATH="/path/to/data/student-memory.json" npx github:tejpalvirk/contextmanager-student
+
+# Store data in user's home directory
+MEMORY_FILE_PATH="$HOME/contextmanager/student-memory.json" npx github:tejpalvirk/contextmanager-student
+``` 

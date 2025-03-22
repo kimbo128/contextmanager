@@ -132,6 +132,31 @@ npx github:tejpalvirk/contextmanager --config ./my-config.json
 npx github:tejpalvirk/contextmanager --domains developer,project
 ```
 
+## Environment Variables
+
+Each domain server supports the following environment variables to customize where data is stored:
+
+- **MEMORY_FILE_PATH**: Path where the knowledge graph data will be stored
+  - Can be absolute or relative (relative paths use current working directory)
+  - Default: `<domain_directory>/memory.json`
+
+- **SESSIONS_FILE_PATH**: Path where session data will be stored
+  - Can be absolute or relative (relative paths use current working directory)
+  - Default: `<domain_directory>/sessions.json`
+
+Example usage:
+
+```bash
+# Store data in the current directory
+MEMORY_FILE_PATH="./my-dev-memory.json" SESSIONS_FILE_PATH="./my-dev-sessions.json" npx github:tejpalvirk/contextmanager
+
+# Store data in a specific location (absolute path)
+MEMORY_FILE_PATH="/path/to/data/developer-memory.json" npx github:tejpalvirk/contextmanager
+
+# Store data in user's home directory
+MEMORY_FILE_PATH="$HOME/contextmanager/memory.json" npx github:tejpalvirk/contextmanager
+```
+
 ## Interacting with Domain Servers
 
 ### Domain Management

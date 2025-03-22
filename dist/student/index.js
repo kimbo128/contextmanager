@@ -8,26 +8,22 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { readFileSync, existsSync } from "fs";
-// // Environment variable for memory file path with fallback
-// const MEMORY_FILE_PATH = process.env.MEMORY_FILE_PATH || path.join(
-//   path.dirname(fileURLToPath(import.meta.url)),
-//   '..',
-//   'student_memory.json'
-// );
-// // Define sessions file path in the same directory as memory file
-// const SESSIONS_FILE_PATH = process.env.SESSIONS_FILE_PATH || 
-//   path.join(path.dirname(MEMORY_FILE_PATH), 'student_sessions.json');
 // Define memory file path using environment variable with fallback
-const defaultMemoryPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'student_memory.json');
-// If MEMORY_FILE_PATH is just a filename, put it in the same directory as the script
+const parentPath = path.dirname(fileURLToPath(import.meta.url));
+const defaultMemoryPath = path.join(parentPath, 'memory.json');
+const defaultSessionsPath = path.join(parentPath, 'sessions.json');
+// Properly handle absolute and relative paths for MEMORY_FILE_PATH
 const MEMORY_FILE_PATH = process.env.MEMORY_FILE_PATH
     ? path.isAbsolute(process.env.MEMORY_FILE_PATH)
-        ? process.env.MEMORY_FILE_PATH
-        : path.join(path.dirname(fileURLToPath(import.meta.url)), process.env.MEMORY_FILE_PATH)
-    : defaultMemoryPath;
-// Define sessions file path in the same directory as memory file
-const SESSIONS_FILE_PATH = process.env.SESSIONS_FILE_PATH ||
-    path.join(path.dirname(MEMORY_FILE_PATH), 'student_sessions.json');
+        ? process.env.MEMORY_FILE_PATH // Use absolute path as is
+        : path.join(process.cwd(), process.env.MEMORY_FILE_PATH) // Relative to current working directory
+    : defaultMemoryPath; // Default fallback
+// Properly handle absolute and relative paths for SESSIONS_FILE_PATH
+const SESSIONS_FILE_PATH = process.env.SESSIONS_FILE_PATH
+    ? path.isAbsolute(process.env.SESSIONS_FILE_PATH)
+        ? process.env.SESSIONS_FILE_PATH // Use absolute path as is
+        : path.join(process.cwd(), process.env.SESSIONS_FILE_PATH) // Relative to current working directory
+    : defaultSessionsPath; // Default fallback
 // Student education specific entity types
 const validEntityTypes = [
     'course',
@@ -1685,7 +1681,7 @@ ${outgoingText}`;
         stageNumber: z.number().int().positive().describe("The sequence number of the current stage (starts at 1)"),
         totalStages: z.number().int().positive().describe("Total number of stages in the workflow (typically 5 for standard workflow)"),
         analysis: z.string().optional().describe("Text analysis or observations for the current stage"),
-        stageData: z.any().optional().describe(`Stage-specific data structure - format depends on the stage type:
+        stageData: z.record(z.string(), z.any()).optional().describe(`Stage-specific data structure - format depends on the stage type:
       - For 'summary' stage: { summary: "Session summary text", duration: "2 hours", focus: "CourseName" }
       - For 'conceptsLearned' stage: { concepts: ["Concept A", "Concept B", "Concept C"] }
       - For 'assignmentProgress' stage: { assignments: [{ name: "Assignment1", status: "completed" }, { name: "Assignment2", status: "in_progress" }] }
@@ -1940,6 +1936,9 @@ Would you like me to perform any additional updates to your student knowledge gr
             const currentTerm = await getCurrentTerm();
             // Get recent sessions from persistent storage instead of entities
             const sessionStates = await loadSessionStates();
+            // Initialize the session state
+            sessionStates.set(sessionId, []);
+            await saveSessionStates(sessionStates);
             // Convert sessions map to array, sort by date, and take most recent ones
             const recentSessions = Array.from(sessionStates.entries())
                 .map(([id, stages]) => {
@@ -2025,7 +2024,7 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
      */
     server.tool("buildcontext", toolDescriptions["buildcontext"], {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
-        data: z.any().describe("Data for the creation operation, structure varies by type")
+        data: z.array(z.any()).describe("Data for the creation operation, structure varies by type but must be an array")
     }, async ({ type, data }) => {
         try {
             let result;
@@ -2063,34 +2062,17 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
                             }]
                     };
                 case "observations":
-                    // For student domain, addObservations takes entity name and observations
-                    if (Array.isArray(data)) {
-                        // Handle array format like developer domain
-                        for (const item of data) {
-                            if (item.entityName && Array.isArray(item.contents)) {
-                                await knowledgeGraphManager.addObservations(item.entityName, item.contents);
-                            }
+                    for (const item of data) {
+                        if (item.entityName && Array.isArray(item.contents)) {
+                            await knowledgeGraphManager.addObservations(item.entityName, item.contents);
                         }
-                        return {
-                            content: [{
-                                    type: "text",
-                                    text: JSON.stringify({ success: true, message: "Added observations to entities" }, null, 2)
-                                }]
-                        };
                     }
-                    else if (typeof data === 'object' && data.entityName && Array.isArray(data.observations)) {
-                        // Handle legacy format
-                        result = await knowledgeGraphManager.addObservations(data.entityName, data.observations);
-                        return {
-                            content: [{
-                                    type: "text",
-                                    text: JSON.stringify({ success: true, added: result }, null, 2)
-                                }]
-                        };
-                    }
-                    else {
-                        throw new Error("Invalid observations format. Expected { entityName, observations } or array of { entityName, contents }");
-                    }
+                    return {
+                        content: [{
+                                type: "text",
+                                text: JSON.stringify({ success: true, message: "Added observations to entities" }, null, 2)
+                            }]
+                    };
                 default:
                     throw new Error(`Invalid type: ${type}. Must be 'entities', 'relations', or 'observations'.`);
             }
@@ -2112,7 +2094,7 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
      */
     server.tool("deletecontext", toolDescriptions["deletecontext"], {
         type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
-        data: z.any().describe("Data for the deletion operation, structure varies by type")
+        data: z.array(z.any()).describe("Data for the deletion operation, structure varies by type but must be an array")
     }, async ({ type, data }) => {
         try {
             switch (type) {
@@ -2172,7 +2154,7 @@ To load the context for a specific entity, use the \`loadcontext\` tool with the
      */
     server.tool("advancedcontext", toolDescriptions["advancedcontext"], {
         type: z.enum(["graph", "search", "nodes", "course", "deadlines", "assignment", "exam", "concepts", "lecture", "term"]).describe("Type of get operation: 'graph', 'search', 'nodes', 'course', 'deadlines', 'assignment', 'exam', 'concepts', 'lecture', or 'term'"),
-        params: z.any().describe("Parameters for the operation, structure varies by type")
+        params: z.record(z.string(), z.any()).describe("Parameters for the operation, structure varies by type")
     }, async ({ type, params }) => {
         try {
             let result;

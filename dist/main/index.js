@@ -317,7 +317,7 @@ registerDomainTool("endsession", {
     analysis: z.string().optional(),
     isRevision: z.boolean().optional(),
     revisesStage: z.number().optional(),
-    stageData: z.any().optional()
+    stageData: z.record(z.string(), z.any()).optional()
 }, async ({ sessionId, stage, stageNumber, totalStages, nextStageNeeded, analysis, isRevision, revisesStage, stageData }) => {
     const flowId = `flow_${sessionId}`;
     const flowIndex = flows.findIndex(s => s.id === flowId);
@@ -376,7 +376,7 @@ registerDomainTool("endsession", {
 // Context management tools
 registerDomainTool("buildcontext", {
     type: z.enum(["entities", "relations", "observations"]),
-    data: z.any().optional()
+    data: z.array(z.any())
 }, async ({ type, data }) => {
     if (!activeDomain) {
         return {
@@ -415,7 +415,7 @@ registerDomainTool("buildcontext", {
 });
 registerDomainTool("deletecontext", {
     type: z.enum(["entities", "relations", "observations"]),
-    data: z.any().optional()
+    data: z.array(z.any())
 }, async ({ type, data }) => {
     if (!activeDomain) {
         return {
@@ -517,8 +517,8 @@ registerDomainTool("loadcontext", {
     }
 });
 registerDomainTool("advancedcontext", {
-    type: z.enum(["graph", "search", "nodes", "related", "decisions", "milestone"]),
-    params: z.any().optional()
+    type: z.string(),
+    params: z.record(z.string(), z.any())
 }, async ({ type, params }) => {
     if (!activeDomain) {
         return {

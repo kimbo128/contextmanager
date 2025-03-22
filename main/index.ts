@@ -410,7 +410,7 @@ registerDomainTool(
     analysis: z.string().optional(),
     isRevision: z.boolean().optional(),
     revisesStage: z.number().optional(),
-    stageData: z.any().optional()
+    stageData: z.record(z.string(), z.any()).optional()
   },
   async ({ sessionId, stage, stageNumber, totalStages, nextStageNeeded, analysis, isRevision, revisesStage, stageData }) => {
     const flowId = `flow_${sessionId}`;
@@ -647,7 +647,7 @@ registerDomainTool(
   "advancedcontext",
   {
     type: z.string(),
-    params: z.any()
+    params: z.record(z.string(), z.any())
   },
   async ({ type, params }) => {
     if (!activeDomain) {

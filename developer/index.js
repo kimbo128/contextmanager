@@ -1722,3 +1722,4 @@ main().catch(error => {
 });
 // Export the KnowledgeGraphManager for testing
 export { KnowledgeGraphManager };
+//# sourceMappingURL=index.js.map

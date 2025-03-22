@@ -74,9 +74,14 @@ const toolDescriptions = {
     'endsession': '',
 };
 for (const tool of Object.keys(toolDescriptions)) {
-    const descriptionFilePath = path.resolve(__dirname, "descriptions", `developer_${tool}.txt`);
-    if (existsSync(descriptionFilePath)) {
-        toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
+    try {
+        const descriptionFilePath = path.resolve(__dirname, "descriptions", `developer_${tool}.txt`);
+        if (existsSync(descriptionFilePath)) {
+            toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
+        }
+    }
+    catch (error) {
+        console.error(`Error reading description file for tool '${tool}': ${error}`);
     }
 }
 // Session management functions

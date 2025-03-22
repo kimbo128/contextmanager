@@ -9,12 +9,8 @@
   },
   "files": [
     "index.js",
-    "index.d.ts",
     "README.md",
     "descriptions"
-  ],
-  "workspaces": [
-    "./"
   ],
   "scripts": {
     "build": "tsc && shx chmod +x index.js",

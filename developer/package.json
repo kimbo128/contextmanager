@@ -10,7 +10,7 @@
   "files": [
     "index.js",
     "README.md",
-    "descriptions"
+    "*.txt"
   ],
   "scripts": {
     "build": "tsc && shx chmod +x index.js",

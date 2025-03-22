@@ -98,7 +98,6 @@ const toolDescriptions: Record<string, string> = {
 for (const tool of Object.keys(toolDescriptions)) {
   const descriptionFilePath = path.resolve(
     __dirname,
-    "descriptions",
     `qualitativeresearch_${tool}.txt`
   );
   if (existsSync(descriptionFilePath)) {

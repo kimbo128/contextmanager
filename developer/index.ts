@@ -90,7 +90,6 @@ for (const tool of Object.keys(toolDescriptions)) {
   try {
     const descriptionFilePath = path.resolve(
       __dirname,
-      "descriptions",
       `developer_${tool}.txt`
     );
     if (existsSync(descriptionFilePath)) {

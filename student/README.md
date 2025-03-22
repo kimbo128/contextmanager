@@ -166,7 +166,7 @@ Add this to your `claude_desktop_config.json`:
       "command": "npx",
       "args": [
         "-y",
-        "github:tejpalvirk/contextmanager/student"
+        "github:tejpalvirk/student"
       ]
     }
   }
@@ -178,7 +178,7 @@ Add this to your `claude_desktop_config.json`:
 First, install the package globally:
 
 ```bash
-npm install -g github:tejpalvirk/contextmanager/student
+npm install -g github:tejpalvirk/student
 ```
 
 Then configure Claude Desktop:
@@ -187,7 +187,7 @@ Then configure Claude Desktop:
 {
   "mcpServers": {
     "student": {
-      "command": "mcp-server-student"
+      "command": "contextmanager-student"
     }
   }
 }

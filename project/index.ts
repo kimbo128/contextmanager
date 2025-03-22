@@ -68,7 +68,6 @@ const toolDescriptions: Record<string, string> = {
 for (const tool of Object.keys(toolDescriptions)) {
   const descriptionFilePath = path.resolve(
     __dirname,
-    "descriptions",
     `project_${tool}.txt`
   );
   if (existsSync(descriptionFilePath)) {

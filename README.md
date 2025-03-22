@@ -90,11 +90,11 @@ mcp-server-contextmanager
 Or run a specific domain server directly:
 
 ```bash
-mcp-server-developer
-mcp-server-project
-mcp-server-student
-mcp-server-researcher-qualitative
-mcp-server-researcher-quantitative
+contextmanager-developer
+contextmanager-project
+contextmanager-student
+contextmanager-qualitativeresearch
+contextmanager-quantitativeresearch
 ```
 
 ### Clone and Build from Source

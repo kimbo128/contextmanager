@@ -82,7 +82,7 @@ const toolDescriptions = {
     'endsession': '',
 };
 for (const tool of Object.keys(toolDescriptions)) {
-    const descriptionFilePath = path.resolve(__dirname, "descriptions", `qualitativeresearch_${tool}.txt`);
+    const descriptionFilePath = path.resolve(__dirname, `qualitativeresearch_${tool}.txt`);
     if (existsSync(descriptionFilePath)) {
         toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
     }

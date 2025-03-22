@@ -96,7 +96,7 @@ const toolDescriptions = {
     'endsession': '',
 };
 for (const tool of Object.keys(toolDescriptions)) {
-    const descriptionFilePath = path.resolve(__dirname, "descriptions", `student_${tool}.txt`);
+    const descriptionFilePath = path.resolve(__dirname, `student_${tool}.txt`);
     if (existsSync(descriptionFilePath)) {
         toolDescriptions[tool] = readFileSync(descriptionFilePath, 'utf-8');
     }

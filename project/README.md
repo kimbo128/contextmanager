@@ -33,6 +33,8 @@ The Project MCP Server recognizes the following entity types:
 - **component**: Parts or modules of the project
 - **stakeholder**: People affected by or interested in the project
 - **change**: Modifications to project scope or requirements
+- **status**: Entity status values (inactive, active, complete)
+- **priority**: Priority level values (high, low)
 
 ## Relationships
 
@@ -58,16 +60,19 @@ Entities can be connected through the following relationship types:
 - **impacted_by**: Shows impact relationships
 - **stakeholder_of**: Links stakeholders to projects/components
 - **prioritized_as**: Indicates priority levels
+- **has_status**: Links entities to their current status (inactive, active, complete)
+- **has_priority**: Links entities to their priority level (high, low)
+- **precedes**: Indicates that one task comes before another in a sequence
 
 ## Available Tools
 
 The Project MCP Server provides these tools for interacting with project knowledge:
 
 ### startsession
-Starts a new project management session, generating a unique session ID and displaying current projects, tasks, milestones, risks, and recent sessions.
+Starts a new project management session, generating a unique session ID and displaying current projects, tasks, milestones, risks, and recent sessions. Shows status information via has_status relations, priority levels via has_priority relations, and identifies tasks ready to be worked on next based on sequential dependencies.
 
 ### loadcontext
-Loads detailed context for a specific entity (project, task, etc.), displaying relevant information based on entity type.
+Loads detailed context for a specific entity (project, task, etc.), displaying relevant information based on entity type. Includes status information (inactive, active, complete), priority levels (high, low), and sequential task relationships.
 
 ### endsession
 Records the results of a project management session through a structured, multi-stage process:
@@ -75,20 +80,20 @@ Records the results of a project management session through a structured, multi-
 2. **achievements**: Documents key achievements from the session
 3. **taskUpdates**: Tracks updates to existing tasks
 4. **newTasks**: Records new tasks created during the session
-5. **projectStatus**: Updates overall project status and observations
-6. **riskUpdates**: Tracks changes to project risks
+5. **statusUpdates**: Records changes to entity status values
+6. **projectStatus**: Updates overall project status, priority assignments, and sequential relationships
 7. **assembly**: Final assembly of all session data
 
 ### buildcontext
 Creates new entities, relations, or observations in the knowledge graph:
-- **entities**: Add new project-related entities (projects, tasks, milestones, etc.)
-- **relations**: Create relationships between entities
+- **entities**: Add new project-related entities (projects, tasks, milestones, status, priority, etc.)
+- **relations**: Create relationships between entities (including has_status, has_priority, precedes)
 - **observations**: Add observations to existing entities
 
 ### deletecontext
 Removes entities, relations, or observations from the knowledge graph:
 - **entities**: Remove project entities
-- **relations**: Remove relationships between entities
+- **relations**: Remove relationships between entities (including status, priority, and sequential relations)
 - **observations**: Remove specific observations from entities
 
 ### advancedcontext
@@ -97,6 +102,9 @@ Retrieves information from the knowledge graph:
 - **search**: Search for nodes based on query criteria
 - **nodes**: Get specific nodes by name
 - **related**: Find related entities
+- **status**: Find entities with a specific status value (inactive, active, complete)
+- **priority**: Find entities with a specific priority value (high, low)
+- **sequence**: Identify sequential relationships for tasks
 
 ## Domain-Specific Functions
 
@@ -112,6 +120,9 @@ The Project MCP Server includes specialized domain functions for project managem
 - **findRelatedProjects**: Discover connections between different projects
 - **getDecisionLog**: Track decision history and context
 - **getProjectHealth**: Assess overall project health with metrics and recommendations
+- **getStatusOverview**: View all entities with a specific status (inactive, active, complete)
+- **getPriorityItems**: Identify high-priority tasks and activities
+- **getTaskSequence**: Visualize the sequence of tasks based on precedes relations
 
 ## Example Prompts
 
@@ -127,12 +138,12 @@ Load the context for the Mobile App Development project so I can see its current
 
 ### Recording Session Results
 ```
-I've just finished a project review meeting for Mobile App Development. We completed the UI design milestone, identified 2 new risks related to the backend API, and assigned 3 new tasks to the development team. The project is still on track but we need to monitor the API risks closely.
+I've just finished a project review meeting for Mobile App Development. We completed the UI design milestone, identified 2 new risks related to the backend API, and assigned 3 new tasks to the development team. The UI tasks are now marked as complete, and we've set the API development tasks as high priority. The project is still on track but we need to monitor the API risks closely.
 ```
 
 ### Managing Project Knowledge
 ```
-Create a new task called "Implement User Authentication" that's part of the Mobile App Development project, assigned to Sarah, with high priority and due in two weeks.
+Create a new task called "Implement User Authentication" that's part of the Mobile App Development project, assigned to Sarah, with high priority and due in two weeks. Set its status to active and make it precede the "User Profile" task.
 ```
 
 ```
@@ -150,6 +161,9 @@ This MCP server enables project managers to:
 - **Monitor Risk**: Keep track of project risks and implement mitigation strategies
 - **Allocate Resources**: Optimize resource allocation across projects and tasks
 - **Make Informed Decisions**: Base decisions on comprehensive project data
+- **Track Progress**: Monitor entity status throughout the project lifecycle
+- **Prioritize Work**: Identify and focus on high-priority tasks
+- **Sequence Tasks**: Plan and visualize the logical order of project tasks
 
 ## Configuration
 

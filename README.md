@@ -23,15 +23,15 @@ To free up the context window (performance), and minimize token cost (efficiency
 
 The contextmanager orchestrates several domain-specific MCP servers:
 
-1. **Developer MCP Server**: software development context with entities like projects, components, and tasks.
+1. **Developer MCP Server**: software development context with entities like projects, components, and tasks. Includes status tracking (inactive, active, complete), priority management (high, low), and task sequencing through precedes relations.
 
-2. **Project MCP Server**: project management context with entities like projects, tasks, and resources.
+2. **Project MCP Server**: project management context with entities like projects, tasks, and resources. Features status management (inactive, active, complete), priority assignment (high, low), and task sequencing capabilities.
 
-3. **Student MCP Server**: educational context with entities like courses, assignments, and exams.
+3. **Student MCP Server**: educational context with entities like courses, assignments, and exams. Supports tracking status (active, completed, pending, abandoned), prioritizing assignments (high, low), and creating learning sequences.
 
-4. **Qualitative Research MCP Server**: qualitative research context with entities like studies, participants, and interviews.
+4. **Qualitative Research MCP Server**: qualitative research context with entities like studies, participants, and interviews. Includes research activity status tracking (active, completed, pending, abandoned), priority management (high, low), and analysis sequencing.
 
-5. **Quantitative Research MCP Server**: quantitative research context with entities like datasets, variables, and analyses.
+5. **Quantitative Research MCP Server**: quantitative research context with entities like datasets, variables, and analyses. Features status management (active, completed, pending, abandoned), priority assignment (high, low), and sequential process management.
 
 For detailed documentation on each domain server, see the README files in their respective directories:
 - [Developer Server](./developer/README.md)
@@ -47,6 +47,9 @@ The Context Manager provides:
 - **Unified Interface**: Access all domain servers through a single interface.
 - **Smart Routing**: Automatically routes requests to the appropriate domain server.
 - **Cross-Domain Context**: Maintains references across different domains.
+- **Consistent Status Management**: Standardized approach to status tracking across domains.
+- **Unified Priority System**: Consistent priority management across different contexts.
+- **Integrated Sequencing**: Harmonized approach to sequential workflows across domains.
 
 ## Implementation
 
@@ -56,6 +59,7 @@ The Context Manager uses the MCP Client SDK to communicate with domain-specific 
 2. Creates MCP clients to connect to each domain server
 3. Routes requests to the appropriate domain server based on the active domain
 4. Provides cross-domain functionality for relating entities across domains
+5. Ensures consistent handling of status, priority, and sequential relations
 
 ## Path Resolution
 
@@ -201,6 +205,32 @@ Delete context:
 deletecontext(type="entities", data={...})
 ```
 
+### Entity Status and Priority Management
+
+Assign status to entities:
+
+```
+buildcontext(type="relations", data=[
+  { from: "LoginFeature", to: "active", relationType: "has_status" }
+])
+```
+
+Set entity priorities:
+
+```
+buildcontext(type="relations", data=[
+  { from: "BugFix", to: "high", relationType: "has_priority" }
+])
+```
+
+Define sequential relationships:
+
+```
+buildcontext(type="relations", data=[
+  { from: "DataModel", to: "UserInterface", relationType: "precedes" }
+])
+```
+
 ### Example: Working with the Developer Domain
 
 ```javascript
@@ -222,7 +252,7 @@ buildcontext(type="entities", data={
 // Load context for the project
 loadcontext(entityName="MyProject", entityType="project")
 
-// Create a component for the project
+// Create a component for the project and set its status to active
 buildcontext(type="entities", data={
   "entityType": "component",
   "name": "AuthService",
@@ -230,6 +260,11 @@ buildcontext(type="entities", data={
   "description": "Authentication service component",
   "dependencies": ["UserService"]
 })
+
+buildcontext(type="relations", data=[
+  { from: "AuthService", to: "active", relationType: "has_status" },
+  { from: "AuthService", to: "high", relationType: "has_priority" }
+])
 ```
 
 ### Cross-Domain Operations
@@ -308,6 +343,12 @@ In Claude Desktop, configure the Context Manager in settings:
    Error: Method 'buildcontext' not found in domain 'developer'
    ```
    Solution: Verify the method name and ensure it is supported by the domain server.
+
+6. **Invalid Status or Priority Value**:
+   ```
+   Error: Invalid status value 'in_progress'. Valid values are: inactive, active, complete
+   ```
+   Solution: Ensure you're using the correct status values for the specific domain.
 
 ### Debugging
 

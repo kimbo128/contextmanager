@@ -36,6 +36,8 @@ The Developer MCP Server recognizes the following types of entities in your soft
 - **Environment**: Development, staging, or production environment
 - **Documentation**: Project documentation resource
 - **Requirement**: Project requirement or specification
+- **Status**: Entity status values (inactive, active, complete)
+- **Priority**: Priority level values (high, low)
 
 ## Relationships
 
@@ -56,11 +58,30 @@ The Developer MCP Server models the following relationships between entities, mi
 - **documented_in**: Component is documented in documentation
 - **decided_in**: Decision was made in a meeting
 - **required_by**: Feature is required by a requirement
-- **has_status**: Entity has a particular status
+- **has_status**: Links entities to their current status (inactive, active, complete)
+- **has_priority**: Links entities to their priority level (high, low)
 - **depends_on_milestone**: Task depends on reaching a milestone
-- **precedes**: Task precedes another task (sequencing)
+- **precedes**: Indicates that one task comes before another in a sequence
 - **reviews**: Developer reviews a component
 - **tested_in**: Component is tested in an environment
+
+## Status and Priority Management
+
+The Developer MCP Server provides robust status and priority tracking capabilities:
+
+- **Status Values**: 
+  - **inactive**: Entity has not yet been started or is currently paused
+  - **active**: Entity is currently being worked on
+  - **complete**: Entity has been finished
+
+- **Priority Values**:
+  - **high**: Entity requires immediate attention or has significant impact
+  - **low**: Entity can be addressed when higher priority items are complete
+
+- **Sequential Task Management**:
+  - Define which tasks must be completed before others can begin
+  - Visualize the natural workflow of development tasks
+  - Identify critical path dependencies in your development process
 
 ## Environment Variables
 
@@ -91,17 +112,17 @@ MEMORY_FILE_PATH="$HOME/contextmanager/developer-memory.json" npx github:tejpalv
 
 The Developer MCP Server provides the following tools:
 
-- **startsession**: Starts a new development session and provides information about recent sessions, active projects, high-priority tasks, and upcoming milestones.
+- **startsession**: Starts a new development session and provides information about recent sessions, active projects, high-priority tasks, and upcoming milestones. Shows status and priority information for tasks and other entities, as well as identifies tasks ready to be worked on based on sequential dependencies.
 
-- **loadcontext**: Loads detailed context for an entity (project, component, feature, task, etc.) and tracks this context loading as part of the current session.
+- **loadcontext**: Loads detailed context for an entity (project, component, feature, task, etc.) and tracks this context loading as part of the current session. Shows status values (inactive, active, complete), priority levels (high, low), and sequential relationships.
 
-- **endsession**: Performs a structured analysis of the development session through multiple stages (summary, achievements, task updates, new tasks, project status) and records this information in the persistent knowledge graph.
+- **endsession**: Performs a structured analysis of the development session through multiple stages (summary, achievements, task updates, new tasks, status updates, project status) and records this information in the persistent knowledge graph.
 
-- **buildcontext**: Creates new entities, relations, or observations in the knowledge graph.
+- **buildcontext**: Creates new entities, relations (including has_status, has_priority, and precedes), or observations in the knowledge graph.
 
-- **deletecontext**: Removes entities, relations, or observations from the knowledge graph.
+- **deletecontext**: Removes entities, relations (including status, priority, and sequential relations), or observations from the knowledge graph.
 
-- **advancedcontext**: Retrieves information from the knowledge graph with different query types (graph, search, nodes, related, decisions, milestone).
+- **advancedcontext**: Retrieves information from the knowledge graph with different query types (graph, search, nodes, related, decisions, milestone, status, priority, sequence).
 
 ## Prompts
 
@@ -118,6 +139,8 @@ Here are some example prompts to use with the Developer MCP Server:
 "Load the context for the UserProfile component."
 "What are the open issues affecting the Payment feature?"
 "Show me details about the upcoming Q2 Release milestone."
+"Show me all tasks with high priority status in the Authentication module."
+"What tasks need to be completed before we can start implementing the checkout flow?"
 ```
 
 ### Recording Session Progress
@@ -125,15 +148,17 @@ Here are some example prompts to use with the Developer MCP Server:
 "End my development session. I've been working on AuthService for 3 hours and completed user authentication flow implementation."
 "Record my achievements for today: implemented password reset feature and fixed login redirect bug."
 "Update the status of these tasks: Login Form is complete, User Registration is in progress."
-"Create new tasks for the next sprint: Implement MFA, Add social login options."
+"Create new tasks for the next sprint: Implement MFA, Add social login options. Set MFA as high priority and make it precede the social login task."
 ```
 
 ### Knowledge Graph Management
 ```
-"Create a new feature called 'BillingSystem' in the ProjectX project."
+"Create a new feature called 'BillingSystem' in the ProjectX project with status active and high priority."
 "Create a relationship showing that PaymentComponent implements BillingSystem feature."
 "Show me all components that depend on the DatabaseService."
 "What decisions have been made about the authentication approach for ProjectX?"
+"Update the status of the API Documentation task to complete."
+"Set the User Profile feature as a prerequisite for the Payment Processing feature."
 ```
 
 ## Usage
@@ -175,6 +200,18 @@ Before making changes, developers can understand all components, features, and t
 "What's our progress toward the Q2 release milestone?"
 ```
 Project leads can instantly see the status of all tasks and features associated with a milestone, identifying at-risk items before they jeopardize the timeline.
+
+### Status and Priority Management
+```
+"Show me all high-priority tasks that are still active."
+```
+Quickly identify the most important work that needs attention, ensuring that critical tasks are addressed first.
+
+### Task Sequencing
+```
+"What tasks are blocked because they depend on incomplete prerequisite tasks?"
+```
+Identify and resolve bottlenecks in the development process by understanding the sequential dependencies between tasks.
 
 ## Configuration
 

@@ -31,6 +31,8 @@ The Student MCP Server recognizes the following entity types:
 - **term**: Academic terms or semesters
 - **goal**: Learning objectives and targets
 - **professor**: Course instructors and teachers
+- **status**: Entity status values (active, completed, pending, abandoned)
+- **priority**: Priority level values (high, low)
 
 ## Relationships
 
@@ -56,36 +58,60 @@ Entities can be connected through the following relationship types:
 - **follows**: Entity follows another in sequence
 - **attends**: Student attends lecture
 - **graded_with**: Assignment/exam graded with specific criteria
+- **has_status**: Links entities to their current status (active, completed, pending, abandoned)
+- **has_priority**: Links entities to their priority level (high, low)
+- **precedes**: Indicates that one task or assignment comes before another in a sequence
+
+## Status and Priority Management
+
+The Student MCP Server provides comprehensive status and priority tracking capabilities:
+
+- **Status Values**: 
+  - **active**: Currently being worked on or studied
+  - **completed**: Finished or successfully submitted
+  - **pending**: Not yet started but planned
+  - **abandoned**: No longer being pursued
+
+- **Priority Values**:
+  - **high**: Requires immediate attention or has significant impact on grades
+  - **low**: Can be addressed after higher priority items are complete
+
+- **Sequential Learning Management**:
+  - Define which assignments or concepts must be completed before others
+  - Organize study activities in a logical progression
+  - Create dependencies between related learning tasks
+  - Build structured learning paths through course material
 
 ## Available Tools
 
 The Student MCP Server provides these tools for interacting with educational knowledge:
 
 ### startsession
-Starts a new study session, generating a unique session ID and displaying current courses, upcoming deadlines, recently studied concepts, and past study sessions.
+Starts a new study session, generating a unique session ID and displaying current courses, upcoming deadlines, recently studied concepts, and past study sessions. Shows status information via has_status relations, priority levels via has_priority relations, and identifies assignments ready to be worked on next based on sequential dependencies.
 
 ### loadcontext
-Loads detailed context for a specific entity (course, assignment, etc.), displaying relevant information based on entity type.
+Loads detailed context for a specific entity (course, assignment, etc.), displaying relevant information based on entity type. Includes status information, priority levels, and sequential relationships between related entities.
 
 ### endsession
 Records the results of a study session through a structured, multi-stage process:
 1. **summary**: Records session summary, duration, and course focus
 2. **conceptsLearned**: Documents concepts studied during the session
 3. **assignmentUpdates**: Tracks updates to assignments
-4. **courseStatus**: Updates overall course status and observations
-5. **newConcepts**: Records new concepts learned during the session
-6. **assembly**: Final assembly of all session data
+4. **statusUpdates**: Records changes to entity status values
+5. **courseStatus**: Updates overall course status, priority assignments, and sequential relationships
+6. **newConcepts**: Records new concepts learned during the session
+7. **assembly**: Final assembly of all session data
 
 ### buildcontext
 Creates new entities, relations, or observations in the knowledge graph:
-- **entities**: Add new educational entities (courses, assignments, concepts, etc.)
-- **relations**: Create relationships between entities
+- **entities**: Add new educational entities (courses, assignments, concepts, status, priority, etc.)
+- **relations**: Create relationships between entities (including has_status, has_priority, precedes)
 - **observations**: Add observations to existing entities
 
 ### deletecontext
 Removes entities, relations, or observations from the knowledge graph:
 - **entities**: Remove educational entities
-- **relations**: Remove relationships between entities
+- **relations**: Remove relationships between entities (including status, priority, and sequential relations)
 - **observations**: Remove specific observations from entities
 
 ### advancedcontext
@@ -100,6 +126,9 @@ Retrieves information from the knowledge graph:
 - **concepts**: Get information about concepts
 - **lecture**: Get information about lectures
 - **term**: Get details about an academic term
+- **status**: Find entities with a specific status value
+- **priority**: Find entities with a specific priority value
+- **sequence**: Identify sequential relationships for learning activities
 
 ## Domain-Specific Functions
 
@@ -113,6 +142,9 @@ The Student MCP Server includes specialized domain functions for education:
 - **getStudyProgress**: Track study progress across courses
 - **getTermOverview**: Get overview of courses and work for an academic term
 - **getConceptMastery**: Assess level of understanding for specific concepts
+- **getStatusOverview**: View all entities with a specific status (active, completed, pending, abandoned)
+- **getPriorityItems**: Identify high-priority assignments and study tasks
+- **getLearningSequence**: Visualize the sequence of learning activities based on precedes relations
 
 ## Example Prompts
 
@@ -128,16 +160,16 @@ Load the context for my Calculus 101 course so I can see upcoming assignments an
 
 ### Recording Study Progress
 ```
-I've just finished studying for 2 hours on Calculus 101. I focused on limits and derivatives, completed my homework assignment on basic differentiation, and took notes on the chain rule. I'm feeling more confident about the upcoming exam next week.
+I've just finished studying for 2 hours on Calculus 101. I focused on limits and derivatives, completed my homework assignment on basic differentiation, and took notes on the chain rule. I've marked the limits content as completed and set the derivatives practice as high priority. I'm feeling more confident about the upcoming exam next week.
 ```
 
 ### Managing Learning Materials
 ```
-Create a new concept called "Binary Trees" related to my Data Structures course with the description "A binary tree is a tree data structure in which each node has at most two children."
+Create a new concept called "Binary Trees" related to my Data Structures course with the description "A binary tree is a tree data structure in which each node has at most two children." Set its status to active and make it precede the "Graph Algorithms" concept.
 ```
 
 ```
-Update the status of my "Database Assignment" to "completed" and add that I successfully implemented all required queries.
+Update the status of my "Database Assignment" to "completed" and add that I successfully implemented all required queries. Mark the "Advanced SQL" concept as high priority for my next study session.
 ```
 
 ## Usage
@@ -150,6 +182,9 @@ This MCP server enables students to:
 - **Prepare for Exams**: Organize study materials and track progress towards exam readiness
 - **Manage Deadlines**: Stay on top of upcoming due dates for assignments and exams
 - **Connect Knowledge**: See relationships between different concepts across courses
+- **Prioritize Work**: Focus on high-priority assignments and learning tasks
+- **Structure Learning**: Create logical sequences for learning related concepts
+- **Track Status**: Monitor the status of assignments, projects, and learning activities
 
 ## Configuration
 

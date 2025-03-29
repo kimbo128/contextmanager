@@ -15,9 +15,10 @@ When to use this tool:
 Key features:
 - Generates a unique session identifier for tracking activity
 - Retrieves and displays recent development sessions
-- Shows active software development projects
-- Highlights high-priority tasks needing attention
-- Lists upcoming project milestones with deadlines
+- Shows active software development projects (based on has_status relations)
+- Highlights high-priority tasks (based on has_priority relations)
+- Lists upcoming project milestones with progress tracking
+- Displays task dependencies and sequencing information
 - Formats information in a structured, easy-to-read format
 - Provides seamless integration with loadcontext tool
 - Stores session data for historical record keeping
@@ -32,13 +33,13 @@ Return information:
   * Project focus
   * Session summary (truncated to 100 characters)
 - Active Projects: List of active software projects with their status
-- High-Priority Tasks: Tasks marked as high priority with:
+- High-Priority Tasks: Tasks with high priority status (via has_priority relation) including:
   * Task name
-  * Current status
-  * Assigned developer (if any)
+  * Current status (via has_status relation)
+  * Task sequencing information (preceding and following tasks)
 - Upcoming Milestones: Milestones with active status including:
   * Milestone name
-  * Due date (if available)
+  * Progress percentage based on completed tasks
 
 Session workflow:
 1. Starting a session creates a session identifier in the developer domain

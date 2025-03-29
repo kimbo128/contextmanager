@@ -11,6 +11,9 @@ When to use this tool:
 - Eliminating deprecated risks or issues that are no longer relevant
 - Removing preliminary project elements that have been superseded
 - Reorganizing your project structure by removing and recreating elements
+- Updating status assignments when task or project states change
+- Modifying priority levels as project needs shift
+- Restructuring sequential relationships between tasks and activities
 
 Key features:
 - Provides targeted deletion capabilities for three distinct types of knowledge graph elements: entities, relations, and observations
@@ -19,6 +22,8 @@ Key features:
 - Returns clear confirmation of deletion results
 - Preserves the overall structure of the project knowledge graph while removing specific elements
 - Performs validation to ensure deletion requests are properly formatted
+- Handles status and priority relation management
+- Supports modification of task sequencing relationships
 
 Parameters explained:
 1. type: The type of deletion operation to perform
@@ -26,27 +31,41 @@ Parameters explained:
   - Determines how the data parameter is interpreted
 2. data: The elements to remove from the knowledge graph (structure varies by type):
   - For "entities": Array of entity names to delete
-    * Example: ["Task_A", "Milestone_1", "Risk_Supply_Chain"]
+    * Example: ["Task_A", "Milestone_1"]
   - For "relations": Array of relation objects, each containing:
     * from: Name of the source entity
     * to: Name of the target entity
-    * relationType: Type of relationship to remove
+    * relationType: Type of relationship to remove (e.g., "part_of", "has_status", "has_priority", "precedes")
     * Example: [{ "from": "Task_A", "to": "Milestone_1", "relationType": "part_of" }]
   - For "observations": Array of objects, each containing:
     * entityName: Name of the entity to remove observations from
     * observations: Array of specific observations to remove
-    * Example: [{ "entityName": "Project_X", "observations": ["status:on_hold", "priority:medium"] }]
+    * Example: [{ "entityName": "Project_X", "observations": ["duration:3 months", "budget:10000"] }]
 
 Deletion behavior by type:
 - Entities: Removes the specified entities and all their associated relations from the knowledge graph
 - Relations: Removes only the specified relationships, leaving the connected entities intact
 - Observations: Removes specific observations from entities while preserving the entities themselves
 
+Status and Priority Management:
+- When deleting status or priority entities, be aware that all has_status or has_priority relations using these entities will be removed
+- For changing an entity's status, delete the existing has_status relation before creating a new one
+- For changing priority, delete the existing has_priority relation before creating a new one
+- Status values (inactive, active, complete) are managed through relations, not direct properties
+- Priority values (low, high) are managed through relations, not direct properties
+
+Sequential Task Management:
+- Removing precedes relations will affect task sequencing and dependencies
+- When reorganizing project tasks, update all affected precedes relations
+- Consider the impact on project timelines when modifying sequential relationships
+
 Safety considerations:
 - Entity deletion is permanent and will also remove all relationships involving those entities
 - Consider exporting or backing up your project knowledge graph before performing large-scale deletions
 - For sensitive operations, consider removing specific observations rather than entire entities
 - When removing key project elements, consider the impact on your overall project structure
+- Status changes should be carefully managed to maintain accurate project tracking
+- Changes to task sequences may affect dependent project activities
 
 Return information:
 - JSON response indicating success or failure
@@ -70,4 +89,6 @@ You should:
 - Consider the cascading effects of entity deletion on your overall project structure
 - Delete completed tasks and milestones systematically when closing project phases
 - Remove resolved risks and issues to keep your project status current
-- Update entities by deleting specific observations and adding new ones 
+- When updating entity status, delete the old has_status relation before creating a new one
+- When updating entity priority, delete the old has_priority relation before creating a new one
+- Maintain logical consistency when modifying sequential task relationships 

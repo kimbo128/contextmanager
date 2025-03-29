@@ -11,6 +11,8 @@ When to use this tool:
 - Reviewing project risks that need mitigation
 - Establishing context before diving into specific project work
 - Creating a structured record of your project management activity
+- Tracking the status of various project entities
+- Managing sequential task dependencies
 
 Key features:
 - Generates a unique session identifier for tracking project management activities
@@ -23,6 +25,9 @@ Key features:
 - Formats information in a structured, easy-to-read format
 - Integrates with the loadcontext tool for deeper exploration
 - Maintains continuity between project management sessions
+- Displays status information through has_status relations
+- Shows priority assignments through has_priority relations
+- Presents task sequencing through precedes relations
 
 Parameters explained:
 No parameters required - the tool automatically retrieves all relevant context.
@@ -35,18 +40,20 @@ Return information:
   * Session summary (truncated for readability)
 - Active Projects: List of current projects with:
   * Project name
-  * Current status
+  * Current status (via has_status relation)
   * Deadline information
 - High-Priority Tasks: Up to 10 highest priority tasks with:
   * Task name
   * Associated project
-  * Status
+  * Status (inactive, active, complete)
+  * Priority (high via has_priority relation)
   * Assignee
 - Upcoming Milestones: Up to 8 nearest milestones with:
   * Milestone name
   * Associated project
   * Due date
   * Completion percentage
+  * Status (via has_status relation)
 - Project Health Summary: Status of active projects with:
   * Project name
   * Health status indicator
@@ -58,6 +65,24 @@ Return information:
   * Associated project
   * Severity level
   * Impact assessment
+- Next Sequence Tasks: Up to 5 tasks ready to be worked on next based on sequential dependencies:
+  * Task name
+  * Associated project
+  * Status (via has_status relation)
+  * Prerequisites completion status
+
+Status and Priority Information:
+- Project and task status is retrieved through has_status relations
+- Valid status values include: inactive, active, complete
+- Task priority is retrieved through has_priority relations
+- Valid priority values include: high, low
+- This information helps you prioritize your project management activities
+
+Sequential Task Management:
+- Tasks are presented in their logical sequence based on precedes relations
+- Prerequisite tasks must be completed before dependent tasks can begin
+- The sequential view helps identify the next logical actions in project workflows
+- Critical path tasks are highlighted to show dependencies affecting project timelines
 
 Session Workflow:
 1. Start a project management session with startsession
@@ -73,6 +98,9 @@ You should:
 - Prioritize work based on high-priority tasks and upcoming milestones
 - Address projects with poor health indicators
 - Mitigate high-severity risks promptly
+- Focus on tasks that are next in sequence based on precedes relations
+- Complete prerequisite tasks to unblock dependent tasks
+- Check entity status to identify active work items
 - Use the session ID when using other tools to maintain session tracking
 - Establish a regular cadence of project management sessions
 - Use the structured overview to make deliberate choices about where to focus your effort

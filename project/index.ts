@@ -148,7 +148,7 @@ const VALID_RELATION_TYPES = [
 
 // Valid status and priority values
 const VALID_STATUS_VALUES = ['active', 'completed', 'pending', 'blocked', 'cancelled'];
-const VALID_PRIORITY_VALUES = ['high', 'medium', 'low'];
+const VALID_PRIORITY_VALUES = ['high', 'low'];
 
 // Status values for different entity types
 const STATUS_VALUES = {
@@ -2004,14 +2004,14 @@ class KnowledgeGraphManager {
         i.observations.find(o => o.startsWith('Status:'))?.split(':', 2)[1]?.trim() !== 'wont_fix'
       )
       .sort((a, b) => {
-        const aPriority = a.observations.find(o => o.startsWith('Priority:'))?.split(':', 2)[1]?.trim() || 'medium';
-        const bPriority = b.observations.find(o => o.startsWith('Priority:'))?.split(':', 2)[1]?.trim() || 'medium';
+        const aPriority = a.observations.find(o => o.startsWith('Priority:'))?.split(':', 2)[1]?.trim() || 'N/A';
+        const bPriority = b.observations.find(o => o.startsWith('Priority:'))?.split(':', 2)[1]?.trim() || 'N/A';
         
         // Simple priority sorting
         if (aPriority === 'high' && bPriority !== 'high') return -1;
         if (aPriority !== 'high' && bPriority === 'high') return 1;
-        if (aPriority === 'medium' && bPriority === 'low') return -1;
-        if (aPriority === 'low' && bPriority === 'medium') return 1;
+        if (aPriority === 'N/A' && bPriority === 'low') return -1;
+        if (aPriority === 'low' && bPriority === 'N/A') return 1;
         return 0;
       })
       .slice(0, 3); // Top 3 issues
@@ -3162,7 +3162,7 @@ ${outgoingText}`;
                   }]);
                   
                   // Set task priority using entity-relation approach
-                  const priority = task.priority || 'medium';
+                  const priority = task.priority || 'N/A';
                   await knowledgeGraphManager.setEntityPriority(task.name, priority);
                   
                   // Set task status to active by default using entity-relation approach
@@ -3268,7 +3268,7 @@ Project ${project} has been updated to: ${projectStatus}
 
 ${newTasks && newTasks.length > 0 ? `## New Tasks Added
 ${newTasks.map((t: {name: string, description: string, priority: string}) => 
-  `- ${t.name}: ${t.description} (Priority: ${t.priority || "medium"})`
+  `- ${t.name}: ${t.description} (Priority: ${t.priority || "N/A"})`
 ).join('\n')}` : "No new tasks added."}
 
 ${riskUpdates && riskUpdates.length > 0 ? `## Risk Updates
@@ -3281,35 +3281,47 @@ ${summary}
 
 Would you like me to perform any additional updates to your project knowledge graph?`;
               
+              // Return the final result with the session recorded message
               return {
                 content: [{
                   type: "text",
-                  text: summaryMessage
+                  text: JSON.stringify({
+                    success: true,
+                    stageCompleted: params.stage,
+                    nextStageNeeded: false,
+                    stageResult: stageResult,
+                    sessionRecorded: true,
+                    summaryMessage: summaryMessage
+                  }, null, 2)
                 }]
               };
             } catch (error) {
               return {
                 content: [{
                   type: "text",
-                  text: JSON.stringify({ 
+                  text: JSON.stringify({
                     success: false,
-                    error: error instanceof Error ? error.message : String(error)
+                    error: `Error recording project session: ${error instanceof Error ? error.message : String(error)}`
                   }, null, 2)
                 }]
               };
             }
+          } else {
+            // This is not the final stage or more stages are needed
+            // Return intermediate result
+            return {
+              content: [{
+                type: "text",
+                text: JSON.stringify({
+                  success: true,
+                  stageCompleted: params.stage,
+                  nextStageNeeded: params.nextStageNeeded,
+                  stageResult: stageResult,
+                  endSessionArgs: params.stage === "assembly" ? stageResult.stageData : null
+                }, null, 2)
+              }]
+            };
           }
-          
-          // Return success message for non-final stages
-          return {
-            content: [{
-              type: "text",
-              text: JSON.stringify({ 
-                success: true,
-                message: `Processed ${params.stage} stage (${params.stageNumber}/${params.totalStages}). ${params.nextStageNeeded ? 'Ready for next stage.' : 'Session complete.'}`
-              }, null, 2)
-            }]
-          };
         } catch (error) {
           return {
             content: [{
@@ -3323,6 +3335,334 @@ Would you like me to perform any additional updates to your project knowledge gr
         }
       }
     );
+
+    
+
+    /**
+     * Create entities, relations, and observations.
+     */
+    server.tool(
+      "buildcontext",
+      toolDescriptions["buildcontext"],
+      {
+        type: z.enum(["entities", "relations", "observations"]).describe("Type of creation operation: 'entities', 'relations', or 'observations'"),
+        data: z.array(z.any()).describe("Data for the creation operation, structure varies by type but must be an array")
+      },
+      async ({ type, data }) => {
+        try {
+          let result;
+          
+          switch (type) {
+            case "entities":
+              // Ensure entities match the Entity interface
+              const typedEntities: Entity[] = data.map((e: any) => ({
+                name: e.name,
+                entityType: e.entityType,
+                observations: e.observations,
+                embedding: e.embedding
+              }));
+              result = await knowledgeGraphManager.createEntities(typedEntities);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, created: result }, null, 2)
+                }]
+              };
+              
+            case "relations":
+              // Ensure relations match the Relation interface
+              const typedRelations: Relation[] = data.map((r: any) => ({
+                from: r.from,
+                to: r.to,
+                relationType: r.relationType,
+                observations: r.observations
+              }));
+              result = await knowledgeGraphManager.createRelations(typedRelations);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, created: result }, null, 2)
+                }]
+              };
+              
+            case "observations":
+              // For project domain, addObservations takes entity name and observations
+              for (const item of data) {
+                if (item.entityName && Array.isArray(item.contents)) {
+                  await knowledgeGraphManager.addObservations(item.entityName, item.contents);
+                }
+              }
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, message: "Added observations to entities" }, null, 2)
+                }]
+              };
+              
+            default:
+              throw new Error(`Invalid type: ${type}. Must be 'entities', 'relations', or 'observations'.`);
+          }
+        } catch (error) {
+          return {
+            content: [{
+              type: "text",
+              text: JSON.stringify({ 
+                success: false,
+                error: error instanceof Error ? error.message : String(error)
+              }, null, 2)
+            }]
+          };
+        }
+      }
+    );
+    
+    /**
+     * Delete entities, relations, and observations.
+     */
+    server.tool(
+      "deletecontext",
+      toolDescriptions["deletecontext"],
+      {
+        type: z.enum(["entities", "relations", "observations"]).describe("Type of deletion operation: 'entities', 'relations', or 'observations'"),
+        data: z.array(z.any()).describe("Data for the deletion operation, structure varies by type but must be an array")
+      },
+      async ({ type, data }) => {
+        try {
+          switch (type) {
+            case "entities":
+              await knowledgeGraphManager.deleteEntities(data);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, message: `Deleted ${data.length} entities` }, null, 2)
+                }]
+              };
+              
+            case "relations":
+              // Ensure relations match the Relation interface
+              const typedRelations: Relation[] = data.map((r: any) => ({
+                from: r.from,
+                to: r.to,
+                relationType: r.relationType
+              }));
+              await knowledgeGraphManager.deleteRelations(typedRelations);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, message: `Deleted ${data.length} relations` }, null, 2)
+                }]
+              };
+              
+            case "observations":
+              // Ensure deletions match the required interface
+              const typedDeletions: { entityName: string; observations: string[] }[] = data.map((d: any) => ({
+                entityName: d.entityName,
+                observations: d.observations
+              }));
+              await knowledgeGraphManager.deleteObservations(typedDeletions);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, message: `Deleted observations from ${data.length} entities` }, null, 2)
+                }]
+              };
+              
+            default:
+              throw new Error(`Invalid type: ${type}. Must be 'entities', 'relations', or 'observations'.`);
+          }
+        } catch (error) {
+          return {
+            content: [{
+              type: "text",
+              text: JSON.stringify({ 
+                success: false,
+                error: error instanceof Error ? error.message : String(error)
+              }, null, 2)
+            }]
+          };
+        }
+      }
+    );
+    
+    /**
+     * Read the graph, search nodes, open nodes, get project overview, get task dependencies, get team member assignments, get milestone progress, get project timeline, get resource allocation, get project risks, find related projects, get decision log, and get project health.
+     */
+    server.tool(
+      "advancedcontext",
+      toolDescriptions["advancedcontext"],
+      {
+        type: z.enum([
+          "graph", 
+          "search", 
+          "nodes", 
+          "project", 
+          "dependencies", 
+          "assignments", 
+          "milestones", 
+          "timeline", 
+          "resources", 
+          "risks", 
+          "related", 
+          "decisions", 
+          "health"
+        ]).describe("Type of get operation"),
+        params: z.record(z.string(), z.any()).describe("Parameters for the get operation, structure varies by type")
+      },
+      async ({ type, params }) => {
+        try {
+          let result;
+          
+          switch (type) {
+            case "graph":
+              result = await knowledgeGraphManager.readGraph();
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, graph: result }, null, 2)
+                }]
+              };
+              
+            case "search":
+              result = await knowledgeGraphManager.searchNodes(params.query);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, results: result }, null, 2)
+                }]
+              };
+              
+            case "nodes":
+              result = await knowledgeGraphManager.openNodes(params.names);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, nodes: result }, null, 2)
+                }]
+              };
+              
+            case "project":
+              result = await knowledgeGraphManager.getProjectOverview(params.projectName);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, project: result }, null, 2)
+                }]
+              };
+              
+            case "dependencies":
+              result = await knowledgeGraphManager.getTaskDependencies(
+                params.taskName,
+                params.depth || 2
+              );
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, dependencies: result }, null, 2)
+                }]
+              };
+              
+            case "assignments":
+              result = await knowledgeGraphManager.getTeamMemberAssignments(params.teamMemberName);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, assignments: result }, null, 2)
+                }]
+              };
+              
+            case "milestones":
+              result = await knowledgeGraphManager.getMilestoneProgress(
+                params.projectName,
+                params.milestoneName
+              );
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, milestones: result }, null, 2)
+                }]
+              };
+              
+            case "timeline":
+              result = await knowledgeGraphManager.getProjectTimeline(params.projectName);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, timeline: result }, null, 2)
+                }]
+              };
+              
+            case "resources":
+              result = await knowledgeGraphManager.getResourceAllocation(
+                params.projectName,
+                params.resourceName
+              );
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, resources: result }, null, 2)
+                }]
+              };
+              
+            case "risks":
+              result = await knowledgeGraphManager.getProjectRisks(params.projectName);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, risks: result }, null, 2)
+                }]
+              };
+              
+            case "related":
+              result = await knowledgeGraphManager.findRelatedProjects(
+                params.projectName,
+                params.depth || 1
+              );
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, relatedProjects: result }, null, 2)
+                }]
+              };
+              
+            case "decisions":
+              result = await knowledgeGraphManager.getDecisionLog(params.projectName);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, decisions: result }, null, 2)
+                }]
+              };
+              
+            case "health":
+              result = await knowledgeGraphManager.getProjectHealth(params.projectName);
+              return {
+                content: [{
+                  type: "text",
+                  text: JSON.stringify({ success: true, health: result }, null, 2)
+                }]
+              };
+              
+            default:
+              throw new Error(`Invalid type: ${type}. Must be one of the supported get operation types.`);
+          }
+        } catch (error) {
+          return {
+            content: [{
+              type: "text",
+              text: JSON.stringify({ 
+                success: false,
+                error: error instanceof Error ? error.message : String(error)
+              }, null, 2)
+            }]
+          };
+        }
+      }
+    );
+
+    // Connect the server to the transport
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+
   } catch (error) {
     console.error("Error starting server:", error);
     process.exit(1);

@@ -94,7 +94,7 @@ const VALID_RELATION_TYPES = [
 const VALID_STATUS_VALUES = ['not_started', 'in_progress', 'complete'];
 
 // Define valid priority values for education entities
-const VALID_PRIORITY_VALUES = ['low', 'medium', 'high'];
+const VALID_PRIORITY_VALUES = ['low', 'high'];
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

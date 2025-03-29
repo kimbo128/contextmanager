@@ -11,12 +11,15 @@ When to use this tool:
 - Tracking relationships between concepts and learning materials
 - Recording course-specific details like schedules and due dates
 - Creating structured representations of your academic knowledge
+- Setting status values for educational entities
+- Assigning priority to assignments and tasks
 
 Key features:
 - Three distinct operation types (entities, relations, observations)
 - Type validation against academic domain standards
 - Automatic rejection of invalid entity or relation types
 - Safe addition of new observations to existing academic entities
+- Status and priority assignment through entity-relation model
 - JSON-formatted response with operation results
 - Clear error messages when operations fail
 - Handles both single and batch operations
@@ -44,6 +47,8 @@ Entity Types:
 - term - Academic terms or semesters
 - goal - Learning objectives and targets
 - professor - Course instructors and teachers
+- status - Entity status (not_started, in_progress, complete)
+- priority - Entity priority (low, high)
 
 Relation Types include:
 - enrolled_in - Student is taking a course
@@ -55,6 +60,18 @@ Relation Types include:
 - taught_by - Course taught by professor
 - scheduled_for - Lecture/exam scheduled for specific time
 - contains - Course contains lectures/assignments
+- has_status - Links entity to its status (not_started, in_progress, complete)
+- has_priority - Links entity to its priority (low, high)
+- follows - Entity follows another in a sequence
+
+Status Values:
+- not_started - Work on the entity has not begun
+- in_progress - Work is actively underway
+- complete - Work has been finished
+
+Priority Values:
+- low - Lower priority item
+- high - Higher priority item
 
 You should:
 1. Specify the operation type based on what you need to create (entities, relations, or observations)
@@ -62,6 +79,9 @@ You should:
 3. Use valid entity types and relation types from the academic domain
 4. Ensure entities exist before creating relations between them
 5. Provide meaningful names and descriptions for new entities
-6. Use observations to add metadata like status, deadlines, or difficulty levels
-7. Create complete structures rather than adding entities/relations piecemeal
-8. Check the operation result to confirm successful creation 
+6. Use observations to add general metadata about entities
+7. Use has_status relations to track progress (not_started, in_progress, complete)
+8. Use has_priority relations to indicate importance (low, high)
+9. Use follows relations to establish sequences between related entities
+10. Create complete structures rather than adding entities/relations piecemeal
+11. Check the operation result to confirm successful creation 

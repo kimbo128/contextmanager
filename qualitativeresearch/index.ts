@@ -94,7 +94,7 @@ const VALID_STATUS_VALUES = [
 
 // Define valid priority values
 const VALID_PRIORITY_VALUES = [
-  'high', 'medium', 'low'
+  'high', 'low'
 ];
 
 // Basic validation functions

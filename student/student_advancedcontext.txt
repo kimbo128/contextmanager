@@ -13,6 +13,9 @@ When to use this tool:
 - Discovering connections between learning concepts
 - Tracking and reviewing lecture notes
 - Getting an overview of an entire academic term
+- Identifying entities by status (not_started, in_progress, complete)
+- Finding high-priority assignments and tasks
+- Exploring sequential relationships between entities
 
 Key features:
 - Ten specialized query operation types
@@ -21,9 +24,11 @@ Key features:
 - Direct entity lookup by exact name
 - Course details including lectures, assignments, exams, and resources
 - Deadline tracking with time-based filtering
-- Assignment status with progress tracking
+- Assignment status with progress tracking through has_status relations
+- Priority information via has_priority relations
 - Exam preparation with related concepts and materials
 - Concept relationship mapping
+- Sequential entity relationships via follows relations
 - Lecture note organization
 - Term-based academic overview
 - JSON-formatted response with query results
@@ -64,11 +69,28 @@ Operation details:
 - "lecture" organizes and retrieves notes for course lectures
 - "term" gives an overview of courses and work for an academic term
 
+Status information:
+- All entities include status information (not_started, in_progress, complete) via has_status relations
+- Status can be used in search queries (e.g., "status:complete")
+- Course views show assignment completion status
+- Term views highlight course completion percentages based on status
+
+Priority information:
+- Entities can have priority values (low, high) via has_priority relations
+- Priority can be used in search queries (e.g., "priority:high")
+- High-priority items are highlighted in course and term views
+
+Sequential relationships:
+- Entities can have sequence relationships through follows relations
+- Course views show recommended sequence of assignments and lectures
+- Concept views show prerequisite relationships
+
 Return structures:
 - All operations return { success: true/false, ... } with operation-specific data
 - Error responses include detailed error messages
 - Complex operations return rich, structured data about academic entities
 - Educational relationships are preserved in all returned data
+- Status and priority information is included in relevant entity data
 
 You should:
 1. Select the most appropriate query type for your educational information need
@@ -78,4 +100,7 @@ You should:
 5. Use "course" to get a comprehensive view of your coursework
 6. Use "deadlines" to stay on top of upcoming academic work
 7. Use "concepts" to understand relationships between learning topics
-8. Combine query results to build comprehensive study plans 
+8. Filter search results by status to focus on incomplete work
+9. Prioritize assignments based on priority values
+10. Follow sequential relationships to create effective study plans
+11. Combine query results to build comprehensive study strategies 

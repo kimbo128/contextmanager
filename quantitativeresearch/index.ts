@@ -64,7 +64,7 @@ const VALID_RELATION_TYPES = [
 
 // Valid status and priority values
 const VALID_STATUS_VALUES = ['active', 'completed', 'pending', 'abandoned'];
-const VALID_PRIORITY_VALUES = ['high', 'medium', 'low'];
+const VALID_PRIORITY_VALUES = ['high', 'low'];
 
 // Status values for different entity types in quantitative research
 const STATUS_VALUES = {

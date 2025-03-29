@@ -78,4 +78,3 @@ You should:
 8. For task sequencing, use the 'precedes' relation to define which tasks must be completed before others
 9. Set status values using the has_status relation (valid values: inactive, active, complete)
 10. Set priority values using the has_priority relation (valid values: low, high)
-11. Check the operation result to confirm successful creation 

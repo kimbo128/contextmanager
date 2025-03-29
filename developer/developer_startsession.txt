@@ -4,13 +4,7 @@ It retrieves recent sessions, active projects, high-priority tasks, and upcoming
 
 When to use this tool:
 - Beginning a new development work session
-- Orienting yourself in the current state of development projects
-- Planning which tasks or projects to focus on
-- Reviewing recent development activity
-- Checking high-priority tasks that need attention
-- Monitoring upcoming milestone deadlines
 - Establishing context before diving into specific development work
-- Creating a structured record of development activity
 
 Key features:
 - Generates a unique session identifier for tracking activity
@@ -19,9 +13,6 @@ Key features:
 - Highlights high-priority tasks (based on has_priority relations)
 - Lists upcoming project milestones with progress tracking
 - Displays task dependencies and sequencing information
-- Formats information in a structured, easy-to-read format
-- Provides seamless integration with loadcontext tool
-- Stores session data for historical record keeping
 
 Parameters explained:
 - No parameters required - the tool automatically retrieves all relevant context
@@ -41,19 +32,6 @@ Return information:
   * Milestone name
   * Progress percentage based on completed tasks
 
-Session workflow:
-1. Starting a session creates a session identifier in the developer domain
-2. This session can be referenced when loading context with loadcontext
-3. Session activities are tracked for later recording
-4. Sessions should be ended with endsession to record accomplishments
-5. Session history becomes available for future startsession calls
-
 You should:
-1. Begin each focused development work period with startsession
-2. Review the provided context to determine your focus
-3. Choose a specific project, task, or milestone to work on
-4. Use the generated session ID with the loadcontext tool to load specific entities
-5. Work on your selected focus area
-6. End the session with endsession when work is complete
-7. Record accomplishments, task updates, and project status changes
-8. Use the session history to maintain continuity between work periods 
+1. Use the generated session ID with the loadcontext tool to load specific entities
+2. End the session with endsession when work is complete

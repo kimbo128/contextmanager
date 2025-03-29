@@ -37,7 +37,9 @@ const validEntityTypes = [
     'question',
     'term',
     'goal',
-    'professor'
+    'professor',
+    'status', // Entity status
+    'priority' // Entity priority
 ];
 // Function to validate entity type
 function isValidEntityType(type) {
@@ -70,16 +72,14 @@ const VALID_RELATION_TYPES = [
     'included_in', // Included in a larger component
     'follows', // Entity follows another in sequence
     'attends', // Student attends lecture
-    'graded_with' // Assignment/exam graded with specific criteria
+    'graded_with', // Assignment/exam graded with specific criteria
+    'has_status', // Entity has a specific status
+    'has_priority' // Entity has a specific priority
 ];
-// Status values for different entity types in student education
-const STATUS_VALUES = {
-    course: ['planned', 'current', 'completed', 'dropped', 'waitlisted'],
-    assignment: ['not_started', 'in_progress', 'completed', 'submitted', 'graded'],
-    exam: ['upcoming', 'studying', 'completed', 'graded'],
-    project: ['planning', 'in_progress', 'reviewing', 'completed'],
-    goal: ['active', 'completed', 'revised', 'dropped']
-};
+// Define valid status values for education entities
+const VALID_STATUS_VALUES = ['not_started', 'in_progress', 'complete'];
+// Define valid priority values for education entities
+const VALID_PRIORITY_VALUES = ['low', 'high'];
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // Collect tool descriptions from text files
@@ -114,6 +114,89 @@ class KnowledgeGraphManager {
     }
     async saveGraph(graph) {
         await fs.writeFile(MEMORY_FILE_PATH, JSON.stringify(graph, null, 2), 'utf-8');
+    }
+    // Initialize status and priority entities
+    async initializeStatusAndPriority() {
+        const graph = await this.loadGraph();
+        // Create status entities if they don't exist
+        for (const statusValue of VALID_STATUS_VALUES) {
+            const statusName = `status:${statusValue}`;
+            if (!graph.entities.some(e => e.name === statusName && e.entityType === 'status')) {
+                graph.entities.push({
+                    name: statusName,
+                    entityType: 'status',
+                    observations: [`A ${statusValue} status value`]
+                });
+            }
+        }
+        // Create priority entities if they don't exist
+        for (const priorityValue of VALID_PRIORITY_VALUES) {
+            const priorityName = `priority:${priorityValue}`;
+            if (!graph.entities.some(e => e.name === priorityName && e.entityType === 'priority')) {
+                graph.entities.push({
+                    name: priorityName,
+                    entityType: 'priority',
+                    observations: [`A ${priorityValue} priority value`]
+                });
+            }
+        }
+        await this.saveGraph(graph);
+    }
+    // Helper method to get status of an entity
+    async getEntityStatus(entityName) {
+        const graph = await this.loadGraph();
+        // Find status relation for this entity
+        const statusRelation = graph.relations.find(r => r.from === entityName &&
+            r.relationType === 'has_status');
+        if (statusRelation) {
+            // Extract status value from the status entity name (status:value)
+            return statusRelation.to.split(':')[1];
+        }
+        return null;
+    }
+    // Helper method to get priority of an entity
+    async getEntityPriority(entityName) {
+        const graph = await this.loadGraph();
+        // Find priority relation for this entity
+        const priorityRelation = graph.relations.find(r => r.from === entityName &&
+            r.relationType === 'has_priority');
+        if (priorityRelation) {
+            // Extract priority value from the priority entity name (priority:value)
+            return priorityRelation.to.split(':')[1];
+        }
+        return null;
+    }
+    // Helper method to set status of an entity
+    async setEntityStatus(entityName, statusValue) {
+        if (!VALID_STATUS_VALUES.includes(statusValue)) {
+            throw new Error(`Invalid status value: ${statusValue}. Valid values are: ${VALID_STATUS_VALUES.join(', ')}`);
+        }
+        const graph = await this.loadGraph();
+        // Remove any existing status relations for this entity
+        graph.relations = graph.relations.filter(r => !(r.from === entityName && r.relationType === 'has_status'));
+        // Add new status relation
+        graph.relations.push({
+            from: entityName,
+            to: `status:${statusValue}`,
+            relationType: 'has_status'
+        });
+        await this.saveGraph(graph);
+    }
+    // Helper method to set priority of an entity
+    async setEntityPriority(entityName, priorityValue) {
+        if (!VALID_PRIORITY_VALUES.includes(priorityValue)) {
+            throw new Error(`Invalid priority value: ${priorityValue}. Valid values are: ${VALID_PRIORITY_VALUES.join(', ')}`);
+        }
+        const graph = await this.loadGraph();
+        // Remove any existing priority relations for this entity
+        graph.relations = graph.relations.filter(r => !(r.from === entityName && r.relationType === 'has_priority'));
+        // Add new priority relation
+        graph.relations.push({
+            from: entityName,
+            to: `priority:${priorityValue}`,
+            relationType: 'has_priority'
+        });
+        await this.saveGraph(graph);
     }
     async createEntities(entities) {
         const graph = await this.loadGraph();
@@ -517,8 +600,10 @@ class KnowledgeGraphManager {
                 }
             }
         }
-        // Get status from observations
-        const status = assignment.observations.find(o => o.startsWith('Status:'))?.split(':')[1].trim() || 'not_started';
+        // Get status using the relation-based approach
+        const status = await this.getEntityStatus(assignmentName) || 'not_started';
+        // Get priority using the relation-based approach
+        const priority = await this.getEntityPriority(assignmentName);
         const dueDate = assignment.observations.find(o => o.startsWith('Due:'))?.split(':')[1].trim();
         const pointsWorth = assignment.observations.find(o => o.startsWith('Points:'))?.split(':')[1].trim();
         const instructions = assignment.observations.find(o => o.startsWith('Instructions:'))?.split(':')[1].trim();
@@ -1180,6 +1265,8 @@ function generateSessionId() {
 // Setup the MCP server
 async function main() {
     const knowledgeGraphManager = new KnowledgeGraphManager();
+    // Initialize status and priority entities
+    await knowledgeGraphManager.initializeStatusAndPriority();
     // Helper function to get current term
     async function getCurrentTerm() {
         // Find the most recent term with status "active"
@@ -1232,7 +1319,6 @@ async function main() {
                 await saveSessionStates(sessionStates);
             }
             // Get the entity
-            // Changed from using 'name:' prefix to directly searching by the entity name
             const entityGraph = await knowledgeGraphManager.searchNodes(entityName);
             if (entityGraph.entities.length === 0) {
                 throw new Error(`Entity ${entityName} not found`);
@@ -1242,46 +1328,51 @@ async function main() {
             if (!entity) {
                 throw new Error(`Entity ${entityName} not found`);
             }
+            // Get status and priority
+            const status = await knowledgeGraphManager.getEntityStatus(entityName) || "not_started";
+            const priority = await knowledgeGraphManager.getEntityPriority(entityName);
+            // Format observations for display
+            const observationsList = entity.observations.length > 0
+                ? entity.observations.map(obs => `- ${obs}`).join("\n")
+                : "No observations";
             // Different context loading based on entity type
             let contextMessage = "";
             if (entityType === "course") {
                 // Get course overview
                 const courseOverview = await knowledgeGraphManager.getCourseOverview(entityName);
                 // Format course context message
-                const status = entity.observations.find(o => o.startsWith("Status:"))?.substring(7) || "current";
                 const code = entity.observations.find(o => o.startsWith("Code:"))?.substring(5) || "No code";
                 const schedule = entity.observations.find(o => o.startsWith("Schedule:"))?.substring(9) || "No schedule";
                 const location = entity.observations.find(o => o.startsWith("Location:"))?.substring(9) || "No location";
-                const description = entity.observations.find(o => !o.startsWith("Status:") && !o.startsWith("Code:") &&
-                    !o.startsWith("Schedule:") && !o.startsWith("Location:"));
                 // Format lectures
                 const lecturesText = courseOverview.lectures?.map((lecture) => {
-                    const date = lecture.observations.find(o => o.startsWith("Date:"))?.substring(5) || "No date";
-                    const topic = lecture.observations.find(o => o.startsWith("Topic:"))?.substring(6) || "No topic";
-                    return `- **${lecture.name}** (${date}): ${topic}`;
+                    return `- **${lecture.name}**: ${lecture.observations.join(", ")}`;
                 }).join("\n") || "No lectures found";
-                // Format assignments
-                const assignmentsText = courseOverview.assignments?.map((assignment) => {
-                    const dueDate = assignment.observations.find(o => o.startsWith("Due:"))?.substring(4) || "No due date";
-                    const status = assignment.observations.find(o => o.startsWith("Status:"))?.substring(7) || "Not started";
-                    const description = assignment.observations.find(o => !o.startsWith("Due:") && !o.startsWith("Status:"));
-                    return `- **${assignment.name}** (Due: ${dueDate}, Status: ${status}): ${description || "No description"}`;
-                }).join("\n") || "No assignments found";
-                // Format exams
-                const examsText = courseOverview.exams?.map((exam) => {
-                    const date = exam.observations.find(o => o.startsWith("Date:"))?.substring(5) || "No date";
-                    const description = exam.observations.find(o => !o.startsWith("Date:"));
-                    return `- **${exam.name}** (${date}): ${description || "No description"}`;
-                }).join("\n") || "No exams found";
+                // Format assignments - use status relation
+                const assignmentsText = courseOverview.assignments?.map(async (assignment) => {
+                    const assignmentStatus = await knowledgeGraphManager.getEntityStatus(assignment.name) || "not_started";
+                    const assignmentPriority = await knowledgeGraphManager.getEntityPriority(assignment.name);
+                    const priorityText = assignmentPriority ? `, Priority: ${assignmentPriority}` : "";
+                    return `- **${assignment.name}** (Status: ${assignmentStatus}${priorityText}): ${assignment.observations.join(", ")}`;
+                });
+                const resolvedAssignmentsText = assignmentsText ?
+                    await Promise.all(assignmentsText).then(texts => texts.join("\n")) :
+                    "No assignments found";
+                // Format exams - use status relation
+                const examsText = courseOverview.exams?.map(async (exam) => {
+                    const examStatus = await knowledgeGraphManager.getEntityStatus(exam.name) || "not_started";
+                    return `- **${exam.name}** (Status: ${examStatus}): ${exam.observations.join(", ")}`;
+                });
+                const resolvedExamsText = examsText ?
+                    await Promise.all(examsText).then(texts => texts.join("\n")) :
+                    "No exams found";
                 // Format concepts
                 const conceptsText = courseOverview.concepts?.map((concept) => {
-                    return `- **${concept.name}**`;
+                    return `- **${concept.name}**: ${concept.observations.join(", ")}`;
                 }).join("\n") || "No concepts found";
                 // Format resources
                 const resourcesText = courseOverview.resources?.map((resource) => {
-                    const type = resource.observations.find(o => o.startsWith("Type:"))?.substring(5) || "Unknown type";
-                    const description = resource.observations.find(o => !o.startsWith("Type:"));
-                    return `- **${resource.name}** (${type}): ${description || "No description"}`;
+                    return `- **${resource.name}**: ${resource.observations.join(", ")}`;
                 }).join("\n") || "No resources found";
                 // Add professor info if available
                 const professorText = courseOverview.professor ?
@@ -1292,12 +1383,16 @@ ${courseOverview.professor.observations.join("\n")}` : "No professor information
                     `**Term**: ${courseOverview.term.name}` : "No term information";
                 contextMessage = `# Course Context: ${entityName}
 
-## Course Details
+## Course Overview
 - **Code**: ${code}
 - **Status**: ${status}
+- **Priority**: ${priority || "N/A"}
 - **Schedule**: ${schedule}
 - **Location**: ${location}
-- **Description**: ${description || "No description"}
+
+## Observations
+${observationsList}
+
 - ${termText}
 - ${professorText}
 
@@ -1305,10 +1400,10 @@ ${courseOverview.professor.observations.join("\n")}` : "No professor information
 ${lecturesText}
 
 ## Assignments
-${assignmentsText}
+${resolvedAssignmentsText}
 
 ## Exams
-${examsText}
+${resolvedExamsText}
 
 ## Key Concepts
 ${conceptsText}
@@ -1319,8 +1414,9 @@ ${resourcesText}`;
             else if (entityType === "assignment") {
                 // Get assignment status
                 const assignmentStatus = await knowledgeGraphManager.getAssignmentStatus(entityName);
-                // Format assignment context
-                const status = entity.observations.find(o => o.startsWith("Status:"))?.substring(7) || "not_started";
+                // Get course name
+                const courseName = assignmentStatus.course?.name || "Unknown course";
+                // Format assignment context using relations instead of observations
                 const dueDate = entity.observations.find(o => o.startsWith("Due:"))?.substring(4) || "No due date";
                 const points = entity.observations.find(o => o.startsWith("Points:"))?.substring(7) || "Not specified";
                 const instructions = entity.observations.find(o => o.startsWith("Instructions:"))?.substring(13) || "No instructions provided";
@@ -1334,30 +1430,30 @@ ${resourcesText}`;
                         timeRemainingText = `${assignmentStatus.daysRemaining} days remaining`;
                     }
                 }
-                // Get course name
-                const courseName = assignmentStatus.course?.name || "Unknown course";
                 // Format related concepts
                 const conceptsText = assignmentStatus.concepts?.map((concept) => {
-                    return `- **${concept.name}**`;
+                    return `- **${concept.name}**: ${concept.observations.join(", ")}`;
                 }).join("\n") || "No related concepts found";
                 // Format related resources
                 const resourcesText = assignmentStatus.resources?.map((resource) => {
-                    const type = resource.observations.find(o => o.startsWith("Type:"))?.substring(5) || "Unknown type";
-                    return `- **${resource.name}** (${type})`;
+                    return `- **${resource.name}**: ${resource.observations.join(", ")}`;
                 }).join("\n") || "No resources found";
                 // Format notes
                 const notesText = assignmentStatus.notes?.map((note) => {
-                    const date = note.observations.find(o => o.startsWith("Date:"))?.substring(5) || "No date";
-                    return `- **${note.name}** (${date})`;
+                    return `- **${note.name}**: ${note.observations.join(", ")}`;
                 }).join("\n") || "No notes found";
                 contextMessage = `# Assignment Context: ${entityName}
 
-## Assignment Details
+## Assignment Overview
 - **Course**: ${courseName}
 - **Status**: ${status}
+- **Priority**: ${priority || "N/A"}
 - **Due Date**: ${dueDate}
 - **Points**: ${points}
 - **Time Remaining**: ${timeRemainingText}
+
+## Observations
+${observationsList}
 
 ## Instructions
 ${instructions}
@@ -1388,18 +1484,15 @@ ${notesText}`;
                 const courseName = examPrep.course?.name || "Unknown course";
                 // Format concepts covered
                 const conceptsText = examPrep.concepts?.map((concept) => {
-                    return `- **${concept.name}**`;
+                    return `- **${concept.name}**: ${concept.observations.join(", ")}`;
                 }).join("\n") || "No concepts listed";
                 // Format study resources
                 const resourcesText = examPrep.resources?.map((resource) => {
-                    const type = resource.observations.find(o => o.startsWith("Type:"))?.substring(5) || "Unknown type";
-                    return `- **${resource.name}** (${type})`;
+                    return `- **${resource.name}**: ${resource.observations.join(", ")}`;
                 }).join("\n") || "No resources found";
                 // Format lectures
                 const lecturesText = examPrep.lectures?.map((lecture) => {
-                    const date = lecture.observations.find(o => o.startsWith("Date:"))?.substring(5) || "No date";
-                    const topic = lecture.observations.find(o => o.startsWith("Topic:"))?.substring(6) || "No topic";
-                    return `- **${lecture.name}** (${date}): ${topic}`;
+                    return `- **${lecture.name}**: ${lecture.observations.join(", ")}`;
                 }).join("\n") || "No lectures found";
                 contextMessage = `# Exam Context: ${entityName}
 
@@ -1428,16 +1521,15 @@ ${resourcesText}`;
                 const level = entity.observations.find(o => o.startsWith("Level:"))?.substring(6) || "Beginner";
                 // Format related concepts
                 const relatedConceptsText = relatedConceptsData.relatedConcepts?.map((related) => {
-                    return `- **${related.concept.name}** (Connection: ${related.relationPath.join(' → ')})`;
+                    return `- **${related.concept.name}**: ${related.relationPath.join(' → ')}`;
                 }).join("\n") || "No related concepts found";
                 // Format courses that cover this concept
                 const coursesText = relatedConceptsData.courses?.map((course) => {
-                    return `- **${course.name}**`;
+                    return `- **${course.name}**: ${course.observations.join(", ")}`;
                 }).join("\n") || "No courses found";
                 // Format resources about this concept
                 const resourcesText = relatedConceptsData.resources?.map((resource) => {
-                    const type = resource.observations.find(o => o.startsWith("Type:"))?.substring(5) || "Unknown type";
-                    return `- **${resource.name}** (${type})`;
+                    return `- **${resource.name}**: ${resource.observations.join(", ")}`;
                 }).join("\n") || "No resources found";
                 contextMessage = `# Concept Context: ${entityName}
 
@@ -1463,7 +1555,7 @@ ${resourcesText}`;
                 const status = entity.observations.find(o => o.startsWith("Status:"))?.substring(7) || "Unknown status";
                 // Format courses in this term
                 const coursesText = termOverview.courseData?.map((courseData) => {
-                    return `- **${courseData.course.name}** (${courseData.info.code || "No code"}, ${courseData.info.status}): ${courseData.progress.completionRate || 0}% complete`;
+                    return `- **${courseData.course.name}**: ${courseData.info.code || "No code"}, ${courseData.info.status}, ${courseData.progress.completionRate || 0}% complete`;
                 }).join("\n\n") || "No courses found";
                 // Format upcoming deadlines
                 const deadlinesText = termOverview.upcomingDeadlines?.map((deadline) => {
@@ -1611,10 +1703,7 @@ ${outgoingText}`;
         const assignmentUpdatesStage = stages.find(s => s.stage === "assignmentUpdates");
         const newConceptsStage = stages.find(s => s.stage === "newConcepts");
         const courseStatusStage = stages.find(s => s.stage === "courseStatus");
-        // Get current date
-        const date = new Date().toISOString().split('T')[0];
         return {
-            date,
             summary: summaryStage?.stageData?.summary || "",
             duration: summaryStage?.stageData?.duration || "unknown",
             course: summaryStage?.stageData?.course || "",
@@ -1751,7 +1840,6 @@ ${outgoingText}`;
                 const args = stageResult.stageData;
                 try {
                     // Parse arguments
-                    const date = args.date;
                     const summary = args.summary;
                     const duration = args.duration;
                     const course = args.course;
@@ -1760,15 +1848,16 @@ ${outgoingText}`;
                     const courseStatus = args.courseStatus;
                     const courseObservation = args.courseObservation;
                     const newConcepts = args.newConcepts ? JSON.parse(args.newConcepts) : [];
-                    // 2. Create concept entities for new concepts learned
+                    // Create concept entities for new concepts learned
+                    const timestamp = new Date().getTime();
                     const conceptEntities = conceptsLearned.map((concept, i) => ({
-                        name: `Concept_${date.replace(/-/g, "")}_${i + 1}`,
+                        name: `Concept_${timestamp}_${i + 1}`,
                         entityType: "concept",
                         observations: [concept]
                     }));
                     if (conceptEntities.length > 0) {
                         await knowledgeGraphManager.createEntities(conceptEntities);
-                        // Link concepts to course (no longer to session)
+                        // Link concepts to course
                         const conceptRelations = conceptEntities.map((concept) => ({
                             from: course,
                             to: concept.name,
@@ -1776,57 +1865,78 @@ ${outgoingText}`;
                         }));
                         await knowledgeGraphManager.createRelations(conceptRelations);
                     }
-                    // 3. Update assignment statuses
+                    // Update assignment statuses using the relation-based approach
                     for (const assignment of assignmentUpdates) {
-                        // First find the assignment entity
-                        const assignmentGraph = await knowledgeGraphManager.searchNodes(`name:${assignment.name}`);
-                        if (assignmentGraph.entities.length > 0) {
-                            // Update the status observation
-                            const assignmentEntity = assignmentGraph.entities[0];
-                            const observations = assignmentEntity.observations.filter(o => !o.startsWith("status:"));
-                            observations.push(`status:${assignment.status}`);
-                            await knowledgeGraphManager.deleteEntities([assignment.name]);
-                            await knowledgeGraphManager.createEntities([{
-                                    name: assignment.name,
-                                    entityType: "assignment",
-                                    observations
-                                }]);
-                            // If completed, link to course
-                            if (assignment.status === "completed") {
+                        try {
+                            // Map status values to standard status values
+                            let statusValue;
+                            switch (assignment.status.toLowerCase()) {
+                                case "completed":
+                                case "complete":
+                                case "done":
+                                case "finished":
+                                case "submitted":
+                                    statusValue = "complete";
+                                    break;
+                                case "in_progress":
+                                case "started":
+                                case "working":
+                                case "active":
+                                    statusValue = "in_progress";
+                                    break;
+                                default:
+                                    statusValue = "not_started";
+                            }
+                            // Set the status using the new method
+                            await knowledgeGraphManager.setEntityStatus(assignment.name, statusValue);
+                            // If completed, also create a 'resolves' relation to the course
+                            if (statusValue === "complete") {
                                 await knowledgeGraphManager.createRelations([{
                                         from: course,
                                         to: assignment.name,
-                                        relationType: "created_for"
+                                        relationType: "resolves"
                                     }]);
                             }
                         }
-                    }
-                    // 4. Update course status
-                    const courseGraph = await knowledgeGraphManager.searchNodes(`name:${course}`);
-                    if (courseGraph.entities.length > 0) {
-                        const courseEntity = courseGraph.entities[0];
-                        let observations = courseEntity.observations.filter(o => !o.startsWith("status:") && !o.startsWith("updated:"));
-                        observations.push(`status:${courseStatus}`);
-                        observations.push(`updated:${date}`);
-                        if (courseObservation) {
-                            observations.push(courseObservation);
+                        catch (error) {
+                            console.error(`Error updating status for assignment ${assignment.name}:`, error);
                         }
-                        await knowledgeGraphManager.deleteEntities([course]);
-                        await knowledgeGraphManager.createEntities([{
-                                name: course,
-                                entityType: "course",
-                                observations
-                            }]);
                     }
-                    // 5. Create new concept entities
+                    // Update course status using the relation-based approach
+                    try {
+                        // Map course status to standard values
+                        let courseStatusValue;
+                        switch (courseStatus.toLowerCase()) {
+                            case "completed":
+                            case "complete":
+                            case "done":
+                            case "finished":
+                                courseStatusValue = "complete";
+                                break;
+                            case "in_progress":
+                            case "active":
+                            case "current":
+                                courseStatusValue = "in_progress";
+                                break;
+                            default:
+                                courseStatusValue = "not_started";
+                        }
+                        // Set the course status using the new method
+                        await knowledgeGraphManager.setEntityStatus(course, courseStatusValue);
+                        // Add observation if provided
+                        if (courseObservation) {
+                            await knowledgeGraphManager.addObservations(course, [courseObservation]);
+                        }
+                    }
+                    catch (error) {
+                        console.error(`Error updating status for course ${course}:`, error);
+                    }
+                    // Create new concept entities
                     if (newConcepts && newConcepts.length > 0) {
-                        const newConceptEntities = newConcepts.map((concept, i) => ({
+                        const newConceptEntities = newConcepts.map((concept) => ({
                             name: concept.name,
                             entityType: "concept",
-                            observations: [
-                                concept.description,
-                                `last_studied:${date}`
-                            ]
+                            observations: [concept.description]
                         }));
                         await knowledgeGraphManager.createEntities(newConceptEntities);
                         // Link concepts to course
@@ -1841,7 +1951,6 @@ ${outgoingText}`;
                     sessionState.push({
                         type: 'session_completed',
                         timestamp: new Date().toISOString(),
-                        date: date,
                         summary: summary,
                         course: course
                     });
@@ -1850,7 +1959,7 @@ ${outgoingText}`;
                     // Prepare the summary message
                     const summaryMessage = `# Study Session Recorded
 
-I've recorded your study session from ${date} focusing on ${course}.
+I've recorded your study session focusing on ${course}.
 
 ## Concepts Learned
 ${conceptsLearned.map((c) => `- ${c}`).join('\n') || "No specific concepts recorded."}
@@ -1939,63 +2048,67 @@ Would you like me to perform any additional updates to your student knowledge gr
             // Initialize the session state
             sessionStates.set(sessionId, []);
             await saveSessionStates(sessionStates);
-            // Convert sessions map to array, sort by date, and take most recent ones
+            // Convert sessions map to array, sort, and take most recent ones
             const recentSessions = Array.from(sessionStates.entries())
                 .map(([id, stages]) => {
                 // Extract summary data from the first stage (if it exists)
                 const summaryStage = stages.find(s => s.stage === "summary");
                 return {
                     id,
-                    date: summaryStage?.stageData?.date || "Unknown date",
                     course: summaryStage?.stageData?.course || "Unknown course",
                     summary: summaryStage?.stageData?.summary || "No summary available"
                 };
             })
-                .sort((a, b) => b.date.localeCompare(a.date))
                 .slice(0, 3); // Default to 3 recent sessions
-            // Get active courses
-            const coursesQuery = await knowledgeGraphManager.searchNodes(`entityType:course ${currentTerm ? `term:${currentTerm}` : "status:active"}`);
-            const courses = coursesQuery.entities;
+            // Get active courses - look for courses with "in_progress" status
+            const allCoursesQuery = await knowledgeGraphManager.searchNodes("entityType:course");
+            const courses = [];
+            // Filter courses with active status using the relation
+            for (const course of allCoursesQuery.entities) {
+                const status = await knowledgeGraphManager.getEntityStatus(course.name);
+                if (status === "in_progress" || status === "active" || !status) {
+                    courses.push(course);
+                }
+            }
             // Get upcoming deadlines (default to 14 days)
             const deadlines = await knowledgeGraphManager.getUpcomingDeadlines(currentTerm || undefined, undefined, 14);
             // Get recent concepts studied
             const recentConceptsQuery = await knowledgeGraphManager.searchNodes("entityType:concept");
-            const recentConcepts = recentConceptsQuery.entities
-                .filter(e => e.observations.some(o => o.startsWith("last_studied:")))
-                .sort((a, b) => {
-                const dateA = a.observations.find(o => o.startsWith("last_studied:"))?.split(":")[1];
-                const dateB = b.observations.find(o => o.startsWith("last_studied:"))?.split(":")[1];
-                return dateB?.localeCompare(dateA || "") || 0;
-            })
-                .slice(0, 5);
+            const recentConcepts = recentConceptsQuery.entities.slice(0, 5);
             // Prepare message content
-            const coursesText = courses.map(c => {
-                const code = c.observations.find(o => o.startsWith("code:"))?.split(":")[1] || "";
-                const desc = c.observations.find(o => o.startsWith("description:"))?.substring(12) || "No description";
-                return `- **${c.name}** (${code}): ${desc}`;
-            }).join("\n");
+            const coursesText = courses.map(async (c) => {
+                const status = await knowledgeGraphManager.getEntityStatus(c.name) || "not_started";
+                const priority = await knowledgeGraphManager.getEntityPriority(c.name);
+                const priorityText = priority ? ` (Priority: ${priority})` : "";
+                const preview = c.observations.length > 0
+                    ? `${c.observations[0].substring(0, 60)}${c.observations[0].length > 60 ? '...' : ''}`
+                    : "No description";
+                return `- **${c.name}** (Status: ${status}${priorityText}): ${preview}`;
+            });
+            const resolvedCoursesText = await Promise.all(coursesText);
             const sessionsText = recentSessions.map(s => {
-                return `- ${s.date}: ${s.course} - ${s.summary.substring(0, 100)}${s.summary.length > 100 ? '...' : ''}`;
+                return `- ${s.course} - ${s.summary.substring(0, 60)}${s.summary.length > 60 ? '...' : ''}`;
             }).join("\n");
             const deadlinesText = deadlines.deadlines.map((d) => {
                 const daysUntil = d.daysRemaining;
-                return `- **${d.entity.name}** (${d.course.name}): Due in ${daysUntil} day${daysUntil !== 1 ? 's' : ''} on ${d.dueDate.toISOString().split('T')[0]}`;
+                return `- **${d.entity.name}** (${d.course.name}): Due in ${daysUntil} day${daysUntil !== 1 ? 's' : ''}`;
             }).join("\n");
             const conceptsText = recentConcepts.map(c => {
-                const lastStudied = c.observations.find(o => o.startsWith("last_studied:"))?.substring(12) || "Unknown";
-                return `- **${c.name}**: Last studied on ${lastStudied}`;
+                const preview = c.observations.length > 0
+                    ? `${c.observations[0].substring(0, 60)}${c.observations[0].length > 60 ? '...' : ''}`
+                    : "No description";
+                return `- **${c.name}**: ${preview}`;
             }).join("\n");
-            const date = new Date().toISOString().split('T')[0];
             return {
                 content: [{
                         type: "text",
-                        text: `# Ask user to choose what to focus on in this session. Present the following options:
+                        text: `# Choose what to focus on in this session
 
 ## Recent Study Sessions
 ${sessionsText || "No recent sessions found."}
 
 ## Current Courses
-${coursesText || "No active courses found."}
+${resolvedCoursesText.join("\n") || "No active courses found."}
 
 ## Upcoming Deadlines (Next 14 Days)
 ${deadlinesText || "No upcoming deadlines in the next 14 days."}

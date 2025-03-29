@@ -1,5 +1,3 @@
-End Session Tool for Student
-
 A multi-stage tool for documenting study sessions, tracking academic progress, recording concepts learned, updating assignment status, and enriching the student knowledge graph.
 
 When to use this tool: 
@@ -8,9 +6,11 @@ Only use this tool when the user explicity requests it or provides explicit appr
 Key features:
 - Provides a structured, multi-stage workflow for session documentation
 - Records concepts learned in the knowledge graph
-- Updates assignment status based on your progress
+- Updates assignment status using has_status relations (not_started, in_progress, complete)
+- Updates assignment priorities using has_priority relations (low, high)
+- Establishes sequential relationships between concepts using follows relations
 - Creates connections between concepts and courses
-- Updates course status and metadata
+- Updates course status metadata
 - Creates new concept entities for topics you've studied
 - Maintains session continuity with unique session IDs
 - Supports revision of previous stages when needed
@@ -20,7 +20,7 @@ Key features:
 The endsession tool uses a sequential, multi-stage approach with 6 typical stages:
 1. Summary Stage: Records basic session information
 2. Concepts Learned Stage: Documents specific concepts studied
-3. Assignment Updates Stage: Records status changes to assignments
+3. Assignment Updates Stage: Records status and priority changes to assignments
 4. New Concepts Stage: Defines new concept entities to add
 5. Course Status Stage: Updates the overall course status
 6. Assembly Stage: Consolidates all information and finalizes the session record
@@ -45,8 +45,8 @@ Parameters explained:
   - Structure varies by stage type:
     * summary: { summary: "Session summary text", duration: "2 hours", course: "CourseName" }
     * conceptsLearned: { concepts: ["Concept A", "Concept B", "Concept C"] }
-    * assignmentUpdates: { updates: [{ name: "Assignment1", status: "completed" }, { name: "Assignment2", status: "in_progress" }] }
-    * newConcepts: { concepts: [{ name: "NewConcept1", description: "Definition of the concept" }] }
+    * assignmentUpdates: { updates: [{ name: "Assignment1", status: "complete", priority: "high" }, { name: "Assignment2", status: "in_progress" }] }
+    * newConcepts: { concepts: [{ name: "NewConcept1", description: "Definition of the concept", follows: "PriorConcept" }] }
     * courseStatus: { courseStatus: "in_progress", courseObservation: "Making good progress" }
     * assembly: No stageData needed - automatically assembled from previous stages
 7. nextStageNeeded: Required - Whether additional stages are needed after this one
@@ -61,10 +61,12 @@ Parameters explained:
 
 When the endsession workflow completes (assembly stage with nextStageNeeded: false), the tool performs these updates:
 1. Concept Entities: Creates entities for each concept learned and links them to the course
-2. Assignment Status Updates: Updates the status of assignments mentioned in assignmentUpdates
-3. Course Status Update: Updates the course status, adds an updated timestamp, and records observations
-4. New Concept Creation: Creates new concept entities and links them to the course
-5. Session Recording: Marks the session as completed in persistent storage
+2. Assignment Status Updates: Updates assignment status via has_status relations (not_started, in_progress, complete)
+3. Assignment Priority Updates: Updates assignment priority via has_priority relations (low, high)
+4. Sequential Concept Relationships: Establishes follows relations between concepts when specified
+5. Course Status Update: Updates the course status via has_status relation, adds an updated timestamp, and records observations
+6. New Concept Creation: Creates new concept entities, links them to the course, and establishes any sequential relationships
+7. Session Recording: Marks the session as completed in persistent storage
 
 Return information:
 - JSON response with the following structure:
@@ -78,10 +80,17 @@ Return information:
   * error: (Only on failure) Error message describing the issue
 - Error information when operation fails
 
+Status and Priority Values:
+- Valid status values: not_started, in_progress, complete
+- Valid priority values: low, high
+
 You should:
 - Complete all stages in order for comprehensive session documentation
 - Provide specific details in each stage for accurate knowledge graph updates
 - Be precise about assignment names to ensure they match existing assignments
+- Use valid status values (not_started, in_progress, complete) when updating assignments
+- Use valid priority values (low, high) when specifying assignment importance
+- Specify sequential relationships between concepts when appropriate
 - Use clear, descriptive names for any new concepts
 - Include relevant observations for course status updates
 - If making a revision, specify which stage is being revised

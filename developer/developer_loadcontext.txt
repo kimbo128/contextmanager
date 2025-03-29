@@ -10,8 +10,6 @@ When to use this tool:
 - Exploring feature implementations and technical requirements
 - Analyzing the project knowledge graph to understand entity relationships
 - Preparing for work on a specific entity by establishing context
-- Getting information about team members, technologies, and documentation
-- Checking entity status and priority information
 
 Key features:
 - Provides contextually rich, formatted information about software development entities
@@ -19,13 +17,6 @@ Key features:
 - Presents both direct entity information and related elements
 - Organizes information in a clear, hierarchical structure
 - Automatically identifies entity relationships and presents them systematically
-- Includes status information (inactive, active, complete) for all entities
-- Shows priority information (low, high) for relevant entities
-- Displays task sequencing and dependencies through precedes relationships
-- Tracks loaded entities within the current session for continuity
-- Presents information in readable markdown format
-- Supports contextual understanding of complex software architectures
-- Shows relevant status information for project management
 
 Parameters explained:
 - entityName: Required - The name of the entity to retrieve context for
@@ -45,18 +36,6 @@ Each entity type returns specialized context information:
 - Task: Displays project, status, priority, description, related issues, blocking items, preceding tasks, and following tasks
 - Milestone: Shows status, progress percentage, and tasks grouped by completion status (complete, active, inactive)
 - Other Entity Types: Shows observations and both incoming and outgoing relationships within the knowledge graph
-
-Status and Priority:
-- All entities include status information (inactive, active, complete) retrieved through has_status relations
-- Relevant entities include priority information (low, high) retrieved through has_priority relations
-- Status information is used to categorize and filter related entities in the context display
-- Priority information helps identify important tasks and features
-
-Task Sequencing:
-- Task dependencies are shown through "precedes" relationships
-- For each task, the context shows both preceding tasks and following tasks
-- Milestone context shows task sequencing within the milestone
-- Project context includes task sequencing information across all project tasks
 
 You should:
 - Specify the exact entity name for accurate retrieval

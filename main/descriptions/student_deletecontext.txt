@@ -1,5 +1,3 @@
-Delete Context Tool for Student
-
 A precise tool for removing elements from your educational knowledge graph.
 This tool enables targeted deletion of academic entities, relationships between educational components, or specific observations about study materials.
 It helps maintain an accurate and current representation of your academic landscape as your learning journey evolves.
@@ -13,6 +11,8 @@ When to use this tool:
 - Maintaining graph accuracy as your educational focus changes
 - Removing duplicate learning materials or resources
 - Archiving completed assignments or exams
+- Updating status or priority relations when they change
+- Modifying entity sequences
 
 Key features:
 - Three distinct deletion operation types (entities, relations, observations)
@@ -39,11 +39,19 @@ Deletion behavior by type:
 - "relations": Removes only the exact relations specified, matching on all three attributes
 - "observations": Removes specific observations from entities while preserving the entities themselves
 
+Status and Priority Management:
+- To change an entity's status, delete the old has_status relation and create a new one
+- To change priority, delete the old has_priority relation and create a new one
+- Status values (not_started, in_progress, complete) are managed through relations, not direct properties
+- Priority values (low, high) are managed through relations, not direct properties
+
 Safety considerations:
 - Entity deletion cascades to relations, so be careful when deleting key entities
 - There is no "undo" operation, so confirm deletions carefully
 - Partial graph information can lead to inconsistent views of your academic knowledge
 - Relations require entities on both ends to exist
+- Deleting status or priority relations without replacing them can lead to inconsistent state
+- Consider creating new status/priority relations before deleting old ones
 
 You should:
 1. Identify the specific elements in your academic graph that need to be removed
@@ -51,6 +59,9 @@ You should:
 3. Structure your data according to the deletion type's requirements
 4. Start with more specific deletions (observations) before broader ones
 5. Verify the entities or relations exist before attempting deletion
-6. Check the operation result to confirm successful deletion
-7. Consider documenting major deletions as observations on related entities
-8. When removing an entire course, first delete its components for cleaner removal 
+6. When updating status, create a new has_status relation before deleting the old one
+7. When updating priority, create a new has_priority relation before deleting the old one
+8. Consider the impact on entity sequences when deleting follows relations
+9. Check the operation result to confirm successful deletion
+10. Consider documenting major deletions as observations on related entities
+11. When removing an entire course, first delete its components for cleaner removal 

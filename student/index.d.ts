@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-declare const validEntityTypes: readonly ["course", "assignment", "exam", "concept", "resource", "note", "lecture", "project", "question", "term", "goal", "professor"];
+declare const validEntityTypes: readonly ["course", "assignment", "exam", "concept", "resource", "note", "lecture", "project", "question", "term", "goal", "professor", "status", "priority"];
 type EntityType = typeof validEntityTypes[number];
 interface Entity {
     name: string;
@@ -20,6 +20,11 @@ interface KnowledgeGraph {
 declare class KnowledgeGraphManager {
     private loadGraph;
     private saveGraph;
+    initializeStatusAndPriority(): Promise<void>;
+    getEntityStatus(entityName: string): Promise<string | null>;
+    getEntityPriority(entityName: string): Promise<string | null>;
+    setEntityStatus(entityName: string, statusValue: string): Promise<void>;
+    setEntityPriority(entityName: string, priorityValue: string): Promise<void>;
     createEntities(entities: Entity[]): Promise<KnowledgeGraph>;
     createRelations(relations: Relation[]): Promise<KnowledgeGraph>;
     addObservations(entityName: string, observations: string[]): Promise<KnowledgeGraph>;

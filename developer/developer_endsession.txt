@@ -57,15 +57,6 @@ Parameters explained:
   * Required when isRevision is true
   * Indicates which previous stage is being updated
 
-When the endsession workflow completes (assembly stage with nextStageNeeded: false), the tool performs these updates:
-1. Achievement Entities: Creates entities for each achievement and links them to the focus project
-2. Task Status Updates: Updates the has_status relations for tasks (inactive, active, complete)
-3. Task Priority Updates: Updates the has_priority relations for tasks (low, high)
-4. Task Sequencing Updates: Creates or updates precedes relations between tasks
-5. Project Status Update: Updates the project status via has_status relation and records observations
-6. New Task Creation: Creates new task entities, links them to the project, and establishes their status, priority, and sequencing
-7. Session Recording: Marks the session as completed in persistent storage
-
 Return information:
 - success: Boolean indicating whether the operation succeeded
 - stageCompleted: The stage that was just completed

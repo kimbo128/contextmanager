@@ -23,10 +23,7 @@ Key features:
 - Relationship exploration with filtering options
 - Project decision history with chronological ordering
 - Milestone progress tracking with task status breakdown
-- Task sequencing visualization
 - Status and priority information retrieval
-- JSON-formatted response with query results
-- Detailed error reporting when operations fail
 
 Parameters explained:
 - type: The query operation type to perform, which must be one of:
@@ -52,20 +49,10 @@ Operation details:
 - "decisions" retrieves and chronologically sorts project decisions
 - "milestone" calculates progress percentage and task breakdowns with status information
 
-Status information:
-- All entities can have one of three status values: "inactive", "active", or "complete"
-- Status is represented via the has_status relation type
-- Status can be queried with entity-relation patterns in search queries
-
-Priority information:
-- Tasks and other entities can have priority values: "low" or "high"
-- Priority is represented via the has_priority relation type
-- Priority can be queried with entity-relation patterns in search queries
-
-Task sequencing:
-- Task dependencies are represented with the "precedes" relation type
-- Sequencing information is included in milestone and project queries
-- Sequencing can be visualized by analyzing the directed graph of task relations
+Notes:
+- Valid status values: "inactive", "active", or "complete"
+- Valid priority values: "low" or "high"
+- Status is represented via the has_status relation type, and priority via has_priority
 
 Return structures:
 - All operations return { success: true/false, ... } with operation-specific data

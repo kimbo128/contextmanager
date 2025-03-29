@@ -22,7 +22,6 @@ Key features:
 - Batch operations for efficient cleanup
 - JSON-formatted response with operation results
 - Secure validation before deletion
-- Clear error messages when operations fail
 
 Parameters explained:
 - type: The deletion operation type to perform, which must be one of:

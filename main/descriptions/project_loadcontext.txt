@@ -1,5 +1,3 @@
-Load Context Tool for Project Management
-
 A powerful tool for retrieving detailed contextual information about project entities, providing rich insights tailored to each entity type in the project management domain.
 
 When to use this tool:
@@ -13,6 +11,9 @@ When to use this tool:
 - Examining project timelines and progress metrics
 - Getting a holistic view of project status and health
 - Understanding relationships between project entities
+- Viewing entity status information (inactive, active, complete)
+- Checking priority levels for tasks and activities
+- Understanding sequential relationships between tasks
 
 Key features:
 - Provides richly formatted, context-aware information about project management entities
@@ -24,6 +25,9 @@ Key features:
 - Highlights relationships between tasks, milestones, and team members
 - Presents critical path information for task dependencies
 - Shows resource utilization metrics and availability
+- Displays status information via has_status relations
+- Shows priority levels via has_priority relations
+- Presents sequential relationships through precedes relations
 
 Parameters explained:
 1. entityName: Required - The name of the entity to retrieve context for
@@ -31,24 +35,40 @@ Parameters explained:
 2. entityType: Optional - The type of entity being retrieved
   - Default: "project"
   - Helps the system format the output appropriately
-  - Common types include: "project", "task", "milestone", "teamMember", "resource"
+  - Common types include: "project", "task", "milestone", "teamMember", "resource", "status", "priority"
 3. sessionId: Optional - The current session identifier
   - Typically provided by startsession
   - Used for tracking entity views within the session
 
 Each entity type returns specialized context information:
-- Project: Shows project status, description, timeline, budget, goal, tasks, milestones, issues, team members, risks, and task completion rate
-- Task: Displays project affiliation, status, due date, priority, assignee, description, critical path status, and task dependencies
-- Milestone: Shows project affiliation, status, date, completion criteria, description, progress percentage, days remaining, required tasks, and blocking tasks
+- Project: Shows project status (via has_status), description, timeline, budget, goal, tasks, milestones, issues, team members, risks, and task completion rate
+- Task: Displays project affiliation, status (inactive, active, complete), priority (low, high), due date, assignee, description, critical path status, task dependencies, and task sequencing (preceding and following tasks)
+- Milestone: Shows project affiliation, status (via has_status), date, completion criteria, description, progress percentage, days remaining, required tasks, and blocking tasks
 - Team Member: Displays role, skills, availability, workload, assigned tasks, projects, upcoming deadlines, and overdue tasks
 - Resource: Shows type, project affiliation, availability, capacity, cost, usage percentage, assigned tasks, and team members using the resource
+- Status: Shows all entities assigned this status value, organized by entity type
+- Priority: Shows all entities assigned this priority value, organized by entity type
 - Other Entity Types: Shows basic entity information, observations, incoming relations, and outgoing relations
+
+Status and Priority Information:
+- All entity displays include status information when available via has_status relations
+- Tasks and other prioritized elements show priority assignments via has_priority relations
+- Valid status values include: inactive, active, complete
+- Valid priority values include: high, low
+
+Sequential Task Relationships:
+- Task displays show preceding and following tasks through precedes relations
+- Sequential relationships are visualized to show workflow between tasks
+- Tasks display their position in the overall project workflow
+- Critical path information highlights essential task sequences
 
 Return information:
 - Formatted markdown text with hierarchical structure
 - Sections adapted to the specific entity type
 - Related entities shown with their relationships
 - Progress metrics and completion statistics where applicable
+- Status and priority information prominently displayed
+- Sequential relationships clearly indicated
 - Error messages if the entity doesn't exist or can't be retrieved
 
 You should:
@@ -59,6 +79,9 @@ You should:
 - Review milestone context to assess progress towards key deliverables
 - Use team member context to evaluate workload and assignments
 - Explore resource context to understand allocation and availability
+- Check status entities to see all project elements at the same stage
+- Review priority entities to identify critical project tasks
+- Explore sequential relationships to understand task workflows
 - After retrieving context, follow up on specific entities of interest
 - Use in conjunction with startsession to maintain session tracking
 - Remember that this tool only retrieves existing information; use buildcontext to add new entities 

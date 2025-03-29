@@ -39,7 +39,9 @@ const validEntityTypes = [
     'dependency', // External requirements or prerequisites
     'component', // Parts or modules of the project
     'stakeholder', // People affected by or interested in the project
-    'change' // Modifications to project scope or requirements
+    'change', // Modifications to project scope or requirements
+    'status', // Entity status values
+    'priority' // Entity priority values
 ];
 // Validation functions
 function isValidEntityType(type) {
@@ -119,8 +121,14 @@ const VALID_RELATION_TYPES = [
     'resolved_by', // Shows what resolved an issue
     'impacted_by', // Shows impact relationships
     'stakeholder_of', // Links stakeholders to projects/components
-    'prioritized_as' // Indicates priority levels
+    'prioritized_as', // Indicates priority levels
+    'has_status', // Connects an entity to its status
+    'has_priority', // Connects an entity to its priority
+    'precedes' // Indicates one entity comes before another in sequence
 ];
+// Valid status and priority values
+const VALID_STATUS_VALUES = ['active', 'completed', 'pending', 'blocked', 'cancelled'];
+const VALID_PRIORITY_VALUES = ['high', 'low'];
 // Status values for different entity types
 const STATUS_VALUES = {
     project: ['planning', 'in_progress', 'on_hold', 'completed', 'cancelled', 'archived'],
@@ -143,6 +151,89 @@ class KnowledgeGraphManager {
     }
     async saveGraph(graph) {
         await fs.writeFile(MEMORY_FILE_PATH, JSON.stringify(graph, null, 2), 'utf-8');
+    }
+    // Initialize status and priority entities
+    async initializeStatusAndPriority() {
+        const graph = await this.loadGraph();
+        // Create status entities if they don't exist
+        for (const statusValue of VALID_STATUS_VALUES) {
+            const statusName = `status:${statusValue}`;
+            if (!graph.entities.some(e => e.name === statusName && e.entityType === 'status')) {
+                graph.entities.push({
+                    name: statusName,
+                    entityType: 'status',
+                    observations: [`A ${statusValue} status value`]
+                });
+            }
+        }
+        // Create priority entities if they don't exist
+        for (const priorityValue of VALID_PRIORITY_VALUES) {
+            const priorityName = `priority:${priorityValue}`;
+            if (!graph.entities.some(e => e.name === priorityName && e.entityType === 'priority')) {
+                graph.entities.push({
+                    name: priorityName,
+                    entityType: 'priority',
+                    observations: [`A ${priorityValue} priority value`]
+                });
+            }
+        }
+        await this.saveGraph(graph);
+    }
+    // Helper method to get status of an entity
+    async getEntityStatus(entityName) {
+        const graph = await this.loadGraph();
+        // Find status relation for this entity
+        const statusRelation = graph.relations.find(r => r.from === entityName &&
+            r.relationType === 'has_status');
+        if (statusRelation) {
+            // Extract status value from the status entity name (status:value)
+            return statusRelation.to.split(':')[1];
+        }
+        return null;
+    }
+    // Helper method to get priority of an entity
+    async getEntityPriority(entityName) {
+        const graph = await this.loadGraph();
+        // Find priority relation for this entity
+        const priorityRelation = graph.relations.find(r => r.from === entityName &&
+            r.relationType === 'has_priority');
+        if (priorityRelation) {
+            // Extract priority value from the priority entity name (priority:value)
+            return priorityRelation.to.split(':')[1];
+        }
+        return null;
+    }
+    // Helper method to set status of an entity
+    async setEntityStatus(entityName, statusValue) {
+        if (!VALID_STATUS_VALUES.includes(statusValue)) {
+            throw new Error(`Invalid status value: ${statusValue}. Valid values are: ${VALID_STATUS_VALUES.join(', ')}`);
+        }
+        const graph = await this.loadGraph();
+        // Remove any existing status relations for this entity
+        graph.relations = graph.relations.filter(r => !(r.from === entityName && r.relationType === 'has_status'));
+        // Add new status relation
+        graph.relations.push({
+            from: entityName,
+            to: `status:${statusValue}`,
+            relationType: 'has_status'
+        });
+        await this.saveGraph(graph);
+    }
+    // Helper method to set priority of an entity
+    async setEntityPriority(entityName, priorityValue) {
+        if (!VALID_PRIORITY_VALUES.includes(priorityValue)) {
+            throw new Error(`Invalid priority value: ${priorityValue}. Valid values are: ${VALID_PRIORITY_VALUES.join(', ')}`);
+        }
+        const graph = await this.loadGraph();
+        // Remove any existing priority relations for this entity
+        graph.relations = graph.relations.filter(r => !(r.from === entityName && r.relationType === 'has_priority'));
+        // Add new priority relation
+        graph.relations.push({
+            from: entityName,
+            to: `priority:${priorityValue}`,
+            relationType: 'has_priority'
+        });
+        await this.saveGraph(graph);
     }
     async createEntities(entities) {
         const graph = await this.loadGraph();
@@ -1522,16 +1613,16 @@ class KnowledgeGraphManager {
             .filter(i => i.observations.find(o => o.startsWith('Status:'))?.split(':', 2)[1]?.trim() !== 'resolved' &&
             i.observations.find(o => o.startsWith('Status:'))?.split(':', 2)[1]?.trim() !== 'wont_fix')
             .sort((a, b) => {
-            const aPriority = a.observations.find(o => o.startsWith('Priority:'))?.split(':', 2)[1]?.trim() || 'medium';
-            const bPriority = b.observations.find(o => o.startsWith('Priority:'))?.split(':', 2)[1]?.trim() || 'medium';
+            const aPriority = a.observations.find(o => o.startsWith('Priority:'))?.split(':', 2)[1]?.trim() || 'N/A';
+            const bPriority = b.observations.find(o => o.startsWith('Priority:'))?.split(':', 2)[1]?.trim() || 'N/A';
             // Simple priority sorting
             if (aPriority === 'high' && bPriority !== 'high')
                 return -1;
             if (aPriority !== 'high' && bPriority === 'high')
                 return 1;
-            if (aPriority === 'medium' && bPriority === 'low')
+            if (aPriority === 'N/A' && bPriority === 'low')
                 return -1;
-            if (aPriority === 'low' && bPriority === 'medium')
+            if (aPriority === 'low' && bPriority === 'N/A')
                 return 1;
             return 0;
         })
@@ -1632,6 +1723,8 @@ class KnowledgeGraphManager {
 async function main() {
     try {
         const knowledgeGraphManager = new KnowledgeGraphManager();
+        // Initialize status and priority entities
+        await knowledgeGraphManager.initializeStatusAndPriority();
         // Create the MCP server with a name and version
         const server = new McpServer({
             name: "Context Manager",
@@ -1656,120 +1749,129 @@ async function main() {
                 // Initialize the session state
                 allSessionStates.set(sessionId, []);
                 await saveSessionStates(allSessionStates);
-                // Convert sessions map to array, sort by date, and take most recent ones
+                // Convert sessions map to array and get recent sessions
                 const recentSessions = Array.from(allSessionStates.entries())
                     .map(([id, stages]) => {
                     // Extract summary data from the first stage (if it exists)
                     const summaryStage = stages.find(s => s.stage === "summary");
                     return {
                         id,
-                        date: summaryStage?.stageData?.date || "Unknown date",
                         project: summaryStage?.stageData?.project || "Unknown project",
                         summary: summaryStage?.stageData?.summary || "No summary available"
                     };
                 })
-                    .sort((a, b) => b.date.localeCompare(a.date))
                     .slice(0, 3); // Default to 3 recent sessions
-                // Get active projects
-                const projectsQuery = await knowledgeGraphManager.searchNodes("entityType:project status:active");
-                const projects = projectsQuery.entities;
-                // Get high priority tasks
-                let highPriorityTasks = [];
-                let projectHealthData = [];
-                let projectMilestones = [];
-                let projectRisks = [];
-                // For each project, get more detailed information
-                for (const project of projects) {
-                    const projectName = project.name;
-                    // Get high priority tasks for this project
-                    const taskQuery = await knowledgeGraphManager.searchNodes(`entityType:task project:${projectName} priority:high status:active`);
-                    highPriorityTasks = [...highPriorityTasks, ...taskQuery.entities];
-                    // Get project health metrics
-                    try {
-                        const healthData = await knowledgeGraphManager.getProjectHealth(projectName);
-                        projectHealthData.push({
-                            project: projectName,
-                            health: healthData.overall.status,
-                            score: healthData.overall.score,
-                            issues: healthData.metrics.issueMetrics.count,
-                            risksCount: healthData.metrics.riskMetrics.count
-                        });
-                    }
-                    catch (error) {
-                        console.error(`Error getting health for ${projectName}:`, error);
-                    }
-                    // Get upcoming milestones
-                    try {
-                        const milestoneData = await knowledgeGraphManager.getMilestoneProgress(projectName);
-                        projectMilestones = [...projectMilestones, ...milestoneData.upcoming.map((m) => ({
-                                project: projectName,
-                                milestone: m.milestone.name,
-                                dueDate: m.dueDate,
-                                progress: m.progress
-                            }))];
-                    }
-                    catch (error) {
-                        console.error(`Error getting milestones for ${projectName}:`, error);
-                    }
-                    // Get project risks
-                    try {
-                        const riskData = await knowledgeGraphManager.getProjectRisks(projectName);
-                        projectRisks = [...projectRisks, ...riskData.risks
-                                .filter((r) => r.severity === "high")
-                                .map((r) => ({
-                                project: projectName,
-                                risk: r.risk.name,
-                                severity: r.severity,
-                                likelihood: r.likelihood,
-                                impact: r.impact
-                            }))
-                        ];
-                    }
-                    catch (error) {
-                        console.error(`Error getting risks for ${projectName}:`, error);
+                // Get all projects
+                const projectsQuery = await knowledgeGraphManager.searchNodes("entityType:project");
+                const projects = [];
+                // Filter for active projects based on has_status relation
+                for (const project of projectsQuery.entities) {
+                    const status = await knowledgeGraphManager.getEntityStatus(project.name);
+                    if (status === "active") {
+                        projects.push(project);
                     }
                 }
-                // Prepare display text for the context
-                const projectsText = projects.map(p => {
-                    const status = p.observations.find(o => o.startsWith("status:"))?.substring(7) || "Unknown";
-                    const deadline = p.observations.find(o => o.startsWith("deadline:"))?.substring(9) || "No deadline";
-                    return `- **${p.name}** (${status}): Due ${deadline}`;
-                }).join("\n");
-                const tasksText = highPriorityTasks.slice(0, 10).map(t => {
-                    const status = t.observations.find(o => o.startsWith("status:"))?.substring(7) || "Unknown";
-                    const assignee = t.observations.find(o => o.startsWith("assignee:"))?.substring(9) || "Unassigned";
-                    const project = t.observations.find(o => o.startsWith("project:"))?.substring(8) || "Unknown project";
-                    return `- **${t.name}** (${project}, ${status}, Assignee: ${assignee})`;
-                }).join("\n");
-                const milestonesText = projectMilestones.slice(0, 8).map(m => `- **${m.milestone}** (${m.project}): Due on ${m.dueDate}, ${m.progress}% complete`).join("\n");
-                const risksText = projectRisks.slice(0, 5).map(r => `- **${r.risk}** (${r.project}): Severity: ${r.severity}, Impact: ${r.impact}`).join("\n");
-                const healthText = projectHealthData.map(h => `- **${h.project}**: Health: ${h.health} (Score: ${h.score}/100), Issues: ${h.issues}, Risks: ${h.risksCount}`).join("\n");
-                const date = new Date().toISOString().split('T')[0];
+                // Get tasks
+                const taskQuery = await knowledgeGraphManager.searchNodes("entityType:task");
+                const tasks = [];
+                // Filter for high priority and active tasks
+                for (const task of taskQuery.entities) {
+                    const status = await knowledgeGraphManager.getEntityStatus(task.name);
+                    const priority = await knowledgeGraphManager.getEntityPriority(task.name);
+                    if (status === "active" && priority === "high") {
+                        tasks.push(task);
+                    }
+                }
+                // Get milestones
+                const milestoneQuery = await knowledgeGraphManager.searchNodes("entityType:milestone");
+                const milestones = [];
+                // Filter for upcoming milestones
+                for (const milestone of milestoneQuery.entities) {
+                    const status = await knowledgeGraphManager.getEntityStatus(milestone.name);
+                    if (status === "planned" || status === "approaching") {
+                        milestones.push(milestone);
+                    }
+                }
+                // Get risks
+                const riskQuery = await knowledgeGraphManager.searchNodes("entityType:risk");
+                const risks = [];
+                // Filter for high priority risks
+                for (const risk of riskQuery.entities) {
+                    const priority = await knowledgeGraphManager.getEntityPriority(risk.name);
+                    if (priority === "high") {
+                        risks.push(risk);
+                    }
+                }
+                // Prepare display text with truncated previews
+                const projectsText = await Promise.all(projects.map(async (p) => {
+                    const status = await knowledgeGraphManager.getEntityStatus(p.name) || "Unknown";
+                    const priority = await knowledgeGraphManager.getEntityPriority(p.name);
+                    const priorityText = priority ? `, Priority: ${priority}` : "";
+                    // Show truncated preview of first observation
+                    const preview = p.observations.length > 0
+                        ? `${p.observations[0].substring(0, 60)}${p.observations[0].length > 60 ? '...' : ''}`
+                        : "No description";
+                    return `- **${p.name}** (Status: ${status}${priorityText}): ${preview}`;
+                }));
+                const tasksText = await Promise.all(tasks.slice(0, 10).map(async (t) => {
+                    const status = await knowledgeGraphManager.getEntityStatus(t.name) || "Unknown";
+                    const priority = await knowledgeGraphManager.getEntityPriority(t.name) || "Unknown";
+                    const projectObs = t.observations.find(o => o.startsWith("project:"));
+                    const project = projectObs ? projectObs.substring(8) : "Unknown project";
+                    // Show truncated preview of first non-project observation
+                    const nonProjectObs = t.observations.find(o => !o.startsWith("project:"));
+                    const preview = nonProjectObs
+                        ? `${nonProjectObs.substring(0, 60)}${nonProjectObs.length > 60 ? '...' : ''}`
+                        : "No description";
+                    return `- **${t.name}** (Project: ${project}, Status: ${status}, Priority: ${priority}): ${preview}`;
+                }));
+                const milestonesText = await Promise.all(milestones.slice(0, 8).map(async (m) => {
+                    const status = await knowledgeGraphManager.getEntityStatus(m.name) || "Unknown";
+                    const projectObs = m.observations.find(o => o.startsWith("project:"));
+                    const project = projectObs ? projectObs.substring(8) : "Unknown project";
+                    // Show truncated preview of first non-project observation
+                    const nonProjectObs = m.observations.find(o => !o.startsWith("project:"));
+                    const preview = nonProjectObs
+                        ? `${nonProjectObs.substring(0, 60)}${nonProjectObs.length > 60 ? '...' : ''}`
+                        : "No description";
+                    return `- **${m.name}** (Project: ${project}, Status: ${status}): ${preview}`;
+                }));
+                const risksText = await Promise.all(risks.slice(0, 5).map(async (r) => {
+                    const priority = await knowledgeGraphManager.getEntityPriority(r.name) || "Unknown";
+                    const projectObs = r.observations.find(o => o.startsWith("project:"));
+                    const project = projectObs ? projectObs.substring(8) : "Unknown project";
+                    // Show truncated preview of first non-project observation
+                    const nonProjectObs = r.observations.find(o => !o.startsWith("project:"));
+                    const preview = nonProjectObs
+                        ? `${nonProjectObs.substring(0, 60)}${nonProjectObs.length > 60 ? '...' : ''}`
+                        : "No description";
+                    return `- **${r.name}** (Project: ${project}, Priority: ${priority}): ${preview}`;
+                }));
                 const sessionsText = recentSessions.map(s => {
-                    return `- ${s.date}: ${s.project} - ${s.summary.substring(0, 100)}${s.summary.length > 100 ? '...' : ''}`;
+                    return `- ${s.project} - ${s.summary.substring(0, 60)}${s.summary.length > 60 ? '...' : ''}`;
                 }).join("\n");
                 return {
                     content: [{
                             type: "text",
-                            text: `# Ask user to choose what to focus on in this session. Present the following options:
+                            text: `# Choose what to focus on in this session
+
+## Session ID
+\`${sessionId}\`
 
 ## Recent Project Management Sessions
 ${sessionsText || "No recent sessions found."}
 
 ## Active Projects
-${projectsText || "No active projects found."}
+${projectsText.join("\n") || "No active projects found."}
 
 ## High-Priority Tasks
-${tasksText || "No high-priority tasks found."}
+${tasksText.join("\n") || "No high-priority tasks found."}
 
 ## Upcoming Milestones
-${milestonesText || "No upcoming milestones found."}
-
-## Project Health Summary
-${healthText || "No project health data available."}
+${milestonesText.join("\n") || "No upcoming milestones found."}
 
 ## Top Project Risks
-${risksText || "No high severity risks identified."}
+${risksText.join("\n") || "No high severity risks identified."}
 
 To load specific project context, use the \`loadcontext\` tool with the project name and session ID - ${sessionId}`
                         }]
@@ -1833,83 +1935,90 @@ To load specific project context, use the \`loadcontext\` tool with the project 
                 if (entityType === "project") {
                     // Get project overview
                     const projectOverview = await knowledgeGraphManager.getProjectOverview(entityName);
-                    // Format project context message
-                    const description = projectOverview.info.description || "No description available";
-                    const startDate = projectOverview.info.startDate || "Not specified";
-                    const endDate = projectOverview.info.endDate || "Not specified";
-                    const status = projectOverview.info.status || "planning";
-                    const priority = projectOverview.info.priority || "medium";
-                    const goal = projectOverview.info.goal || "Not specified";
-                    const budget = projectOverview.info.budget || "Not specified";
+                    // Get status and priority using relation-based approach
+                    const status = await knowledgeGraphManager.getEntityStatus(entityName) || "Unknown";
+                    const priority = await knowledgeGraphManager.getEntityPriority(entityName);
+                    const priorityText = priority ? `- **Priority**: ${priority}` : "";
+                    // Format observations without truncation or pattern matching
+                    const observationsList = entity.observations.length > 0
+                        ? entity.observations.map(obs => `- ${obs}`).join("\n")
+                        : "No observations";
                     // Format tasks
-                    const tasksText = projectOverview.tasks?.map((task) => {
-                        const taskStatus = task.observations.find(o => o.startsWith('Status:'))?.split(':', 2)[1]?.trim() || 'not_started';
-                        const dueDate = task.observations.find(o => o.startsWith('DueDate:'))?.split(':', 2)[1]?.trim() || 'Not set';
-                        const description = task.observations.find(o => !o.startsWith('Status:') && !o.startsWith('DueDate:') && !o.startsWith('Priority:'));
-                        return `- **${task.name}** (Status: ${taskStatus}, Due: ${dueDate}): ${description || "No description"}`;
-                    }).join("\n") || "No tasks found";
+                    const tasksText = await Promise.all((projectOverview.tasks || []).map(async (task) => {
+                        const taskStatus = await knowledgeGraphManager.getEntityStatus(task.name) || "Unknown";
+                        const taskPriority = await knowledgeGraphManager.getEntityPriority(task.name) || "Not set";
+                        // Find the first observation that doesn't look like metadata
+                        const description = task.observations.find(o => !o.startsWith('Project:') &&
+                            !o.includes(':')) || "No description";
+                        return `- **${task.name}** (Status: ${taskStatus}, Priority: ${taskPriority}): ${description}`;
+                    }));
                     // Format milestones
-                    const milestonesText = projectOverview.milestones?.map((milestone) => {
-                        const status = milestone.observations.find(o => o.startsWith('Status:'))?.split(':', 2)[1]?.trim() || 'planned';
-                        const date = milestone.observations.find(o => o.startsWith('Date:'))?.split(':', 2)[1]?.trim() || 'Not set';
-                        const description = milestone.observations.find(o => !o.startsWith('Status:') && !o.startsWith('Date:'));
-                        return `- **${milestone.name}** (Status: ${status}, Date: ${date}): ${description || "No description"}`;
-                    }).join("\n") || "No milestones found";
+                    const milestonesText = await Promise.all((projectOverview.milestones || []).map(async (milestone) => {
+                        const milestoneStatus = await knowledgeGraphManager.getEntityStatus(milestone.name) || "Unknown";
+                        // Find the first observation that doesn't look like metadata
+                        const description = milestone.observations.find(o => !o.startsWith('Project:') &&
+                            !o.includes(':')) || "No description";
+                        return `- **${milestone.name}** (Status: ${milestoneStatus}): ${description}`;
+                    }));
                     // Format issues
-                    const issuesText = projectOverview.issues?.map((issue) => {
-                        const status = issue.observations.find(o => o.startsWith('Status:'))?.split(':', 2)[1]?.trim() || 'identified';
-                        const priority = issue.observations.find(o => o.startsWith('Priority:'))?.split(':', 2)[1]?.trim() || 'medium';
-                        const description = issue.observations.find(o => !o.startsWith('Status:') && !o.startsWith('Priority:'));
-                        return `- **${issue.name}** (Status: ${status}, Priority: ${priority}): ${description || "No description"}`;
-                    }).join("\n") || "No issues found";
+                    const issuesText = await Promise.all((projectOverview.issues || []).map(async (issue) => {
+                        const issueStatus = await knowledgeGraphManager.getEntityStatus(issue.name) || "Unknown";
+                        const issuePriority = await knowledgeGraphManager.getEntityPriority(issue.name) || "Not set";
+                        // Find the first observation that doesn't look like metadata
+                        const description = issue.observations.find(o => !o.startsWith('Project:') &&
+                            !o.includes(':')) || "No description";
+                        return `- **${issue.name}** (Status: ${issueStatus}, Priority: ${issuePriority}): ${description}`;
+                    }));
                     // Format team members
-                    const teamMembersText = projectOverview.teamMembers?.map((member) => {
+                    const teamMembersText = (projectOverview.teamMembers || []).map((member) => {
                         const role = member.observations.find(o => o.startsWith('Role:'))?.split(':', 2)[1]?.trim() || 'Not specified';
                         return `- **${member.name}** (Role: ${role})`;
                     }).join("\n") || "No team members found";
                     // Format risks
-                    const risksText = projectOverview.risks?.map((risk) => {
-                        const status = risk.observations.find(o => o.startsWith('Status:'))?.split(':', 2)[1]?.trim() || 'identified';
-                        const description = risk.observations.find(o => !o.startsWith('Status:') && !o.startsWith('Likelihood:') && !o.startsWith('Impact:'));
-                        return `- **${risk.name}** (Status: ${status}): ${description || "No description"}`;
-                    }).join("\n") || "No risks found";
+                    const risksText = await Promise.all((projectOverview.risks || []).map(async (risk) => {
+                        const riskStatus = await knowledgeGraphManager.getEntityStatus(risk.name) || "Unknown";
+                        const riskPriority = await knowledgeGraphManager.getEntityPriority(risk.name) || "Not set";
+                        // Find the first observation that doesn't look like metadata
+                        const description = risk.observations.find(o => !o.startsWith('Project:') &&
+                            !o.includes(':')) || "No description";
+                        return `- **${risk.name}** (Status: ${riskStatus}, Priority: ${riskPriority}): ${description}`;
+                    }));
                     contextMessage = `# Project Context: ${entityName}
 
-## Project Details
-- **Description**: ${description}
+## Project Overview
 - **Status**: ${status}
-- **Priority**: ${priority}
-- **Timeline**: ${startDate} to ${endDate}
-- **Goal**: ${goal}
-- **Budget**: ${budget}
-- **Progress**: ${projectOverview.summary.taskCompletionRate || 0}% of tasks completed
+${priorityText}
+
+## Observations
+${observationsList}
 
 ## Tasks (${projectOverview.summary.completedTasks || 0}/${projectOverview.summary.taskCount || 0} completed)
-${tasksText}
+${tasksText.join("\n") || "No tasks found"}
 
 ## Milestones
-${milestonesText}
+${milestonesText.join("\n") || "No milestones found"}
 
 ## Issues
-${issuesText}
+${issuesText.join("\n") || "No issues found"}
 
 ## Team Members
 ${teamMembersText}
 
 ## Risks
-${risksText}`;
+${risksText.join("\n") || "No risks found"}`;
                 }
                 else if (entityType === "task") {
                     // Get task dependencies and information
                     const taskDependencies = await knowledgeGraphManager.getTaskDependencies(entityName);
                     // Get project name
                     const projectName = taskDependencies.projectName || "Unknown project";
-                    // Format task context
-                    const task = taskDependencies.task;
-                    const status = task.observations.find((o) => o.startsWith('Status:'))?.split(':', 2)[1]?.trim() || 'not_started';
-                    const dueDate = task.observations.find((o) => o.startsWith('DueDate:'))?.split(':', 2)[1]?.trim() || 'Not set';
-                    const priority = task.observations.find((o) => o.startsWith('Priority:'))?.split(':', 2)[1]?.trim() || 'medium';
-                    const description = task.observations.find((o) => !o.startsWith('Status:') && !o.startsWith('DueDate:') && !o.startsWith('Priority:'));
+                    // Get status and priority using relation-based approach
+                    const status = await knowledgeGraphManager.getEntityStatus(entityName) || "Unknown";
+                    const priority = await knowledgeGraphManager.getEntityPriority(entityName) || "Not set";
+                    // Format observations without truncation or pattern matching
+                    const observationsList = entity.observations.length > 0
+                        ? entity.observations.map(obs => `- ${obs}`).join("\n")
+                        : "No observations";
                     // Get assignee if available
                     let assigneeText = "No assignee";
                     for (const relation of entityGraph.relations) {
@@ -1921,17 +2030,39 @@ ${risksText}`;
                             }
                         }
                     }
-                    // Format dependencies
-                    const dependsOnText = taskDependencies.dependencies
-                        .filter((dep) => dep.task.name !== entityName && dep.dependsOn.includes(entityName))
-                        .map((dep) => {
-                        return `- **${dep.task.name}** (Status: ${dep.status}): This task depends on ${entityName}`;
-                    }).join("\n") || "No tasks depend on this task";
-                    const dependedOnByText = taskDependencies.dependencies
-                        .filter((dep) => dep.task.name !== entityName && dep.dependedOnBy.includes(entityName))
-                        .map((dep) => {
-                        return `- **${dep.task.name}** (Status: ${dep.status}): ${entityName} depends on this task`;
-                    }).join("\n") || "This task doesn't depend on other tasks";
+                    // Get precedes/follows relations to show task sequence
+                    const precedesRelations = entityGraph.relations.filter(r => r.relationType === 'precedes' && r.from === entityName);
+                    const followsRelations = entityGraph.relations.filter(r => r.relationType === 'precedes' && r.to === entityName);
+                    const precedesText = precedesRelations.length > 0
+                        ? precedesRelations.map(r => `- **${r.to}**`).join("\n")
+                        : "No tasks follow this task";
+                    const followsText = followsRelations.length > 0
+                        ? followsRelations.map(r => `- **${r.from}**`).join("\n")
+                        : "No tasks precede this task";
+                    // Process dependency information
+                    const dependsOnTasks = [];
+                    const dependedOnByTasks = [];
+                    for (const dep of taskDependencies.dependencies) {
+                        if (dep.task.name !== entityName) {
+                            if (dep.dependsOn.includes(entityName)) {
+                                dependsOnTasks.push(dep.task);
+                            }
+                            if (dep.dependedOnBy.includes(entityName)) {
+                                dependedOnByTasks.push(dep.task);
+                            }
+                        }
+                    }
+                    // Format dependencies with async status lookup
+                    const dependsOnPromises = dependsOnTasks.map(async (task) => {
+                        const depStatus = await knowledgeGraphManager.getEntityStatus(task.name) || "Unknown";
+                        return `- **${task.name}** (Status: ${depStatus}): This task depends on ${entityName}`;
+                    });
+                    const dependedOnByPromises = dependedOnByTasks.map(async (task) => {
+                        const depStatus = await knowledgeGraphManager.getEntityStatus(task.name) || "Unknown";
+                        return `- **${task.name}** (Status: ${depStatus}): ${entityName} depends on this task`;
+                    });
+                    const dependsOnText = (await Promise.all(dependsOnPromises)).join("\n") || "No tasks depend on this task";
+                    const dependedOnByText = (await Promise.all(dependedOnByPromises)).join("\n") || "This task doesn't depend on other tasks";
                     // Determine if task is on critical path
                     const onCriticalPath = taskDependencies.criticalPath?.includes(entityName);
                     const criticalPathText = onCriticalPath ?
@@ -1939,19 +2070,28 @@ ${risksText}`;
                         "This task is not on the critical path.";
                     contextMessage = `# Task Context: ${entityName}
 
-## Task Details
+## Task Overview
 - **Project**: ${projectName}
 - **Status**: ${status}
-- **Due Date**: ${dueDate}
 - **Priority**: ${priority}
 - **Assignee**: ${assigneeText}
-- **Description**: ${description || "No description available"}
 - **Critical Path**: ${criticalPathText}
 
-## Tasks That Depend On This Task
+## Observations
+${observationsList}
+
+## Task Sequencing
+### Tasks That Follow This Task
+${precedesText}
+
+### Tasks That Precede This Task
+${followsText}
+
+## Task Dependencies
+### Tasks That Depend On This Task
 ${dependsOnText}
 
-## Tasks This Task Depends On
+### Tasks This Task Depends On
 ${dependedOnByText}`;
                 }
                 else if (entityType === "milestone") {
@@ -2234,10 +2374,7 @@ ${outgoingText}`;
             const newTasksStage = stages.find(s => s.stage === "newTasks");
             const projectStatusStage = stages.find(s => s.stage === "projectStatus");
             const riskUpdatesStage = stages.find(s => s.stage === "riskUpdates");
-            // Get current date
-            const date = new Date().toISOString().split('T')[0];
             return {
-                date,
                 summary: summaryStage?.stageData?.summary || "",
                 duration: summaryStage?.stageData?.duration || "unknown",
                 project: summaryStage?.stageData?.project || "",
@@ -2314,7 +2451,7 @@ ${outgoingText}`;
             nextStageNeeded: z.boolean().describe("Whether additional stages are needed after this one (false for final stage)"),
             isRevision: z.boolean().optional().describe("Whether this is revising a previous stage"),
             revisesStage: z.number().int().positive().optional().describe("If revising, which stage number is being revised")
-        }, async (params) => {
+        }, async (params, extra) => {
             try {
                 // Load session states from persistent storage
                 const sessionStates = await loadSessionStates();
@@ -2374,7 +2511,6 @@ ${outgoingText}`;
                     const args = stageResult.stageData;
                     try {
                         // Parse arguments
-                        const date = args.date;
                         const summary = args.summary;
                         const duration = args.duration;
                         const project = args.project;
@@ -2384,12 +2520,169 @@ ${outgoingText}`;
                         const projectObservation = args.projectObservation;
                         const newTasks = args.newTasks ? JSON.parse(args.newTasks) : [];
                         const riskUpdates = args.riskUpdates ? JSON.parse(args.riskUpdates) : [];
-                        // No longer create session entity since we use persistent storage
+                        // Create a timestamp to use for entity naming
+                        const timestamp = new Date().getTime().toString();
+                        // Create achievement entities and link them to the project
+                        const achievementEntities = await Promise.all(achievements.map(async (achievement, index) => {
+                            const achievementName = `achievement_${timestamp}_${index}`;
+                            await knowledgeGraphManager.createEntities([{
+                                    name: achievementName,
+                                    entityType: 'decision',
+                                    observations: [achievement],
+                                    embedding: undefined
+                                }]);
+                            await knowledgeGraphManager.createRelations([{
+                                    from: achievementName,
+                                    to: project,
+                                    relationType: 'part_of',
+                                    observations: []
+                                }]);
+                            return achievementName;
+                        }));
+                        // Update task statuses using entity-relation approach
+                        await Promise.all(taskUpdates.map(async (taskUpdate) => {
+                            try {
+                                // Map task status to standard values
+                                let standardStatus = taskUpdate.status;
+                                if (taskUpdate.status === 'completed' || taskUpdate.status === 'done' || taskUpdate.status === 'finished') {
+                                    standardStatus = 'completed';
+                                }
+                                else if (taskUpdate.status === 'in_progress' || taskUpdate.status === 'ongoing' || taskUpdate.status === 'started') {
+                                    standardStatus = 'active';
+                                }
+                                else if (taskUpdate.status === 'not_started' || taskUpdate.status === 'planned' || taskUpdate.status === 'upcoming') {
+                                    standardStatus = 'inactive';
+                                }
+                                // Update the task status using the entity-relation approach
+                                await knowledgeGraphManager.setEntityStatus(taskUpdate.name, standardStatus);
+                                // If the task is completed, link it to the current session
+                                if (standardStatus === 'completed') {
+                                    await knowledgeGraphManager.createRelations([{
+                                            from: params.sessionId,
+                                            to: taskUpdate.name,
+                                            relationType: 'resolves',
+                                            observations: []
+                                        }]);
+                                }
+                                // Add progress as an observation if provided
+                                if (taskUpdate.progress) {
+                                    await knowledgeGraphManager.addObservations(taskUpdate.name, [`Progress: ${taskUpdate.progress}`]);
+                                }
+                            }
+                            catch (error) {
+                                console.error(`Error updating task ${taskUpdate.name}: ${error}`);
+                            }
+                        }));
+                        // Update project status if specified
+                        if (project && projectStatus) {
+                            try {
+                                // Map project status to standard values
+                                let standardStatus = projectStatus;
+                                if (projectStatus === 'completed' || projectStatus === 'done' || projectStatus === 'finished') {
+                                    standardStatus = 'completed';
+                                }
+                                else if (projectStatus === 'in_progress' || projectStatus === 'ongoing' || projectStatus === 'active') {
+                                    standardStatus = 'active';
+                                }
+                                else if (projectStatus === 'not_started' || projectStatus === 'planned' || projectStatus === 'upcoming') {
+                                    standardStatus = 'inactive';
+                                }
+                                // Update the project status using the entity-relation approach
+                                await knowledgeGraphManager.setEntityStatus(project, standardStatus);
+                                // Add project observation if provided
+                                if (projectObservation) {
+                                    await knowledgeGraphManager.addObservations(project, [projectObservation]);
+                                }
+                            }
+                            catch (error) {
+                                console.error(`Error updating project ${project}: ${error}`);
+                            }
+                        }
+                        // Create new tasks with specified attributes
+                        const newTaskEntities = await Promise.all(newTasks.map(async (task) => {
+                            try {
+                                // Create the task entity
+                                await knowledgeGraphManager.createEntities([{
+                                        name: task.name,
+                                        entityType: 'task',
+                                        observations: [
+                                            task.description ? `Description: ${task.description}` : 'No description'
+                                        ],
+                                        embedding: undefined
+                                    }]);
+                                // Set task priority using entity-relation approach
+                                const priority = task.priority || 'N/A';
+                                await knowledgeGraphManager.setEntityPriority(task.name, priority);
+                                // Set task status to active by default using entity-relation approach
+                                await knowledgeGraphManager.setEntityStatus(task.name, 'active');
+                                // Link the task to the project
+                                await knowledgeGraphManager.createRelations([{
+                                        from: task.name,
+                                        to: project,
+                                        relationType: 'part_of',
+                                        observations: []
+                                    }]);
+                                // Handle task sequencing if specified
+                                if (task.precedes) {
+                                    await knowledgeGraphManager.createRelations([{
+                                            from: task.name,
+                                            to: task.precedes,
+                                            relationType: 'precedes',
+                                            observations: []
+                                        }]);
+                                }
+                                if (task.follows) {
+                                    await knowledgeGraphManager.createRelations([{
+                                            from: task.follows,
+                                            to: task.name,
+                                            relationType: 'precedes',
+                                            observations: []
+                                        }]);
+                                }
+                                return task.name;
+                            }
+                            catch (error) {
+                                console.error(`Error creating task ${task.name}: ${error}`);
+                                return null;
+                            }
+                        }));
+                        // Process risk updates
+                        await Promise.all(riskUpdates.map(async (risk) => {
+                            try {
+                                // Try to find the risk entity, create it if it doesn't exist
+                                const riskEntity = (await knowledgeGraphManager.openNodes([risk.name])).entities
+                                    .find(e => e.name === risk.name && e.entityType === 'risk');
+                                if (!riskEntity) {
+                                    // Create new risk entity
+                                    await knowledgeGraphManager.createEntities([{
+                                            name: risk.name,
+                                            entityType: 'risk',
+                                            observations: [],
+                                            embedding: undefined
+                                        }]);
+                                    // Link it to the project
+                                    await knowledgeGraphManager.createRelations([{
+                                            from: risk.name,
+                                            to: project,
+                                            relationType: 'part_of',
+                                            observations: []
+                                        }]);
+                                }
+                                // Update risk status using entity-relation approach
+                                await knowledgeGraphManager.setEntityStatus(risk.name, risk.status);
+                                // Add risk observation if provided
+                                if (risk.impact) {
+                                    await knowledgeGraphManager.addObservations(risk.name, [`Impact: ${risk.impact}`, `Probability: ${risk.probability}`]);
+                                }
+                            }
+                            catch (error) {
+                                console.error(`Error updating risk ${risk.name}: ${error}`);
+                            }
+                        }));
                         // Record session completion in persistent storage
                         sessionState.push({
                             type: 'session_completed',
                             timestamp: new Date().toISOString(),
-                            date: date,
                             summary: summary,
                             project: project
                         });
@@ -2398,7 +2691,7 @@ ${outgoingText}`;
                         // Prepare the summary message
                         const summaryMessage = `# Project Session Recorded
 
-I've recorded your project session from ${date} focusing on ${project}.
+I've recorded your project session focusing on ${project}.
 
 ## Decisions Documented
 ${achievements.map((a) => `- ${a}`).join('\n') || "No decisions recorded."}
@@ -2410,7 +2703,7 @@ ${taskUpdates.map((t) => `- ${t.name}: ${t.status}${t.progress ? ` (Progress: ${
 Project ${project} has been updated to: ${projectStatus}
 
 ${newTasks && newTasks.length > 0 ? `## New Tasks Added
-${newTasks.map((t) => `- ${t.name}: ${t.description} (Priority: ${t.priority || "medium"})`).join('\n')}` : "No new tasks added."}
+${newTasks.map((t) => `- ${t.name}: ${t.description} (Priority: ${t.priority || "N/A"})`).join('\n')}` : "No new tasks added."}
 
 ${riskUpdates && riskUpdates.length > 0 ? `## Risk Updates
 ${riskUpdates.map((r) => `- ${r.name}: Status ${r.status} (Impact: ${r.impact}, Probability: ${r.probability})`).join('\n')}` : "No risk updates."}

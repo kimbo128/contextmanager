@@ -1,5 +1,3 @@
-Advanced Context Tool for Project Management
-
 A sophisticated query tool for exploring, analyzing, and retrieving complex information from the project management knowledge graph.
 
 When to use this tool:
@@ -15,9 +13,12 @@ When to use this tool:
 - Finding connections between related projects
 - Reviewing decision logs and project governance
 - Evaluating overall project health and status
+- Filtering entities by status values (inactive, active, complete)
+- Finding high-priority tasks and activities
+- Analyzing sequential relationships between tasks
 
 Key features:
-- Offers 13 specialized operations for querying different aspects of project management data
+- Offers specialized operations for querying different aspects of project management data
 - Retrieves complete or filtered views of the project knowledge graph
 - Provides flexible search capabilities across all project entities
 - Supports detailed exploration of specific entities by name
@@ -31,10 +32,13 @@ Key features:
 - Finds relationships between projects for portfolio management
 - Records and retrieves decision logs for governance
 - Assesses project health with key performance indicators
+- Filters entities by status via has_status relations
+- Identifies high-priority items via has_priority relations
+- Analyzes task sequencing through precedes relations
 
 Parameters explained:
 1. type: The type of query operation to perform
-  - Accepts one of 13 specialized operations: "graph", "search", "nodes", "project", "dependencies", "assignments", "milestones", "timeline", "resources", "risks", "related", "decisions", or "health"
+  - Accepts one of the specialized operations: "graph", "search", "nodes", "project", "dependencies", "assignments", "milestones", "timeline", "resources", "risks", "related", "decisions", "health", "status", "priority", "sequence"
   - Determines how the params parameter is interpreted
 2. params: Operation-specific parameters (structure varies by type):
   - For "graph": No parameters needed (retrieves the full project knowledge graph)
@@ -66,6 +70,12 @@ Parameters explained:
     * projectName: Project name to retrieve decision log for
   - For "health": Object containing:
     * projectName: Project name to assess health for
+  - For "status": Object containing:
+    * statusValue: The status value to filter by (e.g., "inactive", "active", "complete")
+  - For "priority": Object containing:
+    * priorityValue: The priority value to filter by (e.g., "high", "low")
+  - For "sequence": Object containing:
+    * taskName: Name of the task to analyze sequential relationships for
 
 Operation details:
 - graph: Returns the complete project knowledge graph with all entities and relationships
@@ -81,6 +91,22 @@ Operation details:
 - related: Finds connections between projects for portfolio management
 - decisions: Retrieves decision log for project governance and audit
 - health: Assesses project health with key performance indicators and metrics
+- status: Retrieves all entities with a specific status value (inactive, active, complete)
+- priority: Retrieves all entities with a specific priority value (high, low)
+- sequence: Identifies sequential relationships for tasks, showing preceding and following tasks
+
+Status and Priority Information:
+- Status queries return entities organized by their current state in the project lifecycle
+- Priority queries help identify critical project tasks and elements
+- Status values include: inactive, active, complete
+- Priority values include: high, low
+- Status and priority are assigned through has_status and has_priority relations
+
+Sequential Task Information:
+- Sequence queries identify tasks that come before or after in a project workflow
+- Sequential relationships help visualize the project workflow and dependencies
+- The sequence operation shows both incoming and outgoing precedes relations
+- Task sequences are critical for project planning and critical path identification
 
 Return information:
 - success: Boolean indicating whether the operation succeeded
@@ -89,6 +115,8 @@ Return information:
   * results: For search operations
   * nodes: For specific entity retrieval
   * project/dependencies/assignments/etc.: For specialized views
+  * status/priority: Lists of entities with specified status/priority values
+  * sequence: Preceding and following tasks in project workflows
 
 You should:
 - Start with broad queries ("graph", "search") to explore your project portfolio
@@ -102,4 +130,7 @@ You should:
 - Find relationships between projects for portfolio-level insights
 - Review decision logs for governance and accountability
 - Assess project health regularly with the health operation
+- Use status queries to filter entities by their current state
+- Use priority queries to focus on high-priority items
+- Use sequence queries to understand task workflows and dependencies
 - Combine multiple operations to build comprehensive project dashboards 

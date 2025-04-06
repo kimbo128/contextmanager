@@ -350,8 +350,9 @@ In Claude Desktop, configure the Context Manager in settings:
    ```
    Solution: Ensure you're using the correct status values for the specific domain.
 
-### Next Steps
+## Next Steps
 - Replace JSON for YAML for 20-30% improvement in token efficiency
+- Explore Knowledge Graphs in Markdown
 
 ## Versioning
 

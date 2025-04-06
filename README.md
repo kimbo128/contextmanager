@@ -350,13 +350,8 @@ In Claude Desktop, configure the Context Manager in settings:
    ```
    Solution: Ensure you're using the correct status values for the specific domain.
 
-### Debugging
-
-For detailed logging, use the `--debug` flag:
-
-```bash
-npx github:tejpalvirk/contextmanager --debug
-```
+### Next Steps
+- Replace JSON for YAML for 20-30% improvement in token efficiency
 
 ## Versioning
 

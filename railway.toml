@@ -1,9 +1,8 @@
 [build]
 builder = "nixpacks"
-nixpacksConfigPath = "nixpacks.toml"
 
 [deploy]
-startCommand = "node server.js"
+startCommand = "npm install && npm run build && node server.js"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"

@@ -1,0 +1,14 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "cd project && node project_index.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+
+[env]
+NODE_ENV = "production"
+PORT = "8080"
+MEMORY_FILE_PATH = "/app/data/project-memory.json"
+SESSIONS_FILE_PATH = "/app/data/project-sessions.json"

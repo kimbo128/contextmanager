@@ -1,54 +1,46 @@
 {
-  "name": "contextmanager",
+  "name": "contextmanager-railway",
   "version": "1.0.0",
-  "description": "MCP Server implementations for various domains",
-  "type": "module",
-  "bin": {
-    "mcp-server-contextmanager": "./dist/main/index.js"
-  },
-  "files": [
-    "dist",
-    "README.md"
-  ],
-  "workspaces": [
-    "main"
-  ],
+  "description": "MCP Server implementations for various domains - Railway deployment",
+  "main": "server.js",
   "scripts": {
-    "build": "tsc && shx chmod +x dist/main/index.js && cp -r main/descriptions dist/main/",
-    "prepare": "npm run build",
-    "start": "node dist/main/index.js"
+    "start": "node server.js",
+    "build": "npm install",
+    "dev": "node main/index.js",
+    "railway:deploy": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tejpalvirk/contextmanager.git"
+    "url": "git+https://github.com/kimbo128/contextmanager.git"
   },
   "keywords": [
     "mcp",
     "claude",
-    "context"
+    "context",
+    "railway",
+    "project-management"
   ],
-  "author": "tejpalvirk",
+  "author": "kimbo128",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tejpalvirk/contextmanager/issues"
+    "url": "https://github.com/kimbo128/contextmanager/issues"
   },
-  "homepage": "https://github.com/tejpalvirk/contextmanager#readme",
+  "homepage": "https://github.com/kimbo128/contextmanager#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
     "zod": "^3.22.4",
     "yargs": "^17.7.2",
-    "chalk": "^5.3.0"
+    "chalk": "^5.3.0",
+    "express": "^4.18.2"
   },
-  "bundledDependencies": [
-    "@modelcontextprotocol/sdk",
-    "zod",
-    "yargs",
-    "chalk"
-  ],
   "devDependencies": {
     "@types/node": "^18.15.3",
     "@types/yargs": "^17.0.33",
     "shx": "^0.3.4",
     "typescript": "^5.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }

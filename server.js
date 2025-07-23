@@ -45,7 +45,7 @@ app.post('/mcp', express.json(), (req, res) => {
 });
 
 // Start the MCP Server as a subprocess (updated path for TypeScript build)
-const mcpServer = spawn('node', ['dist/project/project_index.js'], {
+const mcpServer = spawn('node', ['dist/main/index.js', '--domains', 'project'], {
   stdio: ['pipe', 'pipe', 'pipe'],
   env: {
     ...process.env,

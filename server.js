@@ -5,6 +5,7 @@ import path from 'path';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+console.log(process.env.DATABASE_URL ? "📦 Using PostgreSQL store" : "💾 Using memory file store");
 
 // Ensure data directory exists
 const dataDir = '/app/data';
